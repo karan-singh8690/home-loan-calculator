@@ -147,3 +147,23 @@ Stage Summary:
 - Affiliate CTAs: Compare Home Loan Rates, Talk to a Loan Expert, See Balance Transfer Offers.
 - Mode toggle hidden on prepayment view (V1 tenure-only); still available on reduce-emi-vs-tenure view.
 - Lint clean, TypeScript clean, VLM-verified visual design with no issues.
+
+---
+Task ID: phase4-ux-share
+Agent: main (Z.ai Code)
+Task: Phase 4 — Calculator UX & Shareable URL Expansion. Enhanced input system (EMI auto-calc display, prepayment mode selector with Start Month/Year), lib/amortization.ts facade, Phase 4 shareable URL format, Effective Savings % card, 6+6 row amortization preview with Opening/Closing Balance columns, lead-gen with Name + Current Loan Balance Range, 4-card affiliate section, Copy Share Link button.
+
+Work Log:
+- Created `src/lib/amortization.ts` — facade over the existing engine (`mortgage.ts`) exposing the Phase 4 API: `calculateEMI()`, `generateBaselineSchedule()`, `generateMonthlyExtraSchedule()`, `generateLumpSumSchedule()`, `compareSchedules()`. Returns first12Rows/last12Rows and effectiveSavingsPct. V1 is tenure-only; EMI mode is designed-for but not exposed.
+- Extended `src/hooks/use-url-state.ts` to support Phase 4 param format (`mode`, `amount`, `rate`, `tenureYears`, `tenureMonths`, `emi`, `extra`, `startMonth`, `lump`, `lumpMonth`) with backward-compat for legacy params. Added `buildShareUrl()` for the Copy Share Link button.
+- Updated `calculator-form.tsx`: EMI field now shows "Calculated EMI: ₹XX,XXX"; prepayment type relabeled to "Prepayment mode" (Monthly Extra EMI / Lump Sum / Both); monthly mode shows "Extra Amount" with "Effective EMI: ₹XX,XXX/mo" hint + Start Month (1-12) + Start Year fields; lump mode shows "Lump Sum Amount" + "Apply after X months"; added "Share link" button alongside Reset and Copy results.
+- Updated `results-section.tsx`: added "Effective Savings" card showing percentage reduction in total interest (e.g. "40.2% less interest over the life of the loan").
+- Updated `amortization-table.tsx`: added `variant="preview"` — 6 first + 6 last rows, 7 columns (Month, Opening Balance, EMI, Interest, Principal, Prepayment, Closing Balance) per spec.
+- Updated `email-capture.tsx`: added Name field, Current Loan Balance Range select (6 ranges from Under ₹10L to Above ₹1Cr), CTA "Get My Full Prepayment Report".
+- Updated Prisma schema (`EmailLead`): added `name` and `loanBalanceRange` fields. Updated API route to accept and persist them.
+- Updated `affiliate-section.tsx` to 4 cards: Compare Home Loan Rates, Explore Balance Transfer Offers, Talk to a Loan Expert, Check Refinancing Savings (4-col grid on desktop).
+- Updated `page.tsx`: uses `calculateEMI` from amortization facade; computes `effectiveSavingsPct`; syncs URL with Phase 4 param format; added `handleCopyShareLink` handler; passes `effectiveSavingsPct` to ResultsSection, `variant="preview"` to AmortizationTable, `onCopyShareLink` to CalculatorForm. Fixed `emi=0` URL param to mean auto-calculate (not manual 0).
+- Verified end-to-end: monthly URL (?mode=monthly&amount=5000000&rate=8.5&tenureYears=20&emi=0&extra=10000&startMonth=1) → EMI auto-calced ₹43,391, Effective EMI ₹53,391, interest saved ₹21,78,722, 40.2% effective savings, 7yr 2mo sooner. Lump URL (?mode=lump&...&lump=1000000&lumpMonth=24) → ₹24,39,612 saved, 6yr 8mo sooner. Lead-gen API verified saving name + city + loanBalanceRange to DB. All 4 affiliate cards present.
+
+Stage Summary:
+- Phase 4 complete. lib/amortization.ts facade created with all 5 spec functions, reusing the existing engine math. Phase 4 shareable URLs work (read + write + Copy Share Link). Enhanced inputs: EMI auto-calc display, mode selector, Start Month/Year, Effective EMI. Results: Effective Savings % card. Amortization: 6+6 preview with Opening/Closing Balance columns. Lead-gen: Name + Email/Phone + City + Loan Balance Range + "Get My Full Prepayment Report". Affiliate: 4 cards. Lint clean, TypeScript clean.

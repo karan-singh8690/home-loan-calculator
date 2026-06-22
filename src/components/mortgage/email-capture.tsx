@@ -1,12 +1,19 @@
 "use client";
 
 import * as React from "react";
-import { Mail, Send, CheckCircle2, Loader2, MapPin, Phone } from "lucide-react";
+import { Mail, Send, CheckCircle2, Loader2, MapPin, Phone, User, Wallet } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Card,
   CardContent,
@@ -21,11 +28,22 @@ interface EmailCaptureProps {
   result: MortgageResult;
 }
 
+const LOAN_BALANCE_RANGES = [
+  "Under ₹10 Lakh",
+  "₹10 L – ₹25 L",
+  "₹25 L – ₹50 L",
+  "₹50 L – ₹75 L",
+  "₹75 L – ₹1 Cr",
+  "Above ₹1 Crore",
+];
+
 type Status = "idle" | "loading" | "success" | "error";
 
 export function EmailCapture({ result }: EmailCaptureProps) {
+  const [name, setName] = React.useState("");
   const [contact, setContact] = React.useState("");
   const [city, setCity] = React.useState("");
+  const [loanRange, setLoanRange] = React.useState("");
   const [status, setStatus] = React.useState<Status>("idle");
   const [message, setMessage] = React.useState("");
 
@@ -55,7 +73,9 @@ export function EmailCapture({ result }: EmailCaptureProps) {
     setStatus("loading");
     try {
       const payload: Record<string, unknown> = {
+        name: name.trim() || undefined,
         city: city.trim() || undefined,
+        loanBalanceRange: loanRange || undefined,
         summary: {
           monthsSaved: result.monthsSaved,
           totalInterestSaved: result.totalInterestSaved,
@@ -78,10 +98,12 @@ export function EmailCapture({ result }: EmailCaptureProps) {
       }
       setStatus("success");
       setMessage(
-        "Thanks! We'll email you a detailed PDF/CSV report of your amortization schedule and share options to reduce your home-loan tenure and interest."
+        "Thanks! We'll email you a detailed PDF/CSV report of your prepayment schedule and share options to reduce your home-loan tenure and interest."
       );
+      setName("");
       setContact("");
       setCity("");
+      setLoanRange("");
     } catch (err) {
       setStatus("error");
       setMessage(
@@ -104,7 +126,7 @@ export function EmailCapture({ result }: EmailCaptureProps) {
           </span>
           <div>
             <CardTitle className="text-base">
-              Get your full amortization schedule
+              Get your full prepayment report
             </CardTitle>
             <CardDescription className="text-xs">
               We&rsquo;ll email a detailed PDF/CSV report and share options to
@@ -144,6 +166,26 @@ export function EmailCapture({ result }: EmailCaptureProps) {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3">
+            {/* Name */}
+            <div className="space-y-1.5">
+              <Label htmlFor="lead-name" className="text-sm font-medium">
+                Name
+              </Label>
+              <div className="relative">
+                <User className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2" />
+                <Input
+                  id="lead-name"
+                  type="text"
+                  placeholder="Your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  aria-label="Name"
+                  className="h-11 pl-9"
+                />
+              </div>
+            </div>
+
+            {/* Email or phone */}
             <div className="space-y-1.5">
               <Label htmlFor="contact" className="text-sm font-medium">
                 Email or phone
@@ -168,23 +210,46 @@ export function EmailCapture({ result }: EmailCaptureProps) {
                 />
               </div>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="city" className="text-sm font-medium">
-                City <span className="text-muted-foreground font-normal">(optional)</span>
-              </Label>
-              <div className="relative">
-                <MapPin className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2" />
-                <Input
-                  id="city"
-                  type="text"
-                  placeholder="Mumbai"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  aria-label="City (optional)"
-                  className="h-11 pl-9"
-                />
+
+            {/* City + Current Loan Balance Range */}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="lead-city" className="text-sm font-medium">
+                  City <span className="text-muted-foreground font-normal">(optional)</span>
+                </Label>
+                <div className="relative">
+                  <MapPin className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2" />
+                  <Input
+                    id="lead-city"
+                    type="text"
+                    placeholder="Mumbai"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    aria-label="City (optional)"
+                    className="h-11 pl-9"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="loan-range" className="text-sm font-medium">
+                  Current loan balance <span className="text-muted-foreground font-normal">(optional)</span>
+                </Label>
+                <Select value={loanRange} onValueChange={setLoanRange}>
+                  <SelectTrigger id="loan-range" className="h-11 w-full">
+                    <Wallet className="text-muted-foreground mr-1 size-4" />
+                    <SelectValue placeholder="Select range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LOAN_BALANCE_RANGES.map((r) => (
+                      <SelectItem key={r} value={r}>
+                        {r}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
+
             <Button
               type="submit"
               disabled={status === "loading"}
@@ -198,7 +263,7 @@ export function EmailCapture({ result }: EmailCaptureProps) {
               ) : (
                 <>
                   <Send className="size-4" />
-                  Send My Report
+                  Get My Full Prepayment Report
                 </>
               )}
             </Button>

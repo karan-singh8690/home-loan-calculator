@@ -10,6 +10,7 @@ import {
   type MortgageInput,
   type LumpSumPrepayment,
 } from "@/lib/mortgage";
+import { calculateEMI } from "@/lib/amortization";
 import { formatCurrency, formatDateLong, formatDuration } from "@/lib/format";
 import {
   DEFAULT_STATE,
@@ -31,7 +32,9 @@ import { useToast } from "@/hooks/use-toast";
 import {
   parseUrlState,
   writeUrlState,
+  buildShareUrl,
   useInitialUrlState,
+  type PrepaymentModeUrl,
 } from "@/hooks/use-url-state";
 
 import { CalculatorForm } from "@/components/mortgage/calculator-form";
@@ -69,12 +72,11 @@ export default function HomeLoanPlatform() {
   );
 
   const term = totalTermMonths(state);
-  const monthlyRate = state.annualRate / 100 / 12;
 
-  // Auto-calculated EMI for the current loan/rate/tenure.
+  // Auto-calculated EMI for the current loan/rate/tenure (via amortization facade).
   const calculatedPayment = React.useMemo(
-    () => calcMonthlyPayment(state.loanAmount, monthlyRate, term),
-    [state.loanAmount, monthlyRate, term]
+    () => calculateEMI(state.loanAmount, state.annualRate, term),
+    [state.loanAmount, state.annualRate, term]
   );
 
   // Keep EMI in sync with loan/rate/tenure unless the user overrode it.
@@ -149,21 +151,31 @@ export default function HomeLoanPlatform() {
     state.startDate,
   ]);
 
-  // ---- Sync view + key inputs to the URL (shareable) ----
+  // Effective savings = percentage reduction in total interest (Phase 4).
+  const effectiveSavingsPct = React.useMemo(() => {
+    if (!result.valid || result.totalInterestOriginal <= 0) return 0;
+    return (result.totalInterestSaved / result.totalInterestOriginal) * 100;
+  }, [result.valid, result.totalInterestSaved, result.totalInterestOriginal]);
+
+  // ---- Sync view + key inputs to the URL (shareable, Phase 4 format) ----
   React.useEffect(() => {
+    // Map the overpayment type to the Phase 4 `mode` param.
+    const mode: PrepaymentModeUrl | undefined = showPrepayment
+      ? state.overpaymentType
+      : undefined;
     writeUrlState({
       tool: viewId,
-      loan: state.loanAmount,
+      mode,
+      amount: state.loanAmount,
       rate: state.annualRate,
-      years: state.termYears,
-      months: state.termExtraMonths,
+      tenureYears: state.termYears,
+      tenureMonths: state.termExtraMonths,
       emi: state.paymentIsManual ? state.monthlyPayment : undefined,
-      opMonthly: activeMonthly,
-      opLump: activeLump,
-      opAnnual: state.overpaymentAnnual,
-      opStart: state.overpaymentStartMonth,
+      extra: activeMonthly,
+      startMonth: showPrepayment ? state.overpaymentStartMonth : undefined,
+      lump: activeLump,
+      lumpMonth: showPrepayment && activeLump > 0 ? state.overpaymentStartMonth : undefined,
       timing: state.overpaymentTiming,
-      mode: view.showPrepayment ? state.prepaymentMode : undefined,
       inputMode: state.inputMode,
       start: toMonthInputValue(state.startDate),
     });
@@ -177,13 +189,12 @@ export default function HomeLoanPlatform() {
     state.monthlyPayment,
     activeMonthly,
     activeLump,
-    state.overpaymentAnnual,
     state.overpaymentStartMonth,
     state.overpaymentTiming,
-    state.prepaymentMode,
+    state.overpaymentType,
     state.inputMode,
     state.startDate,
-    view.showPrepayment,
+    showPrepayment,
   ]);
 
   // ---- Handlers ----
@@ -222,6 +233,42 @@ export default function HomeLoanPlatform() {
         toast({
           title: "Copied!",
           description: "Results copied to your clipboard.",
+        })
+      )
+      .catch(() =>
+        toast({
+          title: "Copy failed",
+          description: "Your browser blocked clipboard access.",
+          variant: "destructive",
+        })
+      );
+  }
+
+  function handleCopyShareLink() {
+    const mode: PrepaymentModeUrl | undefined = showPrepayment
+      ? state.overpaymentType
+      : undefined;
+    const url = buildShareUrl({
+      tool: viewId,
+      mode,
+      amount: state.loanAmount,
+      rate: state.annualRate,
+      tenureYears: state.termYears,
+      tenureMonths: state.termExtraMonths,
+      emi: state.paymentIsManual ? state.monthlyPayment : undefined,
+      extra: activeMonthly,
+      startMonth: showPrepayment ? state.overpaymentStartMonth : undefined,
+      lump: activeLump,
+      lumpMonth: showPrepayment && activeLump > 0 ? state.overpaymentStartMonth : undefined,
+      timing: state.overpaymentTiming,
+      start: toMonthInputValue(state.startDate),
+    });
+    navigator.clipboard
+      .writeText(url)
+      .then(() =>
+        toast({
+          title: "Share link copied!",
+          description: "Paste it anywhere to share this exact calculation.",
         })
       )
       .catch(() =>
@@ -351,18 +398,19 @@ export default function HomeLoanPlatform() {
                   onChange={handleChange}
                   onReset={handleReset}
                   onCopy={handleCopy}
+                  onCopyShareLink={handleCopyShareLink}
                 />
               </div>
 
               {/* Right: results */}
               <div className="space-y-4">
-                <ResultsSection result={result} />
+                <ResultsSection result={result} effectiveSavingsPct={effectiveSavingsPct} />
                 {view.compareBoth && result.valid && (
                   <EmiVsTenureComparison result={result} originalEMI={effectivePayment} />
                 )}
                 {result.valid && (
                   <>
-                    <AmortizationTable result={result} variant="compact" />
+                    <AmortizationTable result={result} variant="preview" />
                     <ExportButtons
                       schedule={result.overpaymentSchedule}
                       originalSchedule={result.originalSchedule}
@@ -490,7 +538,9 @@ function buildInitialState(url: ReturnType<typeof parseUrlState>): CalcState {
   if (url.rate !== undefined) base.annualRate = url.rate;
   if (url.years !== undefined) base.termYears = url.years;
   if (url.months !== undefined) base.termExtraMonths = url.months;
-  if (url.emi !== undefined) {
+  // Phase 4: emi=0 (or blank) means "auto-calculate". Only treat a positive
+  // value as a manual override.
+  if (url.emi !== undefined && url.emi > 0) {
     base.monthlyPayment = url.emi;
     base.paymentIsManual = true;
   }
@@ -499,7 +549,10 @@ function buildInitialState(url: ReturnType<typeof parseUrlState>): CalcState {
   if (url.opAnnual !== undefined) base.overpaymentAnnual = url.opAnnual;
   if (url.opStart !== undefined) base.overpaymentStartMonth = url.opStart;
   if (url.timing) base.overpaymentTiming = url.timing;
-  if (url.mode) base.prepaymentMode = url.mode;
+  // Phase 4: `mode` is the prepayment type (monthly/lump/both).
+  if (url.mode) base.overpaymentType = url.mode;
+  // `engineMode` is the tenure/emi strategy (V1 always tenure).
+  if (url.engineMode) base.prepaymentMode = url.engineMode;
   if (url.inputMode) base.inputMode = url.inputMode;
 
   // Pre-fill bank default rate if the tool is a bank view.

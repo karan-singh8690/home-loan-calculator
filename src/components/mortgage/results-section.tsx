@@ -31,9 +31,11 @@ import type { MortgageResult } from "@/lib/mortgage";
 
 interface ResultsSectionProps {
   result: MortgageResult;
+  /** Percentage reduction in total interest (Phase 4 effective savings). */
+  effectiveSavingsPct?: number;
 }
 
-export function ResultsSection({ result }: ResultsSectionProps) {
+export function ResultsSection({ result, effectiveSavingsPct }: ResultsSectionProps) {
   if (!result.valid) {
     return (
       <Card className="border-dashed">
@@ -136,6 +138,23 @@ export function ResultsSection({ result }: ResultsSectionProps) {
               )}
             </div>
           </div>
+
+          {/* Effective Savings (percentage reduction) */}
+          {effectiveSavingsPct !== undefined && effectiveSavingsPct > 0 && (
+            <div className="mt-4 flex items-center gap-3 rounded-xl border border-emerald-600/20 bg-white/60 p-3 dark:bg-black/10">
+              <div className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 flex size-9 shrink-0 items-center justify-center rounded-lg">
+                <TrendingDown className="size-5" />
+              </div>
+              <div className="flex-1">
+                <p className="text-xs font-semibold tracking-wide text-emerald-700 uppercase dark:text-emerald-300">
+                  Effective savings
+                </p>
+                <p className="text-sm font-semibold">
+                  {effectiveSavingsPct.toFixed(1)}% less interest over the life of the loan
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Plain-English summary */}
           <div className="mt-4 rounded-xl border border-emerald-600/20 bg-emerald-50/60 p-4 dark:bg-emerald-950/20">

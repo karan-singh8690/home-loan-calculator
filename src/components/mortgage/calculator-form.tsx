@@ -10,6 +10,7 @@ import {
   Trash2,
   CalendarClock,
   Repeat,
+  Link2,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -46,6 +47,8 @@ interface CalculatorFormProps {
   onChange: (patch: Partial<CalcState>) => void;
   onReset: () => void;
   onCopy: () => void;
+  /** Copy the current calculation as a shareable URL. */
+  onCopyShareLink: () => void;
 }
 
 /** A labelled numeric input with an optional prefix/suffix adornment. */
@@ -123,6 +126,7 @@ export function CalculatorForm({
   onChange,
   onReset,
   onCopy,
+  onCopyShareLink,
 }: CalculatorFormProps) {
   const showMonthly =
     state.overpaymentType === "monthly" || state.overpaymentType === "both";
@@ -320,10 +324,12 @@ export function CalculatorForm({
             </div>
             <p className="text-muted-foreground text-xs">
               {state.paymentIsManual
-                ? "You've set a custom EMI. The required EMI for this loan is " +
+                ? "You've set a custom EMI. Calculated EMI: " +
                   formatCurrency(calculatedPayment) +
                   "."
-                : "Auto-calculated from your loan, rate and tenure. Edit to model a different EMI."}
+                : "Calculated EMI: " +
+                  formatCurrency(calculatedPayment) +
+                  " — auto-derived from loan, rate and tenure. Enter a value to override."}
             </p>
           </div>
         </section>
@@ -368,9 +374,9 @@ export function CalculatorForm({
                 </div>
               )}
 
-              {/* Overpayment type */}
+              {/* Prepayment mode selector */}
               <div className="space-y-1.5">
-                <Label className="text-sm font-medium">Prepayment type</Label>
+                <Label className="text-sm font-medium">Prepayment mode</Label>
                 <ToggleGroup
                   type="single"
                   value={state.overpaymentType}
@@ -381,10 +387,10 @@ export function CalculatorForm({
                   variant="outline"
                 >
                   <ToggleGroupItem value="monthly" className="text-xs">
-                    Extra / month
+                    Monthly Extra EMI
                   </ToggleGroupItem>
                   <ToggleGroupItem value="lump" className="text-xs">
-                    Lump sum
+                    Lump Sum
                   </ToggleGroupItem>
                   <ToggleGroupItem value="both" className="text-xs">
                     Both
@@ -393,29 +399,107 @@ export function CalculatorForm({
               </div>
 
               {showMonthly && (
-                <NumberField
-                  id="overpaymentMonthly"
-                  label="Extra per month"
-                  prefix="₹"
-                  value={state.overpaymentMonthly}
-                  onChange={(v) => onChange({ overpaymentMonthly: v })}
-                  step={1000}
-                  placeholder="5,000"
-                  helper="Added to your EMI every month once prepayments begin."
-                />
+                <>
+                  <NumberField
+                    id="overpaymentMonthly"
+                    label="Extra Amount (per month)"
+                    prefix="₹"
+                    value={state.overpaymentMonthly}
+                    onChange={(v) => onChange({ overpaymentMonthly: v })}
+                    step={1000}
+                    placeholder="10,000"
+                    helper={
+                      <span>
+                        Effective EMI:{" "}
+                        <strong className="text-emerald-700 dark:text-emerald-400">
+                          {formatCurrency(state.monthlyPayment + state.overpaymentMonthly)}
+                        </strong>
+                        /mo (EMI {formatCurrency(state.monthlyPayment)} + extra {formatCurrency(state.overpaymentMonthly)})
+                      </span>
+                    }
+                  />
+                  {/* Start Month + Start Year */}
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium">Start from</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="relative">
+                        <Input
+                          id="opStartMonth"
+                          type="number"
+                          min={1}
+                          max={12}
+                          step={1}
+                          value={opStartMonthField(state.overpaymentStartMonth)}
+                          placeholder="1"
+                          onChange={(e) =>
+                            onChange({
+                              overpaymentStartMonth: combineStartMonthYear(
+                                Number(e.target.value) || 1,
+                                opStartYearField(state.overpaymentStartMonth)
+                              ),
+                            })
+                          }
+                          className="pr-12"
+                        />
+                        <span className="text-muted-foreground pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs">
+                          month
+                        </span>
+                      </div>
+                      <div className="relative">
+                        <Input
+                          id="opStartYear"
+                          type="number"
+                          min={1}
+                          step={1}
+                          value={opStartYearField(state.overpaymentStartMonth)}
+                          placeholder="1"
+                          onChange={(e) =>
+                            onChange({
+                              overpaymentStartMonth: combineStartMonthYear(
+                                opStartMonthField(state.overpaymentStartMonth),
+                                Number(e.target.value) || 1
+                              ),
+                            })
+                          }
+                          className="pr-10"
+                        />
+                        <span className="text-muted-foreground pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs">
+                          yr
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-muted-foreground text-xs">
+                      Extra EMI begins from this month of this year.
+                    </p>
+                  </div>
+                </>
               )}
 
               {showLump && (
-                <NumberField
-                  id="overpaymentLumpSum"
-                  label="One-time lump sum"
-                  prefix="₹"
-                  value={state.overpaymentLumpSum}
-                  onChange={(v) => onChange({ overpaymentLumpSum: v })}
-                  step={25000}
-                  placeholder="2,00,000"
-                  helper="A single prepayment applied in your start month (e.g. a bonus or windfall)."
-                />
+                <>
+                  <NumberField
+                    id="overpaymentLumpSum"
+                    label="Lump Sum Amount"
+                    prefix="₹"
+                    value={state.overpaymentLumpSum}
+                    onChange={(v) => onChange({ overpaymentLumpSum: v })}
+                    step={25000}
+                    placeholder="2,00,000"
+                    helper="A single prepayment that reduces your outstanding principal."
+                  />
+                  <NumberField
+                    id="lumpApplyMonth"
+                    label="Apply after X months"
+                    value={state.overpaymentStartMonth}
+                    onChange={(v) =>
+                      onChange({ overpaymentStartMonth: Math.max(1, Math.floor(v)) })
+                    }
+                    step={1}
+                    min={1}
+                    placeholder="24"
+                    helper="The lump sum is applied after this many EMIs. The same EMI continues, reducing your tenure."
+                  />
+                </>
               )}
 
               {/* Annual bonus */}
@@ -519,19 +603,6 @@ export function CalculatorForm({
                 )}
               </div>
 
-              <NumberField
-                id="overpaymentStartMonth"
-                label="Start prepayment at month"
-                value={state.overpaymentStartMonth}
-                onChange={(v) =>
-                  onChange({ overpaymentStartMonth: Math.max(1, Math.floor(v)) })
-                }
-                step={1}
-                min={1}
-                placeholder="1"
-                helper="Month 1 = from the very first EMI. Higher numbers model starting later."
-              />
-
               {/* Timing toggle */}
               <div className="flex items-center justify-between gap-3 rounded-lg border p-3">
                 <div className="space-y-0.5">
@@ -590,21 +661,28 @@ export function CalculatorForm({
         )}
 
         {/* Actions */}
-        <div className="flex gap-2 pt-1">
+        <div className="grid grid-cols-3 gap-2 pt-1">
           <Button
             variant="outline"
             size="sm"
             onClick={onReset}
-            className="flex-1"
           >
             <RotateCcw className="size-4" />
             Reset
           </Button>
           <Button
+            variant="outline"
+            size="sm"
+            onClick={onCopyShareLink}
+          >
+            <Link2 className="size-4" />
+            Share link
+          </Button>
+          <Button
             variant="default"
             size="sm"
             onClick={onCopy}
-            className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+            className="bg-emerald-600 hover:bg-emerald-700"
           >
             <Copy className="size-4" />
             Copy results
@@ -624,4 +702,21 @@ function toMonthInputValue(d: Date): string {
 function fromMonthInputValue(v: string): Date {
   const [y, m] = v.split("-").map(Number);
   return new Date(y, (m || 1) - 1, 1);
+}
+
+/** Convert an absolute EMI month to the calendar-style month field (1–12). */
+function opStartMonthField(absoluteMonth: number): number {
+  return ((Math.max(1, absoluteMonth) - 1) % 12) + 1;
+}
+
+/** Convert an absolute EMI month to the year field (1-indexed). */
+function opStartYearField(absoluteMonth: number): number {
+  return Math.floor((Math.max(1, absoluteMonth) - 1) / 12) + 1;
+}
+
+/** Combine a calendar month (1–12) and year (1+) back into an absolute EMI month. */
+function combineStartMonthYear(month: number, year: number): number {
+  const m = Math.min(12, Math.max(1, Math.floor(month)));
+  const y = Math.max(1, Math.floor(year));
+  return (y - 1) * 12 + m;
 }

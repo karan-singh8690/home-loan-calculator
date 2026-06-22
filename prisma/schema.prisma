@@ -37,7 +37,10 @@ model EmailLead {
   id        String   @id @default(cuid())
   email     String?  @unique
   phone     String?
+  name      String?
   city      String?
+  /// Self-reported current outstanding loan balance range, e.g. "₹25L–₹50L".
+  loanBalanceRange String?
   /// JSON snapshot of the calculation summary at capture time.
   summary   String?
   createdAt DateTime @default(now())

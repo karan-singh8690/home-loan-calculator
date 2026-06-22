@@ -15,7 +15,9 @@ export async function POST(req: NextRequest) {
   let body: {
     email?: string;
     phone?: string;
+    name?: string;
     city?: string;
+    loanBalanceRange?: string;
     summary?: unknown;
   };
 
@@ -33,9 +35,17 @@ export async function POST(req: NextRequest) {
     typeof body.phone === "string" && body.phone.trim()
       ? body.phone.trim()
       : "";
+  const name =
+    typeof body.name === "string" && body.name.trim()
+      ? body.name.trim()
+      : null;
   const city =
     typeof body.city === "string" && body.city.trim()
       ? body.city.trim()
+      : null;
+  const loanBalanceRange =
+    typeof body.loanBalanceRange === "string" && body.loanBalanceRange.trim()
+      ? body.loanBalanceRange.trim()
       : null;
 
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -71,13 +81,13 @@ export async function POST(req: NextRequest) {
       // Upsert by email when available.
       await db.emailLead.upsert({
         where: { email },
-        create: { email, phone: phone || undefined, city: city ?? undefined, summary },
-        update: { phone: phone || undefined, city: city ?? undefined, summary },
+        create: { email, phone: phone || undefined, name, city: city ?? undefined, loanBalanceRange, summary },
+        update: { phone: phone || undefined, name: name ?? undefined, city: city ?? undefined, loanBalanceRange: loanBalanceRange ?? undefined, summary },
       });
     } else {
       // Phone-only lead — insert directly (omit email entirely).
       await db.emailLead.create({
-        data: { phone, city: city ?? undefined, summary },
+        data: { phone, name, city: city ?? undefined, loanBalanceRange, summary },
       });
     }
   } catch (err) {

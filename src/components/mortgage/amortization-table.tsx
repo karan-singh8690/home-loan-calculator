@@ -26,29 +26,38 @@ interface AmortizationTableProps {
    * "full"    : 7-col detailed view (Starting balance, Payment, Interest,
    *             Principal, Overpayment, Ending balance).
    * "compact" : 6-col India prepayment view (Month, EMI, Interest, Principal,
-   *             Prepayment, Balance) — matches the V1 spec.
+   *             Prepayment, Balance).
+   * "preview" : Phase 4 spec view — 6 first + 6 last rows, 7 cols:
+   *             Month, Opening Balance, EMI, Interest, Principal, Prepayment,
+   *             Closing Balance.
    */
-  variant?: "full" | "compact";
+  variant?: "full" | "compact" | "preview";
 }
 
-const HEAD_COUNT = 4;
-const TAIL_COUNT = 4;
+const PREVIEW_HEAD = 6;
+const PREVIEW_TAIL = 6;
+const SNAPSHOT_HEAD = 4;
+const SNAPSHOT_TAIL = 4;
 
 export function AmortizationTable({
   result,
   variant = "full",
 }: AmortizationTableProps) {
   const schedule = result.overpaymentSchedule;
-  const isCompact = variant === "compact";
 
   if (!result.valid || schedule.length === 0) {
     return null;
   }
 
+  const isPreview = variant === "preview";
+  const isCompact = variant === "compact";
+  const headCount = isPreview ? PREVIEW_HEAD : SNAPSHOT_HEAD;
+  const tailCount = isPreview ? PREVIEW_TAIL : SNAPSHOT_TAIL;
+
   // Build a snapshot: first N rows, then "..." if there's a gap, then last N rows.
-  const head = schedule.slice(0, HEAD_COUNT);
-  const tail = schedule.slice(-TAIL_COUNT);
-  const hasGap = schedule.length > HEAD_COUNT + TAIL_COUNT;
+  const head = schedule.slice(0, headCount);
+  const tail = schedule.slice(-tailCount);
+  const hasGap = schedule.length > headCount + tailCount;
   const colCount = isCompact ? 6 : 7;
 
   return (
@@ -57,12 +66,10 @@ export function AmortizationTable({
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <CardTitle className="text-sm">
-              {isCompact ? "Amortization preview" : "Amortization snapshot"}
+              {isPreview ? "Amortization preview" : "Amortization snapshot"}
             </CardTitle>
             <CardDescription className="text-xs">
-              {isCompact
-                ? "Your home loan with prepayments applied — first and final months."
-                : "Your home loan with prepayments applied — first and final months."}
+              Your home loan with prepayments applied — first {headCount} and final {tailCount} months.
             </CardDescription>
           </div>
           <span className="text-muted-foreground text-xs">
@@ -78,11 +85,11 @@ export function AmortizationTable({
                 <TableHead className="h-8 px-2 text-[11px] font-semibold">Month</TableHead>
                 {isCompact ? null : (
                   <TableHead className="h-8 px-2 text-right text-[11px] font-semibold">
-                    Starting balance
+                    {isPreview ? "Opening Balance" : "Starting balance"}
                   </TableHead>
                 )}
                 <TableHead className="h-8 px-2 text-right text-[11px] font-semibold">
-                  {isCompact ? "EMI" : "Payment"}
+                  EMI
                 </TableHead>
                 <TableHead className="h-8 px-2 text-right text-[11px] font-semibold">
                   Interest
@@ -91,10 +98,10 @@ export function AmortizationTable({
                   Principal
                 </TableHead>
                 <TableHead className="h-8 px-2 text-right text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
-                  {isCompact ? "Prepayment" : "Overpayment"}
+                  Prepayment
                 </TableHead>
                 <TableHead className="h-8 px-2 text-right text-[11px] font-semibold">
-                  {isCompact ? "Balance" : "Ending balance"}
+                  {isPreview ? "Closing Balance" : "Ending balance"}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -113,7 +120,7 @@ export function AmortizationTable({
                     colSpan={colCount}
                     className="text-muted-foreground h-8 px-2 text-center text-[11px] italic"
                   >
-                    … {schedule.length - HEAD_COUNT - TAIL_COUNT} months in between …
+                    … {schedule.length - headCount - tailCount} months in between …
                   </TableCell>
                 </TableRow>
               )}

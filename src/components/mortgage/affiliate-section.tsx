@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Landmark, Phone, RefreshCw, ArrowRight } from "lucide-react";
+import { Landmark, Phone, RefreshCw, TrendingDown, ArrowRight } from "lucide-react";
 
 import {
   Card,
@@ -21,6 +21,14 @@ const AFFILIATE_LINKS = [
     href: "#affiliate-compare-rates",
   },
   {
+    icon: Landmark,
+    title: "Explore Balance Transfer Offers",
+    description:
+      "Move your outstanding principal to a lender offering a lower ROI. Most banks charge no foreclosure fee on floating-rate home loans.",
+    cta: "Explore offers",
+    href: "#affiliate-balance-transfer",
+  },
+  {
     icon: Phone,
     title: "Talk to a Loan Expert",
     description:
@@ -29,12 +37,12 @@ const AFFILIATE_LINKS = [
     href: "#affiliate-loan-expert",
   },
   {
-    icon: Landmark,
-    title: "See Balance Transfer Offers",
+    icon: TrendingDown,
+    title: "Check Refinancing Savings",
     description:
-      "Move your outstanding principal to a lender offering a lower ROI. Most banks charge no foreclosure fee on floating-rate home loans.",
-    cta: "See offers",
-    href: "#affiliate-balance-transfer",
+      "Refinancing to a lower rate or shorter tenure might beat prepaying. Run the numbers side by side with current market offers.",
+    cta: "Check savings",
+    href: "#affiliate-refinance-savings",
   },
 ];
 
@@ -48,7 +56,7 @@ export function AffiliateSection() {
           professional advice could save you even more. These partners can help.
         </p>
       </div>
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
         {AFFILIATE_LINKS.map((item) => (
           <a
             key={item.title}
