@@ -7,9 +7,16 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { FAQS } from "@/lib/faq";
+import { getFaqsForView } from "@/lib/india-faqs";
 
-export function FaqSection() {
+interface FaqSectionProps {
+  /** View ID used to select the relevant FAQ group. */
+  view: string;
+}
+
+export function FaqSection({ view }: FaqSectionProps) {
+  const faqs = React.useMemo(() => getFaqsForView(view), [view]);
+
   return (
     <section className="space-y-4">
       <div>
@@ -17,11 +24,11 @@ export function FaqSection() {
           Frequently asked questions
         </h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Everything you might want to know about overpaying a mortgage.
+          Everything you might want to know about home loan prepayments and EMIs.
         </p>
       </div>
       <Accordion type="single" collapsible className="w-full">
-        {FAQS.map((faq, i) => (
+        {faqs.map((faq, i) => (
           <AccordionItem key={i} value={`item-${i}`}>
             <AccordionTrigger className="text-left text-sm font-medium">
               {faq.question}

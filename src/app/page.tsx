@@ -1,12 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { Home, TrendingDown } from "lucide-react";
+import Link from "next/link";
+import { Home, TrendingDown, Menu, X } from "lucide-react";
 
 import {
   calculateMortgage,
   calcMonthlyPayment,
   type MortgageInput,
+  type LumpSumPrepayment,
 } from "@/lib/mortgage";
 import { formatCurrency, formatDateLong, formatDuration } from "@/lib/format";
 import {
@@ -14,46 +16,68 @@ import {
   totalTermMonths,
   type CalcState,
 } from "@/lib/calc-state";
-import type { ScenarioInput } from "@/lib/scenarios";
+import { getBank } from "@/lib/india-data";
+import type { IndiaScenarioInput } from "@/lib/india-scenarios";
+import { getFaqsForView } from "@/lib/india-faqs";
+import {
+  VIEWS,
+  VIEW_ORDER,
+  getView,
+  isViewId,
+  type ViewId,
+  type ViewMeta,
+} from "@/lib/views";
 import { useToast } from "@/hooks/use-toast";
+import {
+  parseUrlState,
+  writeUrlState,
+  useInitialUrlState,
+} from "@/hooks/use-url-state";
 
 import { CalculatorForm } from "@/components/mortgage/calculator-form";
 import { ResultsSection } from "@/components/mortgage/results-section";
 import { AmortizationTable } from "@/components/mortgage/amortization-table";
 import { PaidExportTeaser } from "@/components/mortgage/paid-export-teaser";
 import { AffiliateSection } from "@/components/mortgage/affiliate-section";
+import { BalanceTransferSection } from "@/components/mortgage/balance-transfer-section";
+import { RefinanceOffersSection } from "@/components/mortgage/refinance-offers-section";
 import { EmailCapture } from "@/components/mortgage/email-capture";
 import { ScenarioCards } from "@/components/mortgage/scenario-cards";
 import { FaqSection } from "@/components/mortgage/faq-section";
 import { ContentBlocks } from "@/components/mortgage/content-blocks";
+import { GuidesSection } from "@/components/mortgage/guides-section";
+import { EmiVsTenureComparison } from "@/components/mortgage/emi-vs-tenure-comparison";
+import { BankInfoBlock } from "@/components/mortgage/bank-info-block";
+import { Breadcrumb } from "@/components/mortgage/breadcrumb";
+import { DynamicMeta } from "@/components/mortgage/dynamic-meta";
+import { ExportButtons } from "@/components/mortgage/export-buttons";
+import { cn } from "@/lib/utils";
 
-export default function MortgageCalculatorPage() {
+export default function HomeLoanPlatform() {
   const { toast } = useToast();
+  const initialUrl = useInitialUrlState();
 
-  // Initialise with a valid auto-calculated monthly payment so the first paint
-  // already shows results (no flash of "fill in your details").
-  const [state, setState] = React.useState<CalcState>(() => {
-    const term = DEFAULT_STATE.termYears * 12 + DEFAULT_STATE.termExtraMonths;
-    const payment = calcMonthlyPayment(
-      DEFAULT_STATE.loanAmount,
-      DEFAULT_STATE.annualRate / 100 / 12,
-      term
-    );
-    return { ...DEFAULT_STATE, monthlyPayment: Math.round(payment * 100) / 100 };
-  });
+  // ---- View state (synced to ?tool=) ----
+  const [viewId, setViewId] = React.useState<ViewId>(() =>
+    isViewId(initialUrl.tool) ? (initialUrl.tool as ViewId) : "prepayment"
+  );
+  const view = getView(viewId);
+
+  // ---- Calculator state ----
+  const [state, setState] = React.useState<CalcState>(() =>
+    buildInitialState(initialUrl)
+  );
 
   const term = totalTermMonths(state);
   const monthlyRate = state.annualRate / 100 / 12;
 
-  // The "required" payment for the current loan/rate/term. Used both as the
-  // auto-fill value and as a helper hint in the form.
+  // Auto-calculated EMI for the current loan/rate/tenure.
   const calculatedPayment = React.useMemo(
     () => calcMonthlyPayment(state.loanAmount, monthlyRate, term),
     [state.loanAmount, monthlyRate, term]
   );
 
-  // Keep the monthly payment in sync with loan/rate/term unless the user has
-  // chosen to override it manually. Rounded to cents for a clean display.
+  // Keep EMI in sync with loan/rate/tenure unless the user overrode it.
   React.useEffect(() => {
     if (!state.paymentIsManual) {
       const rounded = Math.round(calculatedPayment * 100) / 100;
@@ -65,24 +89,29 @@ export default function MortgageCalculatorPage() {
     }
   }, [calculatedPayment, state.paymentIsManual]);
 
-  // The effective payment used in calculations: fall back to the calculated
-  // payment if the user hasn't entered one yet.
   const effectivePayment =
     state.monthlyPayment > 0 ? state.monthlyPayment : calculatedPayment;
 
-  // Respect the overpayment type selector: only feed the engine the amounts
-  // that match the chosen strategy (so a hidden lump-sum field doesn't sneak
-  // into a "monthly only" calculation).
+  // Respect the overpayment type selector — only feed the engine the amounts
+  // matching the chosen strategy. When the view doesn't show prepayments
+  // (e.g. the pure EMI calculator), zero everything out so the result reflects
+  // a plain amortizing loan.
+  const showPrepayment = view.showPrepayment;
   const activeMonthly =
-    state.overpaymentType === "monthly" || state.overpaymentType === "both"
+    showPrepayment &&
+    (state.overpaymentType === "monthly" || state.overpaymentType === "both")
       ? state.overpaymentMonthly
       : 0;
   const activeLump =
-    state.overpaymentType === "lump" || state.overpaymentType === "both"
+    showPrepayment &&
+    (state.overpaymentType === "lump" || state.overpaymentType === "both")
       ? state.overpaymentLumpSum
       : 0;
+  const activeAnnual = showPrepayment ? state.overpaymentAnnual : 0;
+  const activeLumpSums: LumpSumPrepayment[] = showPrepayment ? state.lumpSums : [];
 
-  // Run the engine whenever inputs change.
+  // Run the engine whenever inputs change. Bank & comparison views request
+  // the alternate-mode comparison too.
   const result = React.useMemo(() => {
     const input: MortgageInput = {
       loanAmount: state.loanAmount,
@@ -91,12 +120,16 @@ export default function MortgageCalculatorPage() {
       monthlyPayment: effectivePayment,
       overpaymentMonthly: activeMonthly,
       overpaymentLumpSum: activeLump,
-      overpaymentAnnual: state.overpaymentAnnual,
+      overpaymentAnnual: activeAnnual,
+      lumpSums: activeLumpSums,
       overpaymentStartMonth: state.overpaymentStartMonth,
       overpaymentTiming: state.overpaymentTiming,
+      prepaymentMode: showPrepayment ? state.prepaymentMode : "tenure",
       startDate: state.startDate,
     };
-    return calculateMortgage(input);
+    return calculateMortgage(input, {
+      compareBoth: view.compareBoth,
+    });
   }, [
     state.loanAmount,
     state.annualRate,
@@ -104,22 +137,64 @@ export default function MortgageCalculatorPage() {
     effectivePayment,
     activeMonthly,
     activeLump,
-    state.overpaymentAnnual,
+    activeAnnual,
+    activeLumpSums,
     state.overpaymentStartMonth,
     state.overpaymentTiming,
+    state.prepaymentMode,
+    showPrepayment,
+    view.compareBoth,
     state.startDate,
   ]);
 
+  // ---- Sync view + key inputs to the URL (shareable) ----
+  React.useEffect(() => {
+    writeUrlState({
+      tool: viewId,
+      loan: state.loanAmount,
+      rate: state.annualRate,
+      years: state.termYears,
+      months: state.termExtraMonths,
+      emi: state.paymentIsManual ? state.monthlyPayment : undefined,
+      opMonthly: activeMonthly,
+      opLump: activeLump,
+      opAnnual: state.overpaymentAnnual,
+      opStart: state.overpaymentStartMonth,
+      timing: state.overpaymentTiming,
+      mode: view.showPrepayment ? state.prepaymentMode : undefined,
+      inputMode: state.inputMode,
+      start: toMonthInputValue(state.startDate),
+    });
+  }, [
+    viewId,
+    state.loanAmount,
+    state.annualRate,
+    state.termYears,
+    state.termExtraMonths,
+    state.paymentIsManual,
+    state.monthlyPayment,
+    activeMonthly,
+    activeLump,
+    state.overpaymentAnnual,
+    state.overpaymentStartMonth,
+    state.overpaymentTiming,
+    state.prepaymentMode,
+    state.inputMode,
+    state.startDate,
+    view.showPrepayment,
+  ]);
+
+  // ---- Handlers ----
   function handleChange(patch: Partial<CalcState>) {
     setState((s) => ({ ...s, ...patch }));
   }
 
   function handleReset() {
-    const term = DEFAULT_STATE.termYears * 12 + DEFAULT_STATE.termExtraMonths;
+    const t = DEFAULT_STATE.termYears * 12 + DEFAULT_STATE.termExtraMonths;
     const payment = calcMonthlyPayment(
       DEFAULT_STATE.loanAmount,
       DEFAULT_STATE.annualRate / 100 / 12,
-      term
+      t
     );
     setState({
       ...DEFAULT_STATE,
@@ -133,12 +208,12 @@ export default function MortgageCalculatorPage() {
     if (!result.valid) {
       toast({
         title: "Nothing to copy yet",
-        description: "Fill in your mortgage details first.",
+        description: "Fill in your loan details first.",
         variant: "destructive",
       });
       return;
     }
-    const text = buildCopyText(result, state);
+    const text = buildCopyText(result, state, view);
     navigator.clipboard
       .writeText(text)
       .then(() =>
@@ -156,12 +231,12 @@ export default function MortgageCalculatorPage() {
       );
   }
 
-  function handleLoadScenario(input: ScenarioInput) {
-    const term = input.termMonths;
+  function handleLoadScenario(input: IndiaScenarioInput) {
+    const t = input.termMonths;
     const payment = calcMonthlyPayment(
       input.loanAmount,
       input.annualRate / 100 / 12,
-      term
+      t
     );
     const type: CalcState["overpaymentType"] =
       input.overpaymentMonthly > 0 && input.overpaymentLumpSum > 0
@@ -172,10 +247,11 @@ export default function MortgageCalculatorPage() {
             ? "lump"
             : "both";
     setState({
+      ...DEFAULT_STATE,
       loanAmount: input.loanAmount,
       annualRate: input.annualRate,
-      termYears: Math.floor(term / 12),
-      termExtraMonths: term % 12,
+      termYears: Math.floor(t / 12),
+      termExtraMonths: t % 12,
       monthlyPayment: Math.round(payment * 100) / 100,
       paymentIsManual: false,
       overpaymentType: type,
@@ -193,67 +269,66 @@ export default function MortgageCalculatorPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  function handleNavigate(v: ViewId) {
+    setViewId(v);
+    // For bank views, pre-fill the bank's default rate if it differs.
+    const bank = getBank(v);
+    if (bank && state.annualRate !== bank.defaultRate) {
+      setState((s) => ({ ...s, annualRate: bank.defaultRate }));
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  const bank = getBank(viewId);
+  const faqsForView = React.useMemo(
+    () => getFaqsForView(viewId),
+    [viewId]
+  );
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
+      <DynamicMeta view={view} faqs={faqsForView} />
+
       {/* ---- Header ---- */}
       <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
-          <div className="flex items-center gap-2">
+          <Link
+            href="?tool=prepayment"
+            className="flex items-center gap-2"
+            onClick={(e) => {
+              e.preventDefault();
+              handleNavigate("prepayment");
+            }}
+          >
             <span className="bg-emerald-600 text-white flex size-8 items-center justify-center rounded-lg">
               <Home className="size-4" />
             </span>
             <div className="leading-none">
-              <p className="text-sm font-bold tracking-tight">OverPayCalc</p>
+              <p className="text-sm font-bold tracking-tight">HomeLoan Calc</p>
               <p className="text-muted-foreground text-[10px]">
-                Mortgage overpayment calculator
+                India home loan calculator
               </p>
             </div>
-          </div>
-          <nav className="hidden items-center gap-1 sm:flex">
-            <a
-              href="#calculator"
-              className="text-muted-foreground hover:text-foreground rounded-md px-3 py-1.5 text-sm transition-colors"
-            >
-              Calculator
-            </a>
-            <a
-              href="#scenarios"
-              className="text-muted-foreground hover:text-foreground rounded-md px-3 py-1.5 text-sm transition-colors"
-            >
-              Scenarios
-            </a>
-            <a
-              href="#how-it-works"
-              className="text-muted-foreground hover:text-foreground rounded-md px-3 py-1.5 text-sm transition-colors"
-            >
-              How it works
-            </a>
-            <a
-              href="#faq"
-              className="text-muted-foreground hover:text-foreground rounded-md px-3 py-1.5 text-sm transition-colors"
-            >
-              FAQ
-            </a>
-          </nav>
+          </Link>
+          <NavMenu viewId={viewId} onNavigate={handleNavigate} />
         </div>
       </header>
 
       <main className="flex-1">
         {/* ---- Hero / intro ---- */}
         <section className="border-b bg-gradient-to-b from-emerald-50/60 to-background dark:from-emerald-950/20">
-          <div className="mx-auto max-w-7xl px-4 py-10 sm:py-14">
-            <div className="mx-auto max-w-3xl text-center">
+          <div className="mx-auto max-w-7xl px-4 py-8 sm:py-10">
+            <Breadcrumb view={view} />
+            <div className="mt-4 max-w-3xl">
               <span className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold">
                 <TrendingDown className="size-3.5" />
-                See exactly how much you'll save
+                {bank ? `${bank.shortName} home loan` : "Free • Instant • Accurate"}
               </span>
-              <h1 className="mt-4 text-3xl font-bold tracking-tight text-balance sm:text-4xl md:text-5xl">
-                Mortgage Overpayment Calculator
+              <h1 className="mt-3 text-2xl font-bold tracking-tight text-balance sm:text-3xl md:text-4xl">
+                {view.title}
               </h1>
-              <p className="text-muted-foreground mx-auto mt-4 max-w-2xl text-base text-pretty sm:text-lg">
-                Find out how much interest you'll save and how many years you'll
-                shave off your mortgage by overpaying. Free, instant, and
-                accurate — monthly compounding, lump sums, or both.
+              <p className="text-muted-foreground mt-2 text-sm text-pretty sm:text-base">
+                {view.subtitle}
               </p>
             </div>
           </div>
@@ -269,6 +344,7 @@ export default function MortgageCalculatorPage() {
                   state={state}
                   calculatedPayment={calculatedPayment}
                   warnings={result.warnings}
+                  showPrepayment={view.showPrepayment}
                   onChange={handleChange}
                   onReset={handleReset}
                   onCopy={handleCopy}
@@ -278,46 +354,82 @@ export default function MortgageCalculatorPage() {
               {/* Right: results */}
               <div className="space-y-4">
                 <ResultsSection result={result} />
-                {result.valid && <AmortizationTable result={result} />}
+                {view.compareBoth && result.valid && (
+                  <EmiVsTenureComparison result={result} originalEMI={effectivePayment} />
+                )}
+                {result.valid && (
+                  <>
+                    <AmortizationTable result={result} />
+                    <ExportButtons
+                      schedule={result.overpaymentSchedule}
+                      originalSchedule={result.originalSchedule}
+                      summary={{
+                        monthsSaved: result.monthsSaved,
+                        totalInterestSaved: result.totalInterestSaved,
+                        totalInterestOriginal: result.totalInterestOriginal,
+                        newPayoffDate: result.newPayoffDate,
+                        originalPayoffDate: result.originalPayoffDate,
+                      }}
+                    />
+                  </>
+                )}
               </div>
             </div>
           </div>
         </section>
 
-        {/* ---- Monetization: paid export + affiliate + email ---- */}
+        {/* ---- Bank info (bank views only) ---- */}
+        {bank && (
+          <section id="bank-info" className="scroll-mt-16 border-t bg-muted/30">
+            <div className="mx-auto max-w-7xl px-4 py-8">
+              <BankInfoBlock bank={bank} />
+            </div>
+          </section>
+        )}
+
+        {/* ---- Monetization ---- */}
         <section className="border-t bg-muted/30">
           <div className="mx-auto max-w-7xl space-y-6 px-4 py-10">
             {result.valid && (
               <PaidExportTeaser totalRows={result.overpaymentSchedule.length} />
             )}
+            <BalanceTransferSection />
+            <RefinanceOffersSection />
             <AffiliateSection />
             <EmailCapture result={result} />
           </div>
         </section>
 
-        {/* ---- SEO: scenarios ---- */}
+        {/* ---- Scenarios ---- */}
         <section id="scenarios" className="scroll-mt-16 border-t">
           <div className="mx-auto max-w-7xl px-4 py-10">
             <ScenarioCards onLoad={handleLoadScenario} />
           </div>
         </section>
 
-        {/* ---- SEO: how it works ---- */}
+        {/* ---- How it works ---- */}
         <section id="how-it-works" className="scroll-mt-16 border-t bg-muted/30">
           <div className="mx-auto max-w-7xl px-4 py-10">
             <ContentBlocks />
           </div>
         </section>
 
-        {/* ---- SEO: FAQ ---- */}
-        <section id="faq" className="scroll-mt-16 border-t">
+        {/* ---- Guides ---- */}
+        <section id="guides" className="scroll-mt-16 border-t">
+          <div className="mx-auto max-w-7xl px-4 py-10">
+            <GuidesSection />
+          </div>
+        </section>
+
+        {/* ---- FAQ ---- */}
+        <section id="faq" className="scroll-mt-16 border-t bg-muted/30">
           <div className="mx-auto max-w-3xl px-4 py-10">
-            <FaqSection />
+            <FaqSection view={viewId} />
           </div>
         </section>
       </main>
 
-      {/* ---- Footer (sticky to bottom) ---- */}
+      {/* ---- Footer ---- */}
       <footer className="mt-auto border-t bg-background">
         <div className="mx-auto max-w-7xl px-4 py-8">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
@@ -326,37 +438,37 @@ export default function MortgageCalculatorPage() {
                 <Home className="size-3.5" />
               </span>
               <div>
-                <p className="text-sm font-semibold">OverPayCalc</p>
+                <p className="text-sm font-semibold">HomeLoan Calc</p>
                 <p className="text-muted-foreground text-xs">
-                  Free mortgage overpayment calculator
+                  India home loan EMI &amp; prepayment calculator
                 </p>
               </div>
             </div>
-            <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm">
-              <a href="#calculator" className="text-muted-foreground hover:text-foreground transition-colors">
-                Calculator
-              </a>
-              <a href="#scenarios" className="text-muted-foreground hover:text-foreground transition-colors">
-                Scenarios
-              </a>
-              <a href="#how-it-works" className="text-muted-foreground hover:text-foreground transition-colors">
-                How it works
-              </a>
-              <a href="#faq" className="text-muted-foreground hover:text-foreground transition-colors">
-                FAQ
-              </a>
+            <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs">
+              {VIEW_ORDER.map((v) => (
+                <button
+                  key={v}
+                  onClick={() => handleNavigate(v)}
+                  className={cn(
+                    "text-muted-foreground hover:text-foreground transition-colors",
+                    viewId === v && "text-foreground font-medium"
+                  )}
+                >
+                  {VIEWS[v].navLabel}
+                </button>
+              ))}
             </nav>
           </div>
           <div className="text-muted-foreground mt-6 border-t pt-4 text-center text-xs leading-relaxed">
             <p>
               This calculator is for informational purposes only and does not
               constitute financial advice. Figures are estimates based on the
-              inputs you provide and assume monthly compounding. Always check
-              with your lender for exact figures, early-repayment fees, and
-              terms before making decisions.
+              inputs you provide and assume monthly compounding. Interest rates
+              are indicative — always confirm the exact ROI, fees, and
+              prepayment terms with your bank before deciding.
             </p>
             <p className="mt-2">
-              &copy; {new Date().getFullYear()} OverPayCalc. All rights reserved.
+              &copy; {new Date().getFullYear()} HomeLoan Calc. All rights reserved.
             </p>
           </div>
         </div>
@@ -365,44 +477,173 @@ export default function MortgageCalculatorPage() {
   );
 }
 
-/** Build a plain-text summary of the results for the "Copy results" button. */
+/** Build the initial CalcState from defaults overlaid with URL params. */
+function buildInitialState(url: ReturnType<typeof parseUrlState>): CalcState {
+  const base: CalcState = {
+    ...DEFAULT_STATE,
+    startDate: url.start ? fromMonthInputValue(url.start) : new Date(),
+  };
+  if (url.loan !== undefined) base.loanAmount = url.loan;
+  if (url.rate !== undefined) base.annualRate = url.rate;
+  if (url.years !== undefined) base.termYears = url.years;
+  if (url.months !== undefined) base.termExtraMonths = url.months;
+  if (url.emi !== undefined) {
+    base.monthlyPayment = url.emi;
+    base.paymentIsManual = true;
+  }
+  if (url.opMonthly !== undefined) base.overpaymentMonthly = url.opMonthly;
+  if (url.opLump !== undefined) base.overpaymentLumpSum = url.opLump;
+  if (url.opAnnual !== undefined) base.overpaymentAnnual = url.opAnnual;
+  if (url.opStart !== undefined) base.overpaymentStartMonth = url.opStart;
+  if (url.timing) base.overpaymentTiming = url.timing;
+  if (url.mode) base.prepaymentMode = url.mode;
+  if (url.inputMode) base.inputMode = url.inputMode;
+
+  // Pre-fill bank default rate if the tool is a bank view.
+  if (url.tool && isViewId(url.tool)) {
+    const bank = getBank(url.tool);
+    if (bank && url.rate === undefined) base.annualRate = bank.defaultRate;
+  }
+
+  // Compute an initial EMI if not manually set.
+  if (!base.paymentIsManual) {
+    const t = base.termYears * 12 + base.termExtraMonths;
+    const payment = calcMonthlyPayment(
+      base.loanAmount,
+      base.annualRate / 100 / 12,
+      t
+    );
+    base.monthlyPayment = Math.round(payment * 100) / 100;
+  }
+  base.lumpSums = base.lumpSums ?? [];
+  return base;
+}
+
+/** Header navigation: dropdown on mobile, inline on desktop. */
+function NavMenu({
+  viewId,
+  onNavigate,
+}: {
+  viewId: ViewId;
+  onNavigate: (v: ViewId) => void;
+}) {
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <div className="flex items-center">
+      <nav className="hidden items-center gap-0.5 lg:flex">
+        {VIEW_ORDER.map((v) => (
+          <button
+            key={v}
+            onClick={() => onNavigate(v)}
+            className={cn(
+              "text-muted-foreground hover:text-foreground hover:bg-muted rounded-md px-3 py-1.5 text-sm transition-colors",
+              viewId === v && "text-foreground bg-muted font-medium"
+            )}
+          >
+            {VIEWS[v].navLabel}
+          </button>
+        ))}
+      </nav>
+      {/* Mobile dropdown */}
+      <div className="lg:hidden">
+        <button
+          onClick={() => setOpen((o) => !o)}
+          className="hover:bg-muted inline-flex size-9 items-center justify-center rounded-md"
+          aria-label="Toggle menu"
+        >
+          {open ? <Menu className="size-5" /> : <Menu className="size-5" />}
+        </button>
+        {open && (
+          <div className="bg-popover absolute right-0 top-14 z-50 w-56 rounded-md border p-1 shadow-md">
+            {VIEW_ORDER.map((v) => (
+              <button
+                key={v}
+                onClick={() => {
+                  onNavigate(v);
+                  setOpen(false);
+                }}
+                className={cn(
+                  "hover:bg-muted flex w-full items-center justify-between rounded-sm px-3 py-2 text-left text-sm",
+                  viewId === v && "bg-muted font-medium"
+                )}
+              >
+                {VIEWS[v].navLabel}
+                {viewId === v && <X className="size-3 opacity-0" />}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Build a plain-text summary of the results for "Copy results". */
 function buildCopyText(
   r: ReturnType<typeof calculateMortgage>,
-  state: CalcState
+  state: CalcState,
+  view: ViewMeta
 ): string {
   const lines: string[] = [];
-  lines.push("MORTGAGE OVERPAYMENT CALCULATOR — RESULTS");
-  lines.push("==========================================");
+  lines.push(`${view.title.toUpperCase()}`);
+  lines.push("=".repeat(view.title.length));
   lines.push("");
-  lines.push("YOUR MORTGAGE");
+  lines.push("YOUR HOME LOAN");
   lines.push(`  Loan amount:        ${formatCurrency(state.loanAmount)}`);
-  lines.push(`  Interest rate:      ${state.annualRate}% APR`);
-  lines.push(`  Term:               ${formatDuration(totalTermMonths(state))}`);
-  lines.push(`  Monthly payment:    ${formatCurrency(state.monthlyPayment)}`);
+  lines.push(`  Interest rate:      ${state.annualRate}% p.a.`);
+  lines.push(`  Tenure:             ${formatDuration(totalTermMonths(state))}`);
+  lines.push(`  Monthly EMI:        ${formatCurrency(state.monthlyPayment)}`);
   lines.push("");
-  lines.push("OVERPAYMENT STRATEGY");
-  const parts: string[] = [];
-  if (state.overpaymentMonthly > 0)
-    parts.push(`${formatCurrency(state.overpaymentMonthly)}/month`);
-  if (state.overpaymentLumpSum > 0)
-    parts.push(`${formatCurrency(state.overpaymentLumpSum)} lump sum`);
-  if (state.overpaymentAnnual > 0)
-    parts.push(`${formatCurrency(state.overpaymentAnnual)}/year`);
-  lines.push(
-    `  Strategy:           ${parts.join(" + ") || "none"} (starting month ${state.overpaymentStartMonth}, applied at ${state.overpaymentTiming} of month)`
-  );
-  lines.push("");
+  if (view.showPrepayment) {
+    lines.push("PREPAYMENT STRATEGY");
+    lines.push(`  Mode:               ${state.prepaymentMode === "emi" ? "Reduce EMI" : "Reduce tenure"}`);
+    const parts: string[] = [];
+    if (state.overpaymentMonthly > 0)
+      parts.push(`${formatCurrency(state.overpaymentMonthly)}/month`);
+    if (state.overpaymentLumpSum > 0)
+      parts.push(`${formatCurrency(state.overpaymentLumpSum)} lump sum`);
+    if (state.overpaymentAnnual > 0)
+      parts.push(`${formatCurrency(state.overpaymentAnnual)}/year`);
+    if (state.lumpSums.length > 0) {
+      for (const ls of state.lumpSums as LumpSumPrepayment[]) {
+        parts.push(`${formatCurrency(ls.amount)} in month ${ls.month}`);
+      }
+    }
+    lines.push(
+      `  Strategy:           ${parts.join(" + ") || "none"} (from month ${state.overpaymentStartMonth}, applied at ${state.overpaymentTiming} of month)`
+    );
+    lines.push("");
+  }
   lines.push("RESULTS");
   lines.push(`  Original payoff:    ${formatDateLong(r.originalPayoffDate)}`);
   lines.push(`  New payoff:         ${formatDateLong(r.newPayoffDate)}`);
-  lines.push(
-    `  Time saved:         ${r.monthsSaved > 0 ? formatDuration(r.monthsSaved) : "—"}`
-  );
+  if (r.prepaymentMode === "emi") {
+    lines.push(`  EMI reduced by:     ${formatCurrency(r.emiReduction)}/month`);
+    lines.push(`  Final EMI:          ${formatCurrency(r.finalEMI)}`);
+  } else {
+    lines.push(
+      `  Time saved:         ${r.monthsSaved > 0 ? formatDuration(r.monthsSaved) : "—"}`
+    );
+  }
   lines.push(`  Interest saved:     ${formatCurrency(r.totalInterestSaved)}`);
-  lines.push(`  Payments saved:     ${formatCurrency(r.totalPaymentsSaved)} (${r.monthsSaved} payments)`);
+  if (r.prepaymentMode === "tenure") {
+    lines.push(
+      `  EMIs saved:         ${formatCurrency(r.totalPaymentsSaved)} (${r.monthsSaved} EMIs)`
+    );
+  }
   lines.push("");
-  lines.push(
-    `Calculated with OverPayCalc — https://overpaycalc.example`
-  );
+  lines.push(`Calculated with HomeLoan Calc`);
   return lines.join("\n");
+}
+
+function toMonthInputValue(d: Date): string {
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const y = d.getFullYear();
+  return `${y}-${m}`;
+}
+
+function fromMonthInputValue(v: string): Date {
+  const [y, m] = v.split("-").map(Number);
+  return new Date(y, (m || 1) - 1, 1);
 }

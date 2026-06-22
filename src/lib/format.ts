@@ -1,48 +1,50 @@
 /** Formatting helpers for currency, dates and durations. */
 
-const currencyFmt = new Intl.NumberFormat("en-US", {
+// Indian currency formatting (₹ with lakh/crore grouping: 12,34,56,789).
+const inrFmt = new Intl.NumberFormat("en-IN", {
   style: "currency",
-  currency: "USD",
-  minimumFractionDigits: 0,
+  currency: "INR",
   maximumFractionDigits: 0,
+  minimumFractionDigits: 0,
 });
 
-const currencyFmtCents = new Intl.NumberFormat("en-US", {
+const inrFmtCents = new Intl.NumberFormat("en-IN", {
   style: "currency",
-  currency: "USD",
+  currency: "INR",
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
 });
 
-const dateFmt = new Intl.DateTimeFormat("en-US", {
+const dateFmt = new Intl.DateTimeFormat("en-IN", {
   month: "short",
   year: "numeric",
 });
 
-const dateFmtLong = new Intl.DateTimeFormat("en-US", {
+const dateFmtLong = new Intl.DateTimeFormat("en-IN", {
   month: "long",
   year: "numeric",
 });
 
-/** $1,234 — rounded to whole dollars, good for large headline numbers. */
+/** ₹12,34,567 — rounded to whole rupees, good for large headline numbers. */
 export function formatCurrency(n: number): string {
-  if (!isFinite(n)) return "$0";
-  return currencyFmt.format(n);
+  if (!isFinite(n)) return "₹0";
+  return inrFmt.format(n);
 }
 
-/** $1,234.56 — with cents, for amortization tables. */
+/** ₹12,34,567.89 — with paise, for amortization tables. */
 export function formatCurrencyCents(n: number): string {
-  if (!isFinite(n)) return "$0.00";
-  return currencyFmtCents.format(n);
+  if (!isFinite(n)) return "₹0.00";
+  return inrFmtCents.format(n);
 }
 
-/** $1.2M / $340K style compact currency for tight spaces. */
+/** ₹1.2Cr / ₹34L / ₹750 — compact currency for tight spaces and badges. */
 export function formatCurrencyShort(n: number): string {
-  if (!isFinite(n)) return "$0";
+  if (!isFinite(n)) return "₹0";
   const abs = Math.abs(n);
-  if (abs >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (abs >= 1_000) return `$${(n / 1_000).toFixed(0)}K`;
-  return `$${n.toFixed(0)}`;
+  if (abs >= 1_00_00_000) return `₹${(n / 1_00_00_000).toFixed(2)}Cr`;
+  if (abs >= 1_00_000) return `₹${(n / 1_00_000).toFixed(2)}L`;
+  if (abs >= 1_000) return `₹${(n / 1_000).toFixed(0)}K`;
+  return `₹${n.toFixed(0)}`;
 }
 
 /** "Jan 2031" */

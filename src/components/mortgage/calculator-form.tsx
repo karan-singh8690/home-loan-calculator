@@ -1,7 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { RotateCcw, Copy, Calculator, Info } from "lucide-react";
+import {
+  RotateCcw,
+  Copy,
+  Calculator,
+  Info,
+  Plus,
+  Trash2,
+  CalendarClock,
+  Repeat,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -9,13 +18,6 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   Card,
@@ -26,13 +28,19 @@ import {
 } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/format";
 import type { CalcState } from "@/lib/calc-state";
-import type { OverpaymentType } from "@/lib/mortgage";
+import type {
+  OverpaymentType,
+  PrepaymentMode,
+  LumpSumPrepayment,
+} from "@/lib/mortgage";
 
 interface CalculatorFormProps {
   state: CalcState;
-  /** Auto-calculated monthly payment, shown as helper text. */
+  /** Auto-calculated EMI, shown as helper text. */
   calculatedPayment: number;
   warnings: string[];
+  /** Show the prepayment-strategy section (hidden in pure EMI mode). */
+  showPrepayment: boolean;
   onChange: (patch: Partial<CalcState>) => void;
   onReset: () => void;
   onCopy: () => void;
@@ -108,6 +116,7 @@ export function CalculatorForm({
   state,
   calculatedPayment,
   warnings,
+  showPrepayment,
   onChange,
   onReset,
   onCopy,
@@ -117,6 +126,21 @@ export function CalculatorForm({
   const showLump =
     state.overpaymentType === "lump" || state.overpaymentType === "both";
 
+  function updateLumpSum(index: number, patch: Partial<LumpSumPrepayment>) {
+    const next = state.lumpSums.map((ls, i) =>
+      i === index ? { ...ls, ...patch } : ls
+    );
+    onChange({ lumpSums: next });
+  }
+  function addLumpSum() {
+    onChange({
+      lumpSums: [...state.lumpSums, { month: 12, amount: 1_00_000 }],
+    });
+  }
+  function removeLumpSum(index: number) {
+    onChange({ lumpSums: state.lumpSums.filter((_, i) => i !== index) });
+  }
+
   return (
     <Card className="overflow-hidden">
       <CardHeader className="pb-4">
@@ -125,7 +149,7 @@ export function CalculatorForm({
             <Calculator className="size-4" />
           </span>
           <div>
-            <CardTitle className="text-base">Mortgage &amp; overpayment inputs</CardTitle>
+            <CardTitle className="text-base">Home loan inputs</CardTitle>
             <CardDescription className="text-xs">
               Edit any field — results recalculate instantly.
             </CardDescription>
@@ -134,25 +158,54 @@ export function CalculatorForm({
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* ---- Your mortgage ---- */}
+        {/* ---- Input mode toggle: fresh loan vs outstanding principal ---- */}
+        <div className="flex items-center justify-between gap-3 rounded-lg border p-3">
+          <div className="space-y-0.5">
+            <Label htmlFor="inputModeSwitch" className="text-sm font-medium">
+              Outstanding principal mode
+            </Label>
+            <p className="text-muted-foreground text-xs">
+              {state.inputMode === "outstanding"
+                ? "Enter your current outstanding principal and remaining tenure to model prepayments on a loan you're already paying."
+                : "Enter a fresh loan amount and full tenure. Toggle on if you're an existing borrower."}
+            </p>
+          </div>
+          <Switch
+            id="inputModeSwitch"
+            checked={state.inputMode === "outstanding"}
+            onCheckedChange={(checked) =>
+              onChange({ inputMode: checked ? "outstanding" : "principal" })
+            }
+          />
+        </div>
+
+        {/* ---- Your loan ---- */}
         <section className="space-y-4">
           <h3 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-            Your mortgage
+            {state.inputMode === "outstanding"
+              ? "Outstanding principal & remaining tenure"
+              : "Your home loan"}
           </h3>
 
           <NumberField
             id="loanAmount"
-            label="Loan amount"
-            prefix="$"
+            label={
+              state.inputMode === "outstanding"
+                ? "Outstanding principal"
+                : "Loan amount"
+            }
+            prefix="₹"
             value={state.loanAmount}
             onChange={(v) => onChange({ loanAmount: v })}
-            step={1000}
-            placeholder="320,000"
+            step={50000}
+            placeholder="50,00,000"
             invalid={state.loanAmount <= 0}
             helper={
               state.loanAmount <= 0
                 ? "Enter the amount you're borrowing."
-                : "The amount you're borrowing (the principal)."
+                : state.inputMode === "outstanding"
+                  ? "The principal you still owe today (check your latest statement)."
+                  : "The amount you're borrowing (the principal)."
             }
           />
 
@@ -161,16 +214,18 @@ export function CalculatorForm({
             label="Interest rate (annual)"
             value={state.annualRate}
             onChange={(v) => onChange({ annualRate: v })}
-            suffix="%"
+            suffix="% p.a."
             step={0.05}
-            placeholder="6.5"
+            placeholder="8.5"
             invalid={state.annualRate < 0}
-            helper="Your mortgage's annual interest rate, e.g. 6.5 for 6.5%."
+            helper="Your home loan's annual rate of interest, e.g. 8.5 for 8.5% p.a."
           />
 
           {/* Term: years + months */}
           <div className="space-y-1.5">
-            <Label className="text-sm font-medium">Loan term</Label>
+            <Label className="text-sm font-medium">
+              {state.inputMode === "outstanding" ? "Remaining tenure" : "Loan tenure"}
+            </Label>
             <div className="grid grid-cols-2 gap-2">
               <div className="relative">
                 <Input
@@ -179,7 +234,7 @@ export function CalculatorForm({
                   min={0}
                   step={1}
                   value={state.termYears === 0 ? "" : state.termYears}
-                  placeholder="30"
+                  placeholder="20"
                   onChange={(e) =>
                     onChange({
                       termYears: Math.max(0, Number(e.target.value) || 0),
@@ -216,15 +271,15 @@ export function CalculatorForm({
               </div>
             </div>
             <p className="text-muted-foreground text-xs">
-              Pick a term in years, or add extra months for odd terms (e.g. 27 years &amp; 6 months).
+              Pick a tenure in years, or add extra months for odd tenures (e.g. 18 years &amp; 6 months).
             </p>
           </div>
 
-          {/* Monthly payment */}
+          {/* EMI */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <Label htmlFor="monthlyPayment" className="text-sm font-medium">
-                Monthly payment
+                Monthly EMI
               </Label>
               {state.paymentIsManual ? (
                 <button
@@ -242,13 +297,13 @@ export function CalculatorForm({
             </div>
             <div className="relative">
               <span className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm">
-                $
+                ₹
               </span>
               <Input
                 id="monthlyPayment"
                 type="number"
                 min={0}
-                step={10}
+                step={100}
                 value={state.monthlyPayment === 0 ? "" : state.monthlyPayment}
                 placeholder={Math.round(calculatedPayment).toString()}
                 onChange={(e) =>
@@ -262,148 +317,267 @@ export function CalculatorForm({
             </div>
             <p className="text-muted-foreground text-xs">
               {state.paymentIsManual
-                ? "You've set a custom payment. The required payment for this loan is " +
+                ? "You've set a custom EMI. The required EMI for this loan is " +
                   formatCurrency(calculatedPayment) +
                   "."
-                : "Auto-calculated from your loan, rate and term. Edit to model a different payment."}
+                : "Auto-calculated from your loan, rate and tenure. Edit to model a different EMI."}
             </p>
           </div>
         </section>
 
-        <Separator />
+        {showPrepayment && (
+          <>
+            <Separator />
 
-        {/* ---- Overpayment strategy ---- */}
-        <section className="space-y-4">
-          <h3 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-            Overpayment strategy
-          </h3>
+            {/* ---- Prepayment strategy ---- */}
+            <section className="space-y-4">
+              <h3 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+                Prepayment strategy
+              </h3>
 
-          {/* Overpayment type */}
-          <div className="space-y-1.5">
-            <Label className="text-sm font-medium">Overpayment type</Label>
-            <ToggleGroup
-              type="single"
-              value={state.overpaymentType}
-              onValueChange={(v) => {
-                if (v) onChange({ overpaymentType: v as OverpaymentType });
-              }}
-              className="grid w-full grid-cols-3"
-              variant="outline"
-            >
-              <ToggleGroupItem value="monthly" className="text-xs">
-                Extra / month
-              </ToggleGroupItem>
-              <ToggleGroupItem value="lump" className="text-xs">
-                Lump sum
-              </ToggleGroupItem>
-              <ToggleGroupItem value="both" className="text-xs">
-                Both
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </div>
+              {/* Prepayment mode: EMI vs Tenure */}
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium">
+                  When you prepay, reduce…
+                </Label>
+                <ToggleGroup
+                  type="single"
+                  value={state.prepaymentMode}
+                  onValueChange={(v) => {
+                    if (v) onChange({ prepaymentMode: v as PrepaymentMode });
+                  }}
+                  className="grid w-full grid-cols-2"
+                  variant="outline"
+                >
+                  <ToggleGroupItem value="tenure" className="text-xs">
+                    <CalendarClock className="mr-1 size-3.5" /> Tenure (finish sooner)
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="emi" className="text-xs">
+                    <Repeat className="mr-1 size-3.5" /> EMI (lower monthly)
+                  </ToggleGroupItem>
+                </ToggleGroup>
+                <p className="text-muted-foreground text-xs">
+                  {state.prepaymentMode === "tenure"
+                    ? "EMI stays the same; prepayments shorten your tenure. Saves the most interest."
+                    : "Tenure stays the same; your EMI reduces after each prepayment. Lower monthly burden, smaller interest saving."}
+                </p>
+              </div>
 
-          {showMonthly && (
-            <NumberField
-              id="overpaymentMonthly"
-              label="Extra per month"
-              prefix="$"
-              value={state.overpaymentMonthly}
-              onChange={(v) => onChange({ overpaymentMonthly: v })}
-              step={25}
-              placeholder="200"
-              helper="Added to your regular payment every month once overpayments begin."
-            />
-          )}
+              {/* Overpayment type */}
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium">Prepayment type</Label>
+                <ToggleGroup
+                  type="single"
+                  value={state.overpaymentType}
+                  onValueChange={(v) => {
+                    if (v) onChange({ overpaymentType: v as OverpaymentType });
+                  }}
+                  className="grid w-full grid-cols-3"
+                  variant="outline"
+                >
+                  <ToggleGroupItem value="monthly" className="text-xs">
+                    Extra / month
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="lump" className="text-xs">
+                    Lump sum
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="both" className="text-xs">
+                    Both
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              </div>
 
-          {showLump && (
-            <NumberField
-              id="overpaymentLumpSum"
-              label="One-time lump sum"
-              prefix="$"
-              value={state.overpaymentLumpSum}
-              onChange={(v) => onChange({ overpaymentLumpSum: v })}
-              step={500}
-              placeholder="10,000"
-              helper="A single extra payment applied in your start month (e.g. a bonus or windfall)."
-            />
-          )}
+              {showMonthly && (
+                <NumberField
+                  id="overpaymentMonthly"
+                  label="Extra per month"
+                  prefix="₹"
+                  value={state.overpaymentMonthly}
+                  onChange={(v) => onChange({ overpaymentMonthly: v })}
+                  step={1000}
+                  placeholder="5,000"
+                  helper="Added to your EMI every month once prepayments begin."
+                />
+              )}
 
-          {/* Annual bonus — optional advanced */}
-          <NumberField
-            id="overpaymentAnnual"
-            label="Extra per year (annual bonus)"
-            prefix="$"
-            value={state.overpaymentAnnual}
-            onChange={(v) => onChange({ overpaymentAnnual: v })}
-            step={250}
-            placeholder="0"
-            helper={
-              <span className="inline-flex items-start gap-1">
-                <Info className="mt-px size-3 shrink-0" />
-                <span>
-                  Optional. Applied every 12 months from your start month — handy for tax refunds or annual bonuses.
-                </span>
-              </span>
-            }
-          />
+              {showLump && (
+                <NumberField
+                  id="overpaymentLumpSum"
+                  label="One-time lump sum"
+                  prefix="₹"
+                  value={state.overpaymentLumpSum}
+                  onChange={(v) => onChange({ overpaymentLumpSum: v })}
+                  step={25000}
+                  placeholder="2,00,000"
+                  helper="A single prepayment applied in your start month (e.g. a bonus or windfall)."
+                />
+              )}
 
-          <NumberField
-            id="overpaymentStartMonth"
-            label="Start overpayment at month"
-            value={state.overpaymentStartMonth}
-            onChange={(v) => onChange({ overpaymentStartMonth: Math.max(1, Math.floor(v)) })}
-            step={1}
-            min={1}
-            placeholder="1"
-            helper="Month 1 = from the very first payment. Higher numbers model starting later."
-          />
+              {/* Annual bonus */}
+              <NumberField
+                id="overpaymentAnnual"
+                label="Extra per year (annual bonus)"
+                prefix="₹"
+                value={state.overpaymentAnnual}
+                onChange={(v) => onChange({ overpaymentAnnual: v })}
+                step={5000}
+                placeholder="0"
+                helper={
+                  <span className="inline-flex items-start gap-1">
+                    <Info className="mt-px size-3 shrink-0" />
+                    <span>
+                      Optional. Applied every 12 months from your start month — handy for annual bonuses or tax refunds.
+                    </span>
+                  </span>
+                }
+              />
 
-          {/* Timing toggle */}
-          <div className="flex items-center justify-between gap-3 rounded-lg border p-3">
-            <div className="space-y-0.5">
-              <Label htmlFor="timingSwitch" className="text-sm font-medium">
-                Apply at start of month
-              </Label>
-              <p className="text-muted-foreground text-xs">
-                {state.overpaymentTiming === "start"
-                  ? "Overpayment reduces principal before interest is charged — saves a little more."
-                  : "Overpayment applies after the regular payment (how most lenders process it)."}
-              </p>
-            </div>
-            <Switch
-              id="timingSwitch"
-              checked={state.overpaymentTiming === "start"}
-              onCheckedChange={(checked) =>
-                onChange({ overpaymentTiming: checked ? "start" : "end" })
-              }
-            />
-          </div>
+              {/* Multiple lump sums */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">
+                    Additional lump-sum prepayments
+                  </Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addLumpSum}
+                    className="h-7 px-2 text-xs"
+                  >
+                    <Plus className="size-3.5" />
+                    Add
+                  </Button>
+                </div>
+                {state.lumpSums.length === 0 ? (
+                  <p className="text-muted-foreground text-xs">
+                    Schedule extra lump sums at specific months — e.g. a yearly bonus in month 12, a property-sale proceeds in month 24.
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {state.lumpSums.map((ls, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center gap-2 rounded-lg border p-2"
+                      >
+                        <div className="grid flex-1 grid-cols-2 gap-2">
+                          <div className="relative">
+                            <Input
+                              type="number"
+                              min={1}
+                              step={1}
+                              value={ls.month === 0 ? "" : ls.month}
+                              placeholder="Month"
+                              onChange={(e) =>
+                                updateLumpSum(i, {
+                                  month: Math.max(1, Number(e.target.value) || 1),
+                                })
+                              }
+                              className="h-8 pr-12 text-xs"
+                            />
+                            <span className="text-muted-foreground pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px]">
+                              month
+                            </span>
+                          </div>
+                          <div className="relative">
+                            <span className="text-muted-foreground pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-xs">
+                              ₹
+                            </span>
+                            <Input
+                              type="number"
+                              min={0}
+                              step={10000}
+                              value={ls.amount === 0 ? "" : ls.amount}
+                              placeholder="Amount"
+                              onChange={(e) =>
+                                updateLumpSum(i, {
+                                  amount: Number(e.target.value) || 0,
+                                })
+                              }
+                              className="h-8 pl-6 text-xs"
+                            />
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="size-8 shrink-0 text-muted-foreground hover:text-destructive"
+                          onClick={() => removeLumpSum(i)}
+                          aria-label="Remove lump sum"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-          {/* Start date (loan start) */}
-          <div className="space-y-1.5">
-            <Label htmlFor="startDate" className="text-sm font-medium">
-              Loan start date
-            </Label>
-            <Input
-              id="startDate"
-              type="month"
-              value={toMonthInputValue(state.startDate)}
-              onChange={(e) => {
-                const v = e.target.value;
-                if (v) onChange({ startDate: fromMonthInputValue(v) });
-              }}
-            />
-            <p className="text-muted-foreground text-xs">
-              Used to convert &quot;months saved&quot; into real payoff dates.
-            </p>
-          </div>
-        </section>
+              <NumberField
+                id="overpaymentStartMonth"
+                label="Start prepayment at month"
+                value={state.overpaymentStartMonth}
+                onChange={(v) =>
+                  onChange({ overpaymentStartMonth: Math.max(1, Math.floor(v)) })
+                }
+                step={1}
+                min={1}
+                placeholder="1"
+                helper="Month 1 = from the very first EMI. Higher numbers model starting later."
+              />
+
+              {/* Timing toggle */}
+              <div className="flex items-center justify-between gap-3 rounded-lg border p-3">
+                <div className="space-y-0.5">
+                  <Label htmlFor="timingSwitch" className="text-sm font-medium">
+                    Apply at start of month
+                  </Label>
+                  <p className="text-muted-foreground text-xs">
+                    {state.overpaymentTiming === "start"
+                      ? "Prepayment reduces principal before interest is charged — saves a little more."
+                      : "Prepayment applies after the EMI (how most banks process it)."}
+                  </p>
+                </div>
+                <Switch
+                  id="timingSwitch"
+                  checked={state.overpaymentTiming === "start"}
+                  onCheckedChange={(checked) =>
+                    onChange({ overpaymentTiming: checked ? "start" : "end" })
+                  }
+                />
+              </div>
+
+              {/* Start date (loan start) */}
+              <div className="space-y-1.5">
+                <Label htmlFor="startDate" className="text-sm font-medium">
+                  Loan start date
+                </Label>
+                <Input
+                  id="startDate"
+                  type="month"
+                  value={toMonthInputValue(state.startDate)}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v) onChange({ startDate: fromMonthInputValue(v) });
+                  }}
+                />
+                <p className="text-muted-foreground text-xs">
+                  Used to convert &quot;months saved&quot; into real payoff dates.
+                </p>
+              </div>
+            </section>
+          </>
+        )}
 
         {/* Warnings */}
         {warnings.length > 0 && (
           <div className="space-y-2 rounded-lg border border-amber-300/60 bg-amber-50 p-3 dark:border-amber-700/40 dark:bg-amber-950/30">
             {warnings.map((w, i) => (
-              <p key={i} className="text-xs leading-snug text-amber-800 dark:text-amber-200">
+              <p
+                key={i}
+                className="text-xs leading-snug text-amber-800 dark:text-amber-200"
+              >
                 <span className="font-semibold">Heads up:</span> {w}
               </p>
             ))}

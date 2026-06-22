@@ -14,22 +14,21 @@ import {
 const BLOCKS = [
   {
     icon: Layers,
-    title: "How overpayments reduce interest",
+    title: "How prepayments reduce your interest",
     body: (
       <>
         <p>
-          Every mortgage payment is split into two parts:{" "}
-          <strong>interest</strong> (the cost of borrowing, charged on your
-          remaining balance) and <strong>principal</strong> (the part that
-          actually pays down the loan). At the start of a mortgage, almost all
-          of your payment is interest.
+          Every EMI is split into two parts: <strong>interest</strong> (the cost
+          of borrowing, charged on your outstanding principal) and{" "}
+          <strong>principal</strong> (the part that actually reduces your loan).
+          At the start of a home loan, almost all of your EMI is interest.
         </p>
         <p className="mt-2">
-          An overpayment goes <em>directly to principal</em>. Because next
-          month's interest is calculated on a smaller balance, less of your
-          regular payment gets eaten by interest and more chips away at the loan
-          — month after month, for the rest of the term. That compounding effect
-          is why even small overpayments early in a mortgage can save a
+          A prepayment goes <em>directly to the principal</em>. Because next
+          month's interest is calculated on a smaller outstanding balance, less
+          of your EMI gets eaten by interest and more chips away at the loan —
+          month after month, for the rest of the tenure. That compounding effect
+          is why even small prepayments early in a home loan can save a
           surprising amount.
         </p>
       </>
@@ -37,20 +36,20 @@ const BLOCKS = [
   },
   {
     icon: CalendarClock,
-    title: "Why overpaying shortens your payoff date",
+    title: "Why prepaying shortens your payoff date",
     body: (
       <>
         <p>
-          Unless you formally recast the loan with your lender, your contractual
-          monthly payment doesn't change when you overpay. Instead, the extra
+          Unless your bank restructures the loan (a &quot;recast&quot;), your
+          contractual EMI doesn't change when you prepay. Instead, the extra
           principal reduction means you reach a zero balance sooner — your{" "}
           <strong>payoff date moves earlier</strong>.
         </p>
         <p className="mt-2">
-          The earlier you start, the bigger the effect. Overpaying in year one
-          reduces interest for the entire remaining term, while the same
-          overpayment in year twenty-nine barely moves the needle. The
-          calculator's <em>Start overpayment at month</em> field lets you see
+          The earlier you start, the bigger the effect. Prepaying in year one
+          reduces interest for the entire remaining tenure, while the same
+          prepayment in the final years barely moves the needle. The
+          calculator's <em>Start prepayment at month</em> field lets you see
           exactly how much timing matters for your loan.
         </p>
       </>
@@ -58,48 +57,51 @@ const BLOCKS = [
   },
   {
     icon: TrendingDown,
-    title: "Monthly vs. lump sum: which saves more?",
+    title: "Reduce EMI vs reduce tenure: which is better?",
     body: (
       <>
         <p>
-          A lump sum applied early almost always beats the same amount spread
-          monthly, because the full reduction hits your balance — and therefore
-          your interest — for more months. But lump sums require having the
-          cash, while monthly overpayments are easier to sustain as a habit.
+          When you prepay, most Indian banks (on floating-rate individual home
+          loans) let you choose: keep the EMI the same and finish sooner
+          (<strong>reduce tenure</strong>), or keep the tenure the same and
+          lower your EMI (<strong>reduce EMI</strong>).
         </p>
         <p className="mt-2">
-          A popular middle ground is a <strong>combination</strong>: a steady
-          monthly overpayment you can commit to, plus occasional lump sums from
-          bonuses, tax refunds, or windfalls. The calculator supports all three
-          — switch the <em>Overpayment type</em> to &quot;Both&quot; and add an
-          annual amount if you get yearly bonuses.
+          Reduce tenure saves more interest because your EMI keeps hammering the
+          (now smaller) principal. Reduce EMI improves monthly cash flow —
+          useful if you expect income pressure or want to redirect money to
+          other goals. Use the <em>Reduce EMI vs Reduce Tenure</em> calculator
+          to compare both side-by-side.
         </p>
       </>
     ),
   },
   {
     icon: ShieldCheck,
-    title: "Things to check before overpaying",
+    title: "Things to check before prepaying",
     body: (
       <>
         <ul className="list-disc space-y-1.5 pl-4">
           <li>
-            <strong>Early-repayment fees:</strong> some fixed-rate mortgages
-            charge a penalty if you overpay more than ~10% of the balance per
-            year. Check your terms.
+            <strong>Prepayment penalty:</strong> RBI bars banks from charging
+            any penalty on prepayment or foreclosure of floating-rate home
+            loans to individuals. Fixed-rate loans may carry a charge (typically
+            2% on the prepaid amount) — check your sanction letter.
           </li>
           <li>
-            <strong>Higher-interest debt:</strong> credit cards and personal
-            loans usually cost more than your mortgage. Clear those first.
+            <strong>Higher-interest debt:</strong> personal loans and credit
+            cards cost far more than your home loan. Clear those first.
           </li>
           <li>
-            <strong>Emergency fund:</strong> money tied up in your mortgage
-            can't be withdrawn. Keep 3–6 months of expenses accessible.
+            <strong>Tax benefits:</strong> principal repayment (including
+            prepayment) qualifies for Section 80C (up to ₹1.5L), and interest
+            under Section 24(b) (up to ₹2L for self-occupied). Don't let tax
+            savings alone drive your decision, but factor them in.
           </li>
           <li>
-            <strong>Offset vs. overpay:</strong> an offset account gives
-            similar interest savings while keeping your cash liquid — worth
-            comparing.
+            <strong>Emergency fund:</strong> money locked into your home loan
+            can't be withdrawn. Keep 3–6 months of expenses liquid before
+            prepaying.
           </li>
         </ul>
       </>
@@ -112,7 +114,7 @@ export function ContentBlocks() {
     <section className="space-y-4">
       <div>
         <h2 className="text-xl font-bold tracking-tight">
-          How mortgage overpayments work
+          How home loan prepayments work
         </h2>
         <p className="text-muted-foreground mt-1 text-sm">
           A quick primer on the mechanics behind the numbers above.

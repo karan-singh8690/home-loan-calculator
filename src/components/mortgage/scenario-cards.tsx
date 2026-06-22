@@ -15,12 +15,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDate, formatDuration } from "@/lib/format";
 import { calculateMortgage, addMonths, calcMonthlyPayment } from "@/lib/mortgage";
-import { SCENARIOS } from "@/lib/scenarios";
-import type { ScenarioInput } from "@/lib/scenarios";
+import { INDIA_SCENARIOS } from "@/lib/india-scenarios";
+import type { IndiaScenarioInput } from "@/lib/india-scenarios";
 
 interface ScenarioCardsProps {
   /** Called when a user wants to load a scenario into the live calculator. */
-  onLoad?: (input: ScenarioInput) => void;
+  onLoad?: (input: IndiaScenarioInput) => void;
 }
 
 export function ScenarioCards({ onLoad }: ScenarioCardsProps) {
@@ -31,16 +31,16 @@ export function ScenarioCards({ onLoad }: ScenarioCardsProps) {
     <section className="space-y-4">
       <div>
         <h2 className="text-xl font-bold tracking-tight">
-          Example overpayment scenarios
+          Example prepayment scenarios
         </h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Real-world strategies on a $320,000 loan at 6.5% over 30 years. Tap
-          any scenario to load it into the calculator above.
+          Real-world strategies on typical Indian home loans (₹35L–₹1Cr at
+          8.4–8.6% p.a.). Tap any scenario to load it into the calculator above.
         </p>
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {SCENARIOS.map((scn) => {
+        {INDIA_SCENARIOS.map((scn) => {
           const result = calculateMortgage({
             ...scn.input,
             monthlyPayment: calcMonthlyPayment(

@@ -9,6 +9,7 @@ import {
   Clock,
   Sparkles,
   AlertTriangle,
+  Repeat,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -51,6 +52,9 @@ export function ResultsSection({ result }: ResultsSectionProps) {
   const monthsSaved = result.monthsSaved;
   const interestSaved = result.totalInterestSaved;
   const hasOverpayment = result.totalOverpaymentDeployed > 0.5;
+  const isEmiMode = result.prepaymentMode === "emi";
+  const emiReduction = result.emiReduction;
+  const finalEMI = result.finalEMI;
 
   return (
     <div className="space-y-4">
@@ -60,10 +64,19 @@ export function ResultsSection({ result }: ResultsSectionProps) {
         <CardHeader className="relative pb-2">
           <div className="flex items-center gap-2">
             <Sparkles className="size-4 text-emerald-600 dark:text-emerald-400" />
-            <CardTitle className="text-base">Your overpayment results</CardTitle>
+            <CardTitle className="text-base">Your results</CardTitle>
+            {isEmiMode ? (
+              <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 ml-1 text-[10px]">
+                <Repeat className="mr-1 size-3" /> EMI reduction
+              </Badge>
+            ) : (
+              <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 ml-1 text-[10px]">
+                <CalendarClock className="mr-1 size-3" /> Tenure reduction
+              </Badge>
+            )}
           </div>
           <CardDescription className="text-xs">
-            Compared to your original mortgage schedule.
+            Compared to your original home loan schedule.
           </CardDescription>
         </CardHeader>
         <CardContent className="relative">
@@ -80,26 +93,47 @@ export function ResultsSection({ result }: ResultsSectionProps) {
                 {formatCurrency(interestSaved)}
               </p>
               <p className="text-muted-foreground mt-1 text-xs">
-                Net money you keep by paying less interest over the life of the loan.
+                {isEmiMode
+                  ? "Interest avoided by prepaying principal, even though your EMI dropped."
+                  : "Net money you keep by paying less interest over the life of the loan."}
               </p>
             </div>
 
-            {/* Time saved */}
+            {/* Time saved OR EMI reduced */}
             <div className="rounded-xl bg-white/70 p-4 ring-1 ring-emerald-600/15 dark:bg-black/20">
-              <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300">
-                <Clock className="size-4" />
-                <span className="text-xs font-semibold tracking-wide uppercase">
-                  Debt-free sooner
-                </span>
-              </div>
-              <p className="mt-1 text-3xl font-bold tracking-tight text-emerald-700 dark:text-emerald-300 sm:text-4xl">
-                {monthsSaved > 0 ? formatDuration(monthsSaved) : "—"}
-              </p>
-              <p className="text-muted-foreground mt-1 text-xs">
-                {monthsSaved > 0
-                  ? `Shaved off your original ${formatDuration(result.originalTermMonths)} term.`
-                  : "No change to your term with the current overpayment."}
-              </p>
+              {isEmiMode ? (
+                <>
+                  <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300">
+                    <Repeat className="size-4" />
+                    <span className="text-xs font-semibold tracking-wide uppercase">
+                      EMI reduced by
+                    </span>
+                  </div>
+                  <p className="mt-1 text-3xl font-bold tracking-tight text-emerald-700 dark:text-emerald-300 sm:text-4xl">
+                    {emiReduction > 0 ? formatCurrency(emiReduction) + "/mo" : "—"}
+                  </p>
+                  <p className="text-muted-foreground mt-1 text-xs">
+                    Your EMI drops from {formatCurrency(finalEMI + emiReduction)} to {formatCurrency(finalEMI)} — your tenure stays the same.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300">
+                    <Clock className="size-4" />
+                    <span className="text-xs font-semibold tracking-wide uppercase">
+                      Debt-free sooner
+                    </span>
+                  </div>
+                  <p className="mt-1 text-3xl font-bold tracking-tight text-emerald-700 dark:text-emerald-300 sm:text-4xl">
+                    {monthsSaved > 0 ? formatDuration(monthsSaved) : "—"}
+                  </p>
+                  <p className="text-muted-foreground mt-1 text-xs">
+                    {monthsSaved > 0
+                      ? `Shaved off your original ${formatDuration(result.originalTermMonths)} tenure.`
+                      : "No change to your tenure with the current prepayment."}
+                  </p>
+                </>
+              )}
             </div>
           </div>
 
@@ -121,19 +155,21 @@ export function ResultsSection({ result }: ResultsSectionProps) {
           icon={<CalendarClock className="size-4" />}
           label="Original payoff date"
           date={formatDateLong(result.originalPayoffDate)}
-          sub={`Original term: ${formatDuration(result.originalTermMonths)}`}
+          sub={`Original tenure: ${formatDuration(result.originalTermMonths)}`}
           tone="muted"
         />
         <DateCard
           icon={<CalendarCheck className="size-4" />}
-          label="New payoff date"
+          label={isEmiMode ? "Payoff date (unchanged)" : "New payoff date"}
           date={formatDateLong(result.newPayoffDate)}
           sub={
-            monthsSaved > 0
-              ? `${formatDuration(monthsSaved)} earlier`
-              : "Same as original"
+            isEmiMode
+              ? "Tenure stays the same in EMI mode"
+              : monthsSaved > 0
+                ? `${formatDuration(monthsSaved)} earlier`
+                : "Same as original"
           }
-          tone={monthsSaved > 0 ? "emerald" : "muted"}
+          tone={!isEmiMode && monthsSaved > 0 ? "emerald" : "muted"}
         />
       </div>
 
@@ -141,7 +177,7 @@ export function ResultsSection({ result }: ResultsSectionProps) {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-sm">
-            Original mortgage vs. with overpayments
+            Original loan vs. with prepayments
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -160,17 +196,28 @@ export function ResultsSection({ result }: ResultsSectionProps) {
             savedLabel="less out of pocket"
             note={
               hasOverpayment
-                ? `Includes ${formatCurrency(result.totalOverpaymentDeployed)} in overpayments you chose to make.`
+                ? `Includes ${formatCurrency(result.totalOverpaymentDeployed)} in prepayments you chose to make.`
                 : undefined
             }
           />
-          <ComparisonRow
-            label="Payments no longer required"
-            original={`${result.originalTermMonths} payments`}
-            newValue={`${result.newTermMonths} payments`}
-            saved={formatCurrency(result.totalPaymentsSaved)}
-            savedLabel="cash-flow freed up"
-          />
+          {isEmiMode ? (
+            <ComparisonRow
+              label="Monthly EMI"
+              original={formatCurrency(finalEMI + emiReduction)}
+              newValue={formatCurrency(finalEMI)}
+              saved={emiReduction > 0 ? formatCurrency(emiReduction) + "/mo" : "—"}
+              savedLabel="EMI reduced"
+              note="Your EMI steps down after each prepayment; shown is the final (lowest) EMI."
+            />
+          ) : (
+            <ComparisonRow
+              label="EMIs no longer required"
+              original={`${result.originalTermMonths} EMIs`}
+              newValue={`${result.newTermMonths} EMIs`}
+              saved={formatCurrency(result.totalPaymentsSaved)}
+              savedLabel="cash-flow freed up"
+            />
+          )}
         </CardContent>
       </Card>
 
@@ -280,8 +327,21 @@ function ComparisonRow({
 
 /** Build the plain-English "What this means" summary. */
 function buildSummary(r: MortgageResult): string {
+  const isEmiMode = r.prepaymentMode === "emi";
+  if (isEmiMode) {
+    if (r.emiReduction <= 0 && r.totalInterestSaved <= 0) {
+      return "With the current inputs, your prepayment isn't reducing the EMI or saving interest. Try increasing the amount or starting earlier.";
+    }
+    const saved = formatCurrency(r.totalInterestSaved);
+    const drop = formatCurrency(r.emiReduction);
+    return (
+      `By prepaying, your EMI drops by ${drop}/month while your tenure stays at ${formatDuration(r.originalTermMonths)}. ` +
+      `You'll still save ${saved} in total interest over the life of the loan — money that stays with you ` +
+      `instead of going to the bank. Lower EMIs also ease your monthly cash flow for other goals.`
+    );
+  }
   if (r.monthsSaved <= 0) {
-    return "With the current inputs, your overpayment doesn't shorten the loan. Try increasing the amount, or moving the start month earlier — the earlier you overpay, the more interest you save.";
+    return "With the current inputs, your prepayment doesn't shorten the loan. Try increasing the amount, or moving the start month earlier — the earlier you prepay, the more interest you save.";
   }
   const time = formatDuration(r.monthsSaved);
   const saved = formatCurrency(r.totalInterestSaved);
@@ -291,7 +351,7 @@ function buildSummary(r: MortgageResult): string {
     : "";
 
   return (
-    `By overpaying, you'll be mortgage-free ${time} sooner — finishing around ${newDate} ` +
+    `By prepaying, you'll be debt-free ${time} sooner — finishing around ${newDate} ` +
     `instead of ${formatDate(r.originalPayoffDate)}. You'll save ${saved} in interest, ` +
     `which works out to roughly ${perMonthSaved} saved for every month you shave off. ` +
     `That's money that stays in your pocket instead of going to the bank.`
@@ -300,21 +360,30 @@ function buildSummary(r: MortgageResult): string {
 
 /** Build the "is it worth it" verdict. */
 function buildWorthIt(r: MortgageResult): string {
-  if (r.monthsSaved <= 0) {
-    return "Right now the overpayment isn't moving the needle. The most common reason is starting too late, or overpaying less than the monthly interest on the remaining balance. Try starting at month 1 or increasing the amount.";
+  const isEmiMode = r.prepaymentMode === "emi";
+  if (r.totalInterestSaved <= 0) {
+    return "Right now the prepayment isn't moving the needle. The most common reason is starting too late, or prepaying less than the monthly interest on the outstanding principal. Try starting at month 1 or increasing the amount.";
   }
   const ratio =
     r.totalOverpaymentDeployed > 0
       ? r.totalInterestSaved / r.totalOverpaymentDeployed
       : Infinity;
   if (!isFinite(ratio)) {
-    return "Every dollar of overpayment is working hard — you're saving meaningful interest for very little extra outlay.";
+    return "Every rupee of prepayment is working hard — you're saving meaningful interest for very little extra outlay.";
   }
   const mult = ratio.toFixed(1);
+  if (isEmiMode) {
+    return (
+      `Yes. You'll deploy ${formatCurrency(r.totalOverpaymentDeployed)} in prepayments and save ` +
+      `${formatCurrency(r.totalInterestSaved)} in interest — about ₹${mult} saved for every ₹1 you ` +
+      `prepay — while also lowering your EMI by ${formatCurrency(r.emiReduction)}/month. ` +
+      `That's a guaranteed, tax-free return equal to your home loan rate.`
+    );
+  }
   return (
-    `Yes. You'll deploy ${formatCurrency(r.totalOverpaymentDeployed)} in overpayments and save ` +
-    `${formatCurrency(r.totalInterestSaved)} in interest — about $${mult} saved for every $1 you ` +
-    `overpay. That's a guaranteed, tax-free return equal to your mortgage rate, which is hard to ` +
+    `Yes. You'll deploy ${formatCurrency(r.totalOverpaymentDeployed)} in prepayments and save ` +
+    `${formatCurrency(r.totalInterestSaved)} in interest — about ₹${mult} saved for every ₹1 you ` +
+    `prepay. That's a guaranteed, tax-free return equal to your home loan rate, which is hard to ` +
     `beat with most other safe investments.`
   );
 }
