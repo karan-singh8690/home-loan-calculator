@@ -41,6 +41,8 @@ interface CalculatorFormProps {
   warnings: string[];
   /** Show the prepayment-strategy section (hidden in pure EMI mode). */
   showPrepayment: boolean;
+  /** Show the EMI/tenure mode toggle. V1 prepayment view is tenure-only. */
+  showModeToggle: boolean;
   onChange: (patch: Partial<CalcState>) => void;
   onReset: () => void;
   onCopy: () => void;
@@ -117,6 +119,7 @@ export function CalculatorForm({
   calculatedPayment,
   warnings,
   showPrepayment,
+  showModeToggle,
   onChange,
   onReset,
   onCopy,
@@ -335,33 +338,35 @@ export function CalculatorForm({
                 Prepayment strategy
               </h3>
 
-              {/* Prepayment mode: EMI vs Tenure */}
-              <div className="space-y-1.5">
-                <Label className="text-sm font-medium">
-                  When you prepay, reduce…
-                </Label>
-                <ToggleGroup
-                  type="single"
-                  value={state.prepaymentMode}
-                  onValueChange={(v) => {
-                    if (v) onChange({ prepaymentMode: v as PrepaymentMode });
-                  }}
-                  className="grid w-full grid-cols-2"
-                  variant="outline"
-                >
-                  <ToggleGroupItem value="tenure" className="text-xs">
-                    <CalendarClock className="mr-1 size-3.5" /> Tenure (finish sooner)
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="emi" className="text-xs">
-                    <Repeat className="mr-1 size-3.5" /> EMI (lower monthly)
-                  </ToggleGroupItem>
-                </ToggleGroup>
-                <p className="text-muted-foreground text-xs">
-                  {state.prepaymentMode === "tenure"
-                    ? "EMI stays the same; prepayments shorten your tenure. Saves the most interest."
-                    : "Tenure stays the same; your EMI reduces after each prepayment. Lower monthly burden, smaller interest saving."}
-                </p>
-              </div>
+              {/* Prepayment mode: EMI vs Tenure (hidden on V1 tenure-only views) */}
+              {showModeToggle && (
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-medium">
+                    When you prepay, reduce…
+                  </Label>
+                  <ToggleGroup
+                    type="single"
+                    value={state.prepaymentMode}
+                    onValueChange={(v) => {
+                      if (v) onChange({ prepaymentMode: v as PrepaymentMode });
+                    }}
+                    className="grid w-full grid-cols-2"
+                    variant="outline"
+                  >
+                    <ToggleGroupItem value="tenure" className="text-xs">
+                      <CalendarClock className="mr-1 size-3.5" /> Tenure (finish sooner)
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="emi" className="text-xs">
+                      <Repeat className="mr-1 size-3.5" /> EMI (lower monthly)
+                    </ToggleGroupItem>
+                  </ToggleGroup>
+                  <p className="text-muted-foreground text-xs">
+                    {state.prepaymentMode === "tenure"
+                      ? "EMI stays the same; prepayments shorten your tenure. Saves the most interest."
+                      : "Tenure stays the same; your EMI reduces after each prepayment. Lower monthly burden, smaller interest saving."}
+                  </p>
+                </div>
+              )}
 
               {/* Overpayment type */}
               <div className="space-y-1.5">

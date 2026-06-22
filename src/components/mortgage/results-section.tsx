@@ -166,12 +166,33 @@ export function ResultsSection({ result }: ResultsSectionProps) {
             isEmiMode
               ? "Tenure stays the same in EMI mode"
               : monthsSaved > 0
-                ? `${formatDuration(monthsSaved)} earlier`
+                ? `New tenure: ${formatDuration(result.newTermMonths)} — ${formatDuration(monthsSaved)} earlier`
                 : "Same as original"
           }
           tone={!isEmiMode && monthsSaved > 0 ? "emerald" : "muted"}
         />
       </div>
+
+      {/* ---- Worth it? badge ---- */}
+      {interestSaved > 0 && (
+        <div className="flex items-center gap-3 rounded-xl border border-emerald-600/30 bg-emerald-50/50 px-4 py-3 dark:bg-emerald-950/20">
+          <span className="bg-emerald-600 text-white flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold">
+            {isWorthIt(result) ? "YES" : "NO"}
+          </span>
+          <div>
+            <p className="text-sm font-semibold">
+              Worth it? {isWorthIt(result) ? "Yes" : "Not yet"}
+            </p>
+            <p className="text-muted-foreground text-xs">
+              {isWorthIt(result)
+                ? isEmiMode
+                  ? "You save interest and lower your monthly EMI."
+                  : "You become debt-free sooner and save on interest."
+                : "Increase your prepayment or start earlier to see savings."}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ---- Interest & payment breakdown ---- */}
       <Card>
@@ -323,6 +344,11 @@ function ComparisonRow({
       </div>
     </div>
   );
+}
+
+/** Whether the prepayment strategy is "worth it" — saves interest or time. */
+function isWorthIt(r: MortgageResult): boolean {
+  return r.totalInterestSaved > 0 || r.monthsSaved > 0 || r.emiReduction > 0;
 }
 
 /** Build the plain-English "What this means" summary. */

@@ -14,27 +14,27 @@ import {
 const AFFILIATE_LINKS = [
   {
     icon: RefreshCw,
-    title: "Compare refinance rates",
+    title: "Compare Home Loan Rates",
     description:
-      "See today's mortgage rates from multiple lenders in one place. A 0.5% lower rate can save more than overpaying.",
+      "Check today's home loan interest rates from SBI, HDFC, ICICI, Axis and more. A 0.5% lower ROI can save more than prepaying.",
     cta: "Compare rates",
-    href: "#affiliate-refinance",
+    href: "#affiliate-compare-rates",
   },
   {
     icon: Phone,
-    title: "Talk to a mortgage broker",
+    title: "Talk to a Loan Expert",
     description:
-      "Get a free, no-obligation chat with a broker who can structure your overpayments and check for early-repayment fees.",
-    cta: "Find a broker",
-    href: "#affiliate-broker",
+      "Get a free, no-obligation consultation with a home loan advisor who can structure your prepayments and check for foreclosure charges.",
+    cta: "Talk to an expert",
+    href: "#affiliate-loan-expert",
   },
   {
     icon: Landmark,
-    title: "See if refinancing could save more",
+    title: "See Balance Transfer Offers",
     description:
-      "Refinancing to a shorter term or lower rate might beat overpaying. Run the numbers side by side.",
-    cta: "Check refinancing",
-    href: "#affiliate-refi-check",
+      "Move your outstanding principal to a lender offering a lower ROI. Most banks charge no foreclosure fee on floating-rate home loans.",
+    cta: "See offers",
+    href: "#affiliate-balance-transfer",
   },
 ];
 
@@ -44,7 +44,7 @@ export function AffiliateSection() {
       <div>
         <h2 className="text-xl font-bold tracking-tight">Next steps to save even more</h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Overpaying is powerful — but it's worth checking whether refinancing or
+          Prepaying is powerful — but it's worth checking whether a lower ROI or
           professional advice could save you even more. These partners can help.
         </p>
       </div>

@@ -120,3 +120,30 @@ Stage Summary:
 - INR formatting verified (₹13,89,250 lakh grouping). Multiple lump sums verified (₹5L at month 24 → ₹23.11L saved). CSV export verified (414-line file with summary + schedule). PDF teaser verified (scrolls to email capture + toast). Shareable URLs verified (custom params restore full state). Outstanding-principal mode verified (labels change). Dynamic metadata + canonical + breadcrumb + FAQ JSON-LD verified per view.
 - Lint clean (0 errors), TypeScript clean, dev server running, no console/runtime errors.
 - VLM review confirmed correct ₹ formatting, cohesive emerald theme, no visual bugs, mobile-responsive single-column layout, sticky header/footer.
+
+---
+Task ID: v1-reduce-tenure
+Agent: main (Z.ai Code)
+Task: Extend the platform into a production-ready India-focused "Home Loan Prepayment Calculator (Reduce Tenure)" V1 experience — compact amortization preview, worth-it badge, new tenure display, lead-gen form (email/phone + city), India-specific affiliate CTAs, tenure-locked prepayment view.
+
+Work Log:
+- Updated `affiliate-section.tsx` with India-specific CTAs: "Compare Home Loan Rates", "Talk to a Loan Expert", "See Balance Transfer Offers" (replacing US-focused copy).
+- Extended `email-capture.tsx` into a full lead-gen form: "Email or phone" field (accepts either, with Indian phone validation), "City (optional)" field, "Send My Report" button, updated copy to "Get your full amortization schedule" + "We'll email a detailed PDF/CSV report and share options to reduce your home-loan tenure and interest."
+- Updated `prisma/schema.prisma`: made `email` optional (`String?`), added `phone` and `city` fields. Ran `db:push` + `db:generate`.
+- Updated `api/emails/route.ts`: accepts email OR phone (at least one required), validates Indian phone format (10-digit starting 6-9, optional +91), stores city. Phone-only leads omit email entirely.
+- Added `variant="compact"` to `amortization-table.tsx`: 6-column India spec (Month, EMI, Interest, Principal, Prepayment, Balance) — drops "Starting Balance", renames to India terminology. Default variant remains "full" for backward compat.
+- Updated `results-section.tsx`: added "New tenure: X years, Y months" to the new-payoff-date card sub-text; added a prominent "Worth it? Yes" badge (green circle with YES/NO) between the comparison cards and breakdown. Added `isWorthIt()` helper.
+- Added `showModeToggle` flag to `ViewMeta` in `views.ts`: prepayment view (and all bank/interest-saving views) set to `false` (V1 tenure-only); reduce-emi-vs-tenure view set to `true`.
+- Updated `calculator-form.tsx`: accepts `showModeToggle` prop, wraps the EMI/tenure toggle in `{showModeToggle && (...)}` so it's hidden on tenure-only views.
+- Updated `page.tsx`: passes `showModeToggle` to the form, uses `variant="compact"` for the amortization table, forces `prepaymentMode: "tenure"` when `showModeToggle` is false (V1 lock).
+- Updated prepayment view title to "Home Loan Prepayment Calculator (Reduce Tenure)" with subtitle emphasizing "EMI stays fixed, tenure reduces".
+
+Stage Summary:
+- V1 reduce-tenure prepayment experience complete on the `/` route (default `?tool=prepayment` view).
+- All V1 inputs present: Loan Amount (₹), Annual Interest Rate (%), Tenure (Years+Months), EMI (auto-calc), Monthly Extra EMI, Lump Sum Prepayment, Prepayment Start Month. All calculation rules preserved (fixed EMI, reduce tenure, monthly compounding, edge cases).
+- Output matches spec: New Payoff Date, New Tenure ("15 years, 7 months — 4 years, 6 months earlier"), Interest Saved (₹13,89,250), Worth It? Yes badge, What this means summary.
+- Amortization preview: Month | EMI | Interest | Principal | Prepayment | Balance (compact 6-col variant).
+- Lead-gen form: email-or-phone + city + "Send My Report" — verified saving to DB with both email-only and phone-only leads.
+- Affiliate CTAs: Compare Home Loan Rates, Talk to a Loan Expert, See Balance Transfer Offers.
+- Mode toggle hidden on prepayment view (V1 tenure-only); still available on reduce-emi-vs-tenure view.
+- Lint clean, TypeScript clean, VLM-verified visual design with no issues.

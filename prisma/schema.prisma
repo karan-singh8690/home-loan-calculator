@@ -31,11 +31,13 @@ model Post {
   updatedAt DateTime @updatedAt
 }
 
-/// Email leads captured from the mortgage calculator for free schedule delivery
-/// and future upsells (premium PDF/CSV export).
+/// Leads captured from the home loan calculator for free schedule delivery
+/// and future upsells (premium PDF/CSV export). Accepts email or phone.
 model EmailLead {
   id        String   @id @default(cuid())
-  email     String   @unique
+  email     String?  @unique
+  phone     String?
+  city      String?
   /// JSON snapshot of the calculation summary at capture time.
   summary   String?
   createdAt DateTime @default(now())

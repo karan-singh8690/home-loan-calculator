@@ -124,7 +124,8 @@ export default function HomeLoanPlatform() {
       lumpSums: activeLumpSums,
       overpaymentStartMonth: state.overpaymentStartMonth,
       overpaymentTiming: state.overpaymentTiming,
-      prepaymentMode: showPrepayment ? state.prepaymentMode : "tenure",
+      prepaymentMode:
+        showPrepayment && view.showModeToggle ? state.prepaymentMode : "tenure",
       startDate: state.startDate,
     };
     return calculateMortgage(input, {
@@ -143,6 +144,7 @@ export default function HomeLoanPlatform() {
     state.overpaymentTiming,
     state.prepaymentMode,
     showPrepayment,
+    view.showModeToggle,
     view.compareBoth,
     state.startDate,
   ]);
@@ -345,6 +347,7 @@ export default function HomeLoanPlatform() {
                   calculatedPayment={calculatedPayment}
                   warnings={result.warnings}
                   showPrepayment={view.showPrepayment}
+                  showModeToggle={view.showModeToggle}
                   onChange={handleChange}
                   onReset={handleReset}
                   onCopy={handleCopy}
@@ -359,7 +362,7 @@ export default function HomeLoanPlatform() {
                 )}
                 {result.valid && (
                   <>
-                    <AmortizationTable result={result} />
+                    <AmortizationTable result={result} variant="compact" />
                     <ExportButtons
                       schedule={result.overpaymentSchedule}
                       originalSchedule={result.originalSchedule}

@@ -35,15 +35,18 @@ export interface ViewMeta {
   showPrepayment: boolean;
   /** Whether to compute the EMI-vs-tenure comparison side-by-side. */
   compareBoth: boolean;
+  /** Whether to show the EMI/tenure mode toggle. V1 prepayment view is
+   *  tenure-only, so this is false there; the comparison view shows it. */
+  showModeToggle: boolean;
 }
 
 export const VIEWS: Record<ViewId, ViewMeta> = {
   prepayment: {
     id: "prepayment",
     navLabel: "Prepayment",
-    title: "Home Loan Prepayment Calculator India",
+    title: "Home Loan Prepayment Calculator (Reduce Tenure)",
     subtitle:
-      "See exactly how much interest you'll save and how many years you'll shave off your home loan by making prepayments. Free, instant, and accurate — monthly compounding with Indian rupee formatting.",
+      "See exactly how much interest you'll save and how many years you'll shave off your home loan by making prepayments. EMI stays fixed, tenure reduces — free, instant, and accurate with Indian rupee formatting.",
     metaTitle:
       "Home Loan Prepayment Calculator India | EMI, Interest & Tenure Saving",
     metaDescription:
@@ -52,6 +55,7 @@ export const VIEWS: Record<ViewId, ViewMeta> = {
     breadcrumbs: [{ label: "Prepayment Calculator" }],
     showPrepayment: true,
     compareBoth: false,
+    showModeToggle: false,
   },
   emi: {
     id: "emi",
@@ -66,6 +70,7 @@ export const VIEWS: Record<ViewId, ViewMeta> = {
     breadcrumbs: [{ label: "EMI Calculator" }],
     showPrepayment: false,
     compareBoth: false,
+    showModeToggle: false,
   },
   "reduce-emi-vs-tenure": {
     id: "reduce-emi-vs-tenure",
@@ -81,6 +86,7 @@ export const VIEWS: Record<ViewId, ViewMeta> = {
     breadcrumbs: [{ label: "Reduce EMI vs Tenure" }],
     showPrepayment: true,
     compareBoth: true,
+    showModeToggle: true,
   },
   "interest-saving": {
     id: "interest-saving",
@@ -96,6 +102,7 @@ export const VIEWS: Record<ViewId, ViewMeta> = {
     breadcrumbs: [{ label: "Interest Saving Calculator" }],
     showPrepayment: true,
     compareBoth: false,
+    showModeToggle: false,
   },
   sbi: {
     id: "sbi",
@@ -111,6 +118,7 @@ export const VIEWS: Record<ViewId, ViewMeta> = {
     breadcrumbs: [{ label: "Bank Calculators" }, { label: "SBI" }],
     showPrepayment: true,
     compareBoth: false,
+    showModeToggle: false,
   },
   hdfc: {
     id: "hdfc",
@@ -126,6 +134,7 @@ export const VIEWS: Record<ViewId, ViewMeta> = {
     breadcrumbs: [{ label: "Bank Calculators" }, { label: "HDFC" }],
     showPrepayment: true,
     compareBoth: false,
+    showModeToggle: false,
   },
   icici: {
     id: "icici",
@@ -141,6 +150,7 @@ export const VIEWS: Record<ViewId, ViewMeta> = {
     breadcrumbs: [{ label: "Bank Calculators" }, { label: "ICICI" }],
     showPrepayment: true,
     compareBoth: false,
+    showModeToggle: false,
   },
   axis: {
     id: "axis",
@@ -156,6 +166,7 @@ export const VIEWS: Record<ViewId, ViewMeta> = {
     breadcrumbs: [{ label: "Bank Calculators" }, { label: "Axis" }],
     showPrepayment: true,
     compareBoth: false,
+    showModeToggle: false,
   },
 };
 

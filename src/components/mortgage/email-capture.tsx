@@ -1,11 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { Mail, Send, CheckCircle2, Loader2 } from "lucide-react";
+import { Mail, Send, CheckCircle2, Loader2, MapPin, Phone } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -23,44 +24,71 @@ interface EmailCaptureProps {
 type Status = "idle" | "loading" | "success" | "error";
 
 export function EmailCapture({ result }: EmailCaptureProps) {
-  const [email, setEmail] = React.useState("");
+  const [contact, setContact] = React.useState("");
+  const [city, setCity] = React.useState("");
   const [status, setStatus] = React.useState<Status>("idle");
   const [message, setMessage] = React.useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    const trimmed = contact.trim();
+    if (!trimmed) {
       setStatus("error");
-      setMessage("Please enter a valid email address.");
+      setMessage("Please enter your email or phone number.");
+      return;
+    }
+
+    // Detect whether the input is an email or a phone number.
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRe = /^(\+91[\-\s]?)?[6-9]\d{9}$/;
+    const isEmail = emailRe.test(trimmed);
+    const isPhone = phoneRe.test(trimmed);
+
+    if (!isEmail && !isPhone) {
+      setStatus("error");
+      setMessage(
+        "Please enter a valid email address or a 10-digit Indian mobile number."
+      );
       return;
     }
 
     setStatus("loading");
     try {
+      const payload: Record<string, unknown> = {
+        city: city.trim() || undefined,
+        summary: {
+          monthsSaved: result.monthsSaved,
+          totalInterestSaved: result.totalInterestSaved,
+          newPayoffDate: result.newPayoffDate.toISOString(),
+          originalTermMonths: result.originalTermMonths,
+          newTermMonths: result.newTermMonths,
+        },
+      };
+      if (isEmail) payload.email = trimmed.toLowerCase();
+      else payload.phone = trimmed;
+
       const res = await fetch("/api/emails", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          // Snapshot of their result so we can deliver the relevant schedule later.
-          summary: {
-            monthsSaved: result.monthsSaved,
-            totalInterestSaved: result.totalInterestSaved,
-            newPayoffDate: result.newPayoffDate.toISOString(),
-            originalTermMonths: result.originalTermMonths,
-            newTermMonths: result.newTermMonths,
-          },
-        }),
+        body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error("Request failed");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Request failed");
+      }
       setStatus("success");
       setMessage(
-        "You're on the list! Check your inbox — we'll send your full amortization schedule and the premium export link shortly."
+        "Thanks! We'll email you a detailed PDF/CSV report of your amortization schedule and share options to reduce your home-loan tenure and interest."
       );
-      setEmail("");
-    } catch {
+      setContact("");
+      setCity("");
+    } catch (err) {
       setStatus("error");
-      setMessage("Something went wrong. Please try again in a moment.");
+      setMessage(
+        err instanceof Error && err.message
+          ? err.message
+          : "Something went wrong. Please try again in a moment."
+      );
     }
   }
 
@@ -76,10 +104,11 @@ export function EmailCapture({ result }: EmailCaptureProps) {
           </span>
           <div>
             <CardTitle className="text-base">
-              Get your full amortization schedule in your inbox
+              Get your full amortization schedule
             </CardTitle>
             <CardDescription className="text-xs">
-              Free. We'll email the complete month-by-month schedule plus the premium PDF/CSV export link.
+              We&rsquo;ll email a detailed PDF/CSV report and share options to
+              reduce your home-loan tenure and interest.
             </CardDescription>
           </div>
         </div>
@@ -88,7 +117,7 @@ export function EmailCapture({ result }: EmailCaptureProps) {
         {result.valid && (
           <div className="mb-4 flex flex-wrap gap-x-4 gap-y-1 rounded-lg bg-emerald-50/70 p-3 text-xs dark:bg-emerald-950/30">
             <span>
-              <span className="text-muted-foreground">Saving:</span>{" "}
+              <span className="text-muted-foreground">Interest saved:</span>{" "}
               <strong className="text-emerald-700 dark:text-emerald-300">
                 {formatCurrency(result.totalInterestSaved)}
               </strong>
@@ -114,33 +143,62 @@ export function EmailCapture({ result }: EmailCaptureProps) {
             </p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row">
-            <Input
-              type="email"
-              required
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (status === "error") setStatus("idle");
-              }}
-              aria-label="Email address"
-              className={cn("h-11 flex-1", status === "error" && "border-destructive")}
-            />
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="contact" className="text-sm font-medium">
+                Email or phone
+              </Label>
+              <div className="relative">
+                <Mail className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2" />
+                <Input
+                  id="contact"
+                  type="text"
+                  required
+                  placeholder="you@example.com or 9876543210"
+                  value={contact}
+                  onChange={(e) => {
+                    setContact(e.target.value);
+                    if (status === "error") setStatus("idle");
+                  }}
+                  aria-label="Email or phone number"
+                  className={cn(
+                    "h-11 pl-9",
+                    status === "error" && "border-destructive"
+                  )}
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="city" className="text-sm font-medium">
+                City <span className="text-muted-foreground font-normal">(optional)</span>
+              </Label>
+              <div className="relative">
+                <MapPin className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2" />
+                <Input
+                  id="city"
+                  type="text"
+                  placeholder="Mumbai"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  aria-label="City (optional)"
+                  className="h-11 pl-9"
+                />
+              </div>
+            </div>
             <Button
               type="submit"
               disabled={status === "loading"}
-              className="bg-emerald-600 hover:bg-emerald-700 h-11 shrink-0"
+              className="bg-emerald-600 hover:bg-emerald-700 h-11 w-full"
             >
               {status === "loading" ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
-                  Sending…
+                  Sending&hellip;
                 </>
               ) : (
                 <>
                   <Send className="size-4" />
-                  Send my schedule
+                  Send My Report
                 </>
               )}
             </Button>
@@ -151,8 +209,10 @@ export function EmailCapture({ result }: EmailCaptureProps) {
           <p className="mt-2 text-xs text-destructive">{message}</p>
         )}
 
-        <p className="text-muted-foreground mt-3 text-[11px]">
-          We'll only use your email to deliver your schedule and occasional mortgage tips. Unsubscribe anytime.
+        <p className="text-muted-foreground mt-3 flex items-center gap-1 text-[11px]">
+          <Phone className="size-3" />
+          We&rsquo;ll only use your details to deliver your report and occasional
+          home-loan tips. Unsubscribe anytime.
         </p>
       </CardContent>
     </Card>
