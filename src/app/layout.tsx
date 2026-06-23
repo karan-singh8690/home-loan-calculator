@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { SITE_BASE_URL } from "@/lib/sitemap";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,9 +38,11 @@ export const metadata: Metadata = {
     title: "Home Loan Calculator India | EMI & Prepayment Calculator",
     description:
       "Calculate your home loan EMI, see prepayment savings, and compare reduce-EMI vs reduce-tenure. Free, instant, with Indian rupee formatting. SBI, HDFC, ICICI, Axis.",
-    url: "https://homeloan-calculator.example",
+    url: SITE_BASE_URL,
     siteName: "HomeLoan Calc",
     type: "website",
+    locale: "en_IN",
+    alternateLocale: ["hi_IN"],
   },
   twitter: {
     card: "summary_large_image",
@@ -48,8 +51,29 @@ export const metadata: Metadata = {
       "EMI & prepayment calculator for Indian home loans. See interest saved, tenure reduction, and payoff dates.",
   },
   alternates: {
-    canonical: "https://homeloan-calculator.example/home-loan-prepayment-calculator-india",
+    canonical: `${SITE_BASE_URL}/home-loan-prepayment-calculator-india`,
+    languages: {
+      en: `${SITE_BASE_URL}/home-loan-prepayment-calculator-india`,
+      "hi-IN": `${SITE_BASE_URL}/hi/home-loan-prepayment-calculator`,
+      "x-default": `${SITE_BASE_URL}/home-loan-prepayment-calculator-india`,
+    },
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  // Google Search Console verification — set NEXT_PUBLIC_GSC_VERIFICATION env
+  // var to the verification token (the part after "google-site-verification:").
+  verification: process.env.NEXT_PUBLIC_GSC_VERIFICATION
+    ? { google: process.env.NEXT_PUBLIC_GSC_VERIFICATION }
+    : undefined,
 };
 
 export default function RootLayout({

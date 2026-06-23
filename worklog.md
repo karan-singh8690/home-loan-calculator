@@ -311,3 +311,40 @@ Stage Summary:
 - The "..." truncation (line-clamp-2) has been replaced with an [और पढ़ें]/[कम दिखाएं] toggle that expands inline with smooth CSS animation.
 - Full body text is always in the server-rendered HTML DOM (inside a CSS-collapsed div with max-height transition, NOT display:none) — search engines can crawl the complete content.
 - Lint clean, TypeScript clean, browser-verified.
+
+---
+Task ID: phase6-indexing-visibility
+Agent: main (Z.ai Code)
+Task: Phase 6 — Indexing, Authority & Search Visibility. XML sitemap system (4 sitemaps + index), dynamic robots.txt, hreflang tags, Search Console verification support, SEO status dashboard, internal linking audit, indexability checks.
+
+Work Log:
+- Created `src/lib/sitemap.ts` — shared helpers: SITE_BASE_URL (env-configurable), todayW3C(), xmlEscape(), urlEntry() (with hreflang alternates), sitemapXml(), sitemapIndexXml().
+- Created 5 route handlers:
+  - `/sitemap-index.xml` — references all 4 sitemaps with auto-updating lastmod.
+  - `/sitemap.xml` — homepage + 8 calculator pages + 4 section anchors (13 URLs). Includes hreflang en/hi-IN alternates.
+  - `/sitemap-hindi.xml` — all 51 HINDI_LANDING_PAGES with /hi/ paths + hreflang back to English equivalents.
+  - `/sitemap-guides.xml` — 5 English guides + 5 Hindi guides (10 URLs) with hreflang.
+  - `/sitemap-scenarios.xml` — 12 English + 6 Hindi scenarios (18 URLs) with hreflang.
+- Created `src/app/robots.ts` — dynamic robots.txt: allows all public pages, disallows /api/, /api/*, /admin/, /dashboard/, /leads/, /private/. Includes Sitemap: directive pointing to sitemap-index.xml. Removed old static public/robots.txt.
+- Updated `src/app/layout.tsx` metadata:
+  - Added `alternates.languages` with en, hi-IN, x-default hreflang tags.
+  - Added `robots.index: true, follow: true` + googleBot directives.
+  - Added `verification.google` support via NEXT_PUBLIC_GSC_VERIFICATION env var (for Search Console HTML meta tag verification).
+  - Added `openGraph.locale: en_IN` + `alternateLocale: [hi_IN]`.
+  - Used SITE_BASE_URL from sitemap config for all URLs.
+- Created `src/components/mortgage/seo-dashboard.tsx` — admin-only SEO status dashboard (visible with ?seo=1):
+  - Summary stats: total pages, calculator pages, Hindi pages, guides, scenarios, sitemaps.
+  - Sitemap table: all 5 sitemaps with URL counts, descriptions, and external links.
+  - Indexability checks: 8 checks (robots.txt, noindex, canonicals, hreflang, structured data, mobile-first).
+  - Internal linking audit: calculator↔guides, guides↔scenarios, scenarios↔bank, Hindi↔English.
+  - Search Console submission checklist: 9 items (verify, submit sitemaps, request indexing, monitor coverage/performance/queries).
+  - Target search queries: 12 English + Hindi + Hinglish keywords.
+- Updated `src/app/page.tsx` — added seoMode detection (?seo=1) and SeoDashboard rendering.
+
+Stage Summary:
+- All 4 sitemaps + sitemap-index auto-generated with correct URL counts (13+51+10+18 = 92 total URLs across 4 sitemaps). Lastmod auto-updates on every request.
+- robots.txt blocks /api/, /admin/, /dashboard/, /leads/, /private/ and references sitemap-index.xml.
+- hreflang tags (en, hi-IN, x-default) present on every page via layout metadata.
+- Search Console verification supported via NEXT_PUBLIC_GSC_VERIFICATION env var.
+- SEO dashboard at ?seo=1 shows sitemap counts, indexability checks, internal linking audit, and Search Console submission checklist.
+- Lint clean, TypeScript clean, all sitemaps verified via curl (valid XML), hreflang verified in DOM.

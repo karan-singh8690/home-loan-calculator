@@ -57,6 +57,7 @@ import { DynamicMeta } from "@/components/mortgage/dynamic-meta";
 import { ExportButtons } from "@/components/mortgage/export-buttons";
 import { LanguageSwitcher } from "@/components/mortgage/language-switcher";
 import { HindiLandingPagesSection } from "@/components/mortgage/hindi-landing-pages";
+import { SeoDashboard } from "@/components/mortgage/seo-dashboard";
 import { cn } from "@/lib/utils";
 import { t } from "@/lib/i18n";
 
@@ -64,6 +65,12 @@ export default function HomeLoanPlatform() {
   const { toast } = useToast();
   const { lang, toggleLang } = useLang();
   const initialUrl = useInitialUrlState();
+
+  // Admin-only SEO dashboard (visible when ?seo=1 is in the URL).
+  const [seoMode] = React.useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return new URLSearchParams(window.location.search).get("seo") === "1";
+  });
 
   // ---- View state (synced to ?tool=) ----
   const [viewId, setViewId] = React.useState<ViewId>(() =>
@@ -578,6 +585,9 @@ export default function HomeLoanPlatform() {
             </div>
           </section>
         )}
+
+        {/* ---- SEO dashboard (admin-only, ?seo=1) ---- */}
+        <SeoDashboard visible={seoMode} />
       </main>
 
       {/* ---- Footer ---- */}
