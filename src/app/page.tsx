@@ -162,6 +162,30 @@ export default function HomeLoanPlatform() {
     return (result.totalInterestSaved / result.totalInterestOriginal) * 100;
   }, [result.valid, result.totalInterestSaved, result.totalInterestOriginal]);
 
+  // Calculator context attached automatically to every lead (Phase 6).
+  const calcContext = React.useMemo(
+    () => ({
+      loanAmount: state.loanAmount,
+      emi: effectivePayment,
+      tenureMonths: term,
+      monthlyExtra: activeMonthly,
+      lumpSum: activeLump,
+      annualRate: state.annualRate,
+      interestSaved: result.totalInterestSaved,
+      timeSavedMonths: result.monthsSaved,
+    }),
+    [
+      state.loanAmount,
+      effectivePayment,
+      term,
+      activeMonthly,
+      activeLump,
+      state.annualRate,
+      result.totalInterestSaved,
+      result.monthsSaved,
+    ]
+  );
+
   // ---- Sync view + key inputs to the URL (shareable, Phase 4 format) ----
   React.useEffect(() => {
     // Map the overpayment type to the Phase 4 `mode` param.
@@ -514,7 +538,7 @@ export default function HomeLoanPlatform() {
             <BalanceTransferSection />
             <RefinanceOffersSection />
             <AffiliateSection lang={lang} />
-            <EmailCapture result={result} lang={lang} />
+            <EmailCapture result={result} lang={lang} calcContext={calcContext} />
           </div>
         </section>
 

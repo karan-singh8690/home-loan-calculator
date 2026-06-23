@@ -247,3 +247,27 @@ Work Log:
 
 Stage Summary:
 - Phase 5 complete. Bilingual platform (English default + Hindi via ?lang=hi). Language switcher preserves all state (page, inputs, URL params, results). 90 UI strings translated. 51 Hindi/Hinglish landing pages rendered as browsable hub. Hindi FAQs/guides/scenarios/content blocks all wired. Hindi SEO metadata (title, meta, canonical /hi/..., og:locale, FAQ JSON-LD) emitted dynamically. Affiliate CTAs translated. Lint clean, TypeScript clean, VLM-verified Hindi rendering with no visual issues.
+
+---
+Task ID: phase6-lead-qualification
+Agent: main (Z.ai Code)
+Task: Phase 6 — Lead Form Optimization & Lead Qualification. Upgrade the existing lead form into a qualified-lead funnel with lender/balance/rate/city fields, internal lead scoring (0-100), calculator context auto-capture, trust section, success message with savings recap, and analytics tracking.
+
+Work Log:
+- Updated Prisma schema (`EmailLead`): added `lender`, `interestRate` (Float), `leadScore` (Int), `leadTier` (String), `interestSaved` (Float), `timeSavedMonths` (Int), `calcContext` (JSON String). Ran `db:push`.
+- Created `src/lib/lead-scoring.ts` — `scoreLead()` computes 0-100 score: balance component (0-60 based on range: >₹50L=60, ₹25-50L=40, ₹10-25L=20, <₹10L=5) + rate component (0-40: >9.5%=40, 8.5-9.5%=25, 7.5-8.5%=10, <7.5%=0). Tiers: ≥70=high, ≥40=medium, <40=low. Fixed regex ordering so ₹25-50L correctly scores 40 (not 60).
+- Created `src/lib/lead-analytics.ts` — `trackLeadEvent()` for form impressions/starts/completions/errors + affiliate clicks. Persists to localStorage, dispatches CustomEvents, `getLeadConversionRate()` helper.
+- Updated `src/app/api/emails/route.ts` — accepts lender, loanBalanceRange, interestRate, city, calcContext; computes lead score via `scoreLead()`; stores all fields + interestSaved + timeSavedMonths + calcContext JSON; validates interest rate 1-25%; returns leadScore + leadTier in response.
+- Rewrote `src/components/mortgage/email-capture.tsx`:
+  - New heading: "Get Personalized Home Loan Savings Options" + subtitle.
+  - Contact method toggle (Email / Mobile) — at least one required.
+  - Name (optional), Current Lender dropdown (10 banks), Outstanding Balance dropdown (5 ranges), Current Interest Rate input (1-25%, validated), City dropdown (10 cities).
+  - Savings recap shown above form (₹21,78,722 interest + 7yr 2mo).
+  - Trust section: "Your details are never sold... No spam. Unsubscribe anytime."
+  - Success message: "Your Request Has Been Received" + savings recap (₹ + time) + "We'll share personalized options".
+  - Analytics: impression on mount, start on first interaction, complete/error on submit.
+  - Bilingual (Hindi translations for all new strings).
+- Updated `src/app/page.tsx` — computes `calcContext` (loanAmount, EMI, tenure, monthlyExtra, lumpSum, annualRate, interestSaved, timeSavedMonths) via useMemo and passes to EmailCapture.
+
+Stage Summary:
+- Phase 6 complete. Lead form upgraded to qualified-lead funnel. All required fields (lender, balance, rate, city) collect via dropdowns/radio for <15s completion. Lead score (0-100) computed internally and stored in DB with tier (high/medium/low). Calculator context auto-attached (loanAmount, EMI, tenure, extra, lump, interestSaved, timeSaved). Verified: high-tier lead (₹50L-1Cr, 9.0%) = score 85; medium (₹25-50L, 8.5%) = 65; low (<₹10L, 7.0%) = 5. Success message shows savings recap. Trust section present. Analytics tracking wired. Bilingual (Hindi + English). Lint clean, TypeScript clean.

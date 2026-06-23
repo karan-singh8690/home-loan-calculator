@@ -31,17 +31,32 @@ model Post {
   updatedAt DateTime @updatedAt
 }
 
-/// Leads captured from the home loan calculator for free schedule delivery
-/// and future upsells (premium PDF/CSV export). Accepts email or phone.
+/// Qualified leads captured from the home loan calculator. Captures contact
+/// info (email OR phone), lender, balance range, current rate, city, and an
+/// internal lead score (0-100) used to route high-value prospects to partners.
 model EmailLead {
   id        String   @id @default(cuid())
   email     String?  @unique
   phone     String?
   name      String?
   city      String?
-  /// Self-reported current outstanding loan balance range, e.g. "₹25L–₹50L".
+  /// Self-reported current outstanding loan balance range, e.g. "₹25–50 L".
   loanBalanceRange String?
-  /// JSON snapshot of the calculation summary at capture time.
+  /// Current lender (SBI, HDFC, ICICI, Axis, Kotak, BoB, PNB, LIC HFL, Bajaj, Other).
+  lender    String?
+  /// Current interest rate as entered by the user (percent, e.g. 8.5).
+  interestRate Float?
+  /// Internal lead score 0–100 (not shown to users). See src/lib/lead-scoring.ts.
+  leadScore Int      @default(0)
+  /// Lead quality bucket derived from leadScore: "high" | "medium" | "low".
+  leadTier  String?
+  /// Interest saved (₹) at capture time, from the calculator result.
+  interestSaved Float?
+  /// Months saved at capture time, from the calculator result.
+  timeSavedMonths Int?
+  /// JSON snapshot of the full calculator context (loan, EMI, tenure, etc.).
+  calcContext String?
+  /// Legacy JSON summary field (kept for backward compat).
   summary   String?
   createdAt DateTime @default(now())
 }

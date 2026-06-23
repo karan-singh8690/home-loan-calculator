@@ -1,23 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { scoreLead } from "@/lib/lead-scoring";
 
 /**
- * Lead capture endpoint for the home loan calculator.
+ * Qualified lead capture endpoint for the home loan calculator.
  *
- * Accepts either an email or a phone number (at least one required), plus an
- * optional city. Stores a JSON snapshot of the user's calculation so the full
- * amortization schedule / premium export can be delivered later.
+ * Accepts contact info (email OR phone, at least one required) plus the
+ * Phase 6 qualification fields: lender, balance range, current interest rate,
+ * and city. Computes an internal lead score (0-100, not shown to users) and
+ * stores the full calculator context (loan amount, EMI, tenure, prepayment,
+ * interest saved, time saved) so partners can understand the prospect's
+ * situation without follow-up questions.
  *
- * Idempotent on email — re-submissions update the summary. Phone-only leads
- * are always inserted as new rows.
+ * Idempotent on email — re-submissions update the qualification fields and
+ * re-score the lead. Phone-only leads are always inserted as new rows.
  */
+
+interface CalcContext {
+  loanAmount?: number;
+  emi?: number;
+  tenureMonths?: number;
+  monthlyExtra?: number;
+  lumpSum?: number;
+  interestSaved?: number;
+  timeSavedMonths?: number;
+  annualRate?: number;
+}
+
 export async function POST(req: NextRequest) {
   let body: {
     email?: string;
     phone?: string;
     name?: string;
     city?: string;
+    lender?: string;
     loanBalanceRange?: string;
+    interestRate?: number;
+    calcContext?: CalcContext;
     summary?: unknown;
   };
 
@@ -43,18 +62,26 @@ export async function POST(req: NextRequest) {
     typeof body.city === "string" && body.city.trim()
       ? body.city.trim()
       : null;
+  const lender =
+    typeof body.lender === "string" && body.lender.trim()
+      ? body.lender.trim()
+      : null;
   const loanBalanceRange =
     typeof body.loanBalanceRange === "string" && body.loanBalanceRange.trim()
       ? body.loanBalanceRange.trim()
       : null;
+  const interestRate =
+    typeof body.interestRate === "number" && isFinite(body.interestRate)
+      ? body.interestRate
+      : null;
 
+  // --- Validation ---
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  // Accept Indian phone formats: optional +91, 10 digits starting 6-9.
   const phoneRe = /^(\+91[\-\s]?)?[6-9]\d{9}$/;
 
   if (!email && !phone) {
     return NextResponse.json(
-      { error: "Please enter your email or phone number." },
+      { error: "Please enter your email or mobile number." },
       { status: 422 }
     );
   }
@@ -70,24 +97,82 @@ export async function POST(req: NextRequest) {
       { status: 422 }
     );
   }
+  if (interestRate !== null && (interestRate < 1 || interestRate > 25)) {
+    return NextResponse.json(
+      { error: "Interest rate must be between 1% and 25%." },
+      { status: 422 }
+    );
+  }
 
-  const summary =
+  // --- Lead scoring (internal, not shown to users) ---
+  const { score, tier } = scoreLead({
+    balanceRange: loanBalanceRange ?? "",
+    interestRate: interestRate ?? undefined,
+  });
+
+  // --- Calculator context (attached automatically) ---
+  const ctx = body.calcContext ?? {};
+  const calcContextJson = JSON.stringify(ctx);
+  const interestSaved = ctx.interestSaved ?? null;
+  const timeSavedMonths = ctx.timeSavedMonths ?? null;
+
+  // Legacy summary field (kept for backward compat with older consumers).
+  const summaryJson =
     body.summary && typeof body.summary === "object"
       ? JSON.stringify(body.summary)
-      : null;
+      : JSON.stringify(ctx);
 
   try {
     if (email) {
-      // Upsert by email when available.
       await db.emailLead.upsert({
         where: { email },
-        create: { email, phone: phone || undefined, name, city: city ?? undefined, loanBalanceRange, summary },
-        update: { phone: phone || undefined, name: name ?? undefined, city: city ?? undefined, loanBalanceRange: loanBalanceRange ?? undefined, summary },
+        create: {
+          email,
+          phone: phone || undefined,
+          name,
+          city,
+          lender,
+          loanBalanceRange,
+          interestRate,
+          leadScore: score,
+          leadTier: tier,
+          interestSaved,
+          timeSavedMonths,
+          calcContext: calcContextJson,
+          summary: summaryJson,
+        },
+        update: {
+          phone: phone || undefined,
+          name: name ?? undefined,
+          city: city ?? undefined,
+          lender: lender ?? undefined,
+          loanBalanceRange: loanBalanceRange ?? undefined,
+          interestRate: interestRate ?? undefined,
+          leadScore: score,
+          leadTier: tier,
+          interestSaved,
+          timeSavedMonths,
+          calcContext: calcContextJson,
+          summary: summaryJson,
+        },
       });
     } else {
-      // Phone-only lead — insert directly (omit email entirely).
       await db.emailLead.create({
-        data: { phone, name, city: city ?? undefined, loanBalanceRange, summary },
+        data: {
+          email: null,
+          phone,
+          name,
+          city,
+          lender,
+          loanBalanceRange,
+          interestRate,
+          leadScore: score,
+          leadTier: tier,
+          interestSaved,
+          timeSavedMonths,
+          calcContext: calcContextJson,
+          summary: summaryJson,
+        },
       });
     }
   } catch (err) {
@@ -99,7 +184,12 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.json(
-    { ok: true, message: "Lead captured successfully." },
+    {
+      ok: true,
+      message: "Lead captured successfully.",
+      leadScore: score,
+      leadTier: tier,
+    },
     { status: 201 }
   );
 }
