@@ -1,0 +1,651 @@
+     1→/**
+     2→ * Translation dictionary for all user-facing UI strings on the India
+     3→ * Home Loan Prepayment Calculator platform.
+     4→ *
+     5→ * Strings are organised by UI section (header/nav, form, results,
+     6→ * amortization, lead-gen, affiliate, scenarios, faq, guides, content,
+     7→ * footer, toasts, empty-state). The English (`en`) values mirror the
+     8→ * copy currently rendered by the React components so a future i18n
+     9→ * wiring pass can swap hardcoded strings for `getTranslation(locale, key)`
+    10→ * without changing the visible English experience.
+    11→ *
+    12→ * The Hindi (`hi`) values use natural Devanagari Hindi with Indian
+    13→ * home-loan terminology (होम लोन, EMI, प्रीपेमेंट, अवधि, ब्याज, बकाया,
+    14→ * ब्याज दर, ऋण समाप्ति, फोरक्लोजर). The English term "EMI" is kept
+    15→ * as-is in Hindi since it is universally used in Indian financial
+    16→ * parlance.
+    17→ */
+    18→
+    19→export type Locale = "en" | "hi";
+    20→
+    21→export interface TranslationKey {
+    22→  // Header / nav
+    23→  nav_calculator: string;
+    24→  nav_scenarios: string;
+    25→  nav_howItWorks: string;
+    26→  nav_faq: string;
+    27→  nav_guides: string;
+    28→  brand_name: string;
+    29→  brand_tagline: string;
+    30→  // Hero
+    31→  hero_badge: string;
+    32→  // Form labels
+    33→  form_title: string;
+    34→  form_subtitle: string;
+    35→  form_yourLoan: string;
+    36→  form_loanAmount: string;
+    37→  form_interestRate: string;
+    38→  form_interestRateSuffix: string;
+    39→  form_loanTenure: string;
+    40→  form_remainingTenure: string;
+    41→  form_tenureHelper: string;
+    42→  form_monthlyEMI: string;
+    43→  form_calculatedEMI: string;
+    44→  form_calculatedEMIHelper: string;
+    45→  form_customEMIHelper: string;
+    46→  form_useCalculated: string;
+    47→  form_prepaymentStrategy: string;
+    48→  form_prepaymentMode: string;
+    49→  form_monthlyExtra: string;
+    50→  form_lumpSum: string;
+    51→  form_both: string;
+    52→  form_extraAmount: string;
+    53→  form_effectiveEMI: string;
+    54→  form_startFrom: string;
+    55→  form_month: string;
+    56→  form_year: string;
+    57→  form_startHelper: string;
+    58→  form_lumpSumAmount: string;
+    59→  form_applyAfter: string;
+    60→  form_applyAfterHelper: string;
+    61→  form_annualBonus: string;
+    62→  form_annualBonusHelper: string;
+    63→  form_additionalLumpSums: string;
+    64→  form_add: string;
+    65→  form_amount: string;
+    66→  form_remove: string;
+    67→  form_timingStart: string;
+    68→  form_timingStartOn: string;
+    69→  form_timingStartOff: string;
+    70→  form_loanStartDate: string;
+    71→  form_startDateHelper: string;
+    72→  form_outstandingMode: string;
+    73→  form_outstandingOff: string;
+    74→  form_outstandingOn: string;
+    75→  form_outstandingPrincipal: string;
+    76→  // Form actions
+    77→  form_reset: string;
+    78→  form_copyResults: string;
+    79→  form_shareLink: string;
+    80→  // Results
+    81→  results_title: string;
+    82→  results_comparedTo: string;
+    83→  results_tenureReduction: string;
+    84→  results_interestSaved: string;
+    85→  results_interestSavedHelper: string;
+    86→  results_debtFreeSooner: string;
+    87→  results_debtFreeHelper: string;
+    88→  results_emiReducedBy: string;
+    89→  results_emiReducedHelper: string;
+    90→  results_whatThisMeans: string;
+    91→  results_originalPayoff: string;
+    92→  results_newPayoff: string;
+    93→  results_originalTenure: string;
+    94→  results_payoffUnchanged: string;
+    95→  results_worthIt: string;
+    96→  results_worthItYes: string;
+    97→  results_worthItNo: string;
+    98→  results_worthItTenure: string;
+    99→  results_worthItEmi: string;
+   100→  results_effectiveSavings: string;
+   101→  results_effectiveSavingsHelper: string;
+   102→  results_originalVsPrepayment: string;
+   103→  results_totalInterest: string;
+   104→  results_totalAmount: string;
+   105→  results_lessOutOfPocket: string;
+   106→  results_monthlyEMI: string;
+   107→  results_emiReduced: string;
+   108→  results_emisNoLonger: string;
+   109→  results_cashFlowFreed: string;
+   110→  // Amortization
+   111→  amort_preview: string;
+   112→  amort_snapshot: string;
+   113→  amort_description: string;
+   114→  amort_monthlyRows: string;
+   115→  amort_month: string;
+   116→  amort_openingBalance: string;
+   117→  amort_startingBalance: string;
+   118→  amort_emi: string;
+   119→  amort_interest: string;
+   120→  amort_principal: string;
+   121→  amort_prepayment: string;
+   122→  amort_closingBalance: string;
+   123→  amort_endingBalance: string;
+   124→  amort_monthsBetween: string;
+   125→  // Lead gen
+   126→  lead_title: string;
+   127→  lead_description: string;
+   128→  lead_interestSaved: string;
+   129→  lead_soonerBy: string;
+   130→  lead_debtFree: string;
+   131→  lead_name: string;
+   132→  lead_namePlaceholder: string;
+   133→  lead_emailOrPhone: string;
+   134→  lead_emailOrPhonePlaceholder: string;
+   135→  lead_city: string;
+   136→  lead_cityOptional: string;
+   137→  lead_cityPlaceholder: string;
+   138→  lead_loanBalance: string;
+   139→  lead_loanBalanceOptional: string;
+   140→  lead_selectRange: string;
+   141→  lead_cta: string;
+   142→  lead_sending: string;
+   143→  lead_success: string;
+   144→  lead_privacy: string;
+   145→  // Affiliate
+   146→  affiliate_title: string;
+   147→  affiliate_description: string;
+   148→  affiliate_compareRates: string;
+   149→  affiliate_compareRatesDesc: string;
+   150→  affiliate_compareRatesCta: string;
+   151→  affiliate_balanceTransfer: string;
+   152→  affiliate_balanceTransferDesc: string;
+   153→  affiliate_balanceTransferCta: string;
+   154→  affiliate_talkExpert: string;
+   155→  affiliate_talkExpertDesc: string;
+   156→  affiliate_talkExpertCta: string;
+   157→  affiliate_refinance: string;
+   158→  affiliate_refinanceDesc: string;
+   159→  affiliate_refinanceCta: string;
+   160→  affiliate_disclaimer: string;
+   161→  // Scenarios
+   162→  scenarios_title: string;
+   163→  scenarios_description: string;
+   164→  scenarios_interestSaved: string;
+   165→  scenarios_timeSaved: string;
+   166→  scenarios_paysOff: string;
+   167→  scenarios_insteadOf: string;
+   168→  scenarios_loadIntoCalc: string;
+   169→  // FAQ
+   170→  faq_title: string;
+   171→  faq_description: string;
+   172→  // Guides
+   173→  guides_title: string;
+   174→  guides_description: string;
+   175→  // Content blocks
+   176→  content_title: string;
+   177→  content_description: string;
+   178→  // Footer
+   179→  footer_disclaimer: string;
+   180→  footer_rights: string;
+   181→  // Toasts
+   182→  toast_reset_title: string;
+   183→  toast_reset_desc: string;
+   184→  toast_copied_title: string;
+   185→  toast_copied_desc: string;
+   186→  toast_shareLink_title: string;
+   187→  toast_shareLink_desc: string;
+   188→  toast_scenario_title: string;
+   189→  toast_scenario_desc: string;
+   190→  // Empty state
+   191→  empty_title: string;
+   192→  empty_description: string;
+   193→}
+   194→
+   195→export const translations: Record<Locale, TranslationKey> = {
+   196→  en: {
+   197→    // Header / nav
+   198→    nav_calculator: "Calculator",
+   199→    nav_scenarios: "Scenarios",
+   200→    nav_howItWorks: "How it works",
+   201→    nav_faq: "FAQ",
+   202→    nav_guides: "Guides",
+   203→    brand_name: "HomeLoan Calc",
+   204→    brand_tagline: "India home loan calculator",
+   205→    // Hero
+   206→    hero_badge: "Free • Instant • Accurate",
+   207→    // Form labels
+   208→    form_title: "Home loan inputs",
+   209→    form_subtitle: "Edit any field — results recalculate instantly.",
+   210→    form_yourLoan: "Your home loan",
+   211→    form_loanAmount: "Loan amount",
+   212→    form_interestRate: "Interest rate (annual)",
+   213→    form_interestRateSuffix: "% p.a.",
+   214→    form_loanTenure: "Loan tenure",
+   215→    form_remainingTenure: "Remaining tenure",
+   216→    form_tenureHelper:
+   217→      "Pick a tenure in years, or add extra months for odd tenures (e.g. 18 years & 6 months).",
+   218→    form_monthlyEMI: "Monthly EMI",
+   219→    form_calculatedEMI: "Calculated EMI",
+   220→    form_calculatedEMIHelper:
+   221→      "Calculated EMI — auto-derived from loan, rate and tenure. Enter a value to override.",
+   222→    form_customEMIHelper:
+   223→      "You've set a custom EMI. Calculated EMI shown for reference.",
+   224→    form_useCalculated: "Use calculated",
+   225→    form_prepaymentStrategy: "Prepayment strategy",
+   226→    form_prepaymentMode: "Prepayment mode",
+   227→    form_monthlyExtra: "Monthly Extra EMI",
+   228→    form_lumpSum: "Lump Sum",
+   229→    form_both: "Both",
+   230→    form_extraAmount: "Extra Amount (per month)",
+   231→    form_effectiveEMI: "Effective EMI",
+   232→    form_startFrom: "Start from",
+   233→    form_month: "month",
+   234→    form_year: "yr",
+   235→    form_startHelper: "Extra EMI begins from this month of this year.",
+   236→    form_lumpSumAmount: "Lump Sum Amount",
+   237→    form_applyAfter: "Apply after X months",
+   238→    form_applyAfterHelper:
+   239→      "The lump sum is applied after this many EMIs. The same EMI continues, reducing your tenure.",
+   240→    form_annualBonus: "Extra per year (annual bonus)",
+   241→    form_annualBonusHelper:
+   242→      "Optional. Applied every 12 months from your start month — handy for annual bonuses or tax refunds.",
+   243→    form_additionalLumpSums: "Additional lump-sum prepayments",
+   244→    form_add: "Add",
+   245→    form_amount: "Amount",
+   246→    form_remove: "Remove",
+   247→    form_timingStart: "Apply at start of month",
+   248→    form_timingStartOn:
+   249→      "Prepayment reduces principal before interest is charged — saves a little more.",
+   250→    form_timingStartOff:
+   251→      "Prepayment applies after the EMI (how most banks process it).",
+   252→    form_loanStartDate: "Loan start date",
+   253→    form_startDateHelper:
+   254→      "Used to convert \"months saved\" into real payoff dates.",
+   255→    form_outstandingMode: "Outstanding principal mode",
+   256→    form_outstandingOff:
+   257→      "Enter a fresh loan amount and full tenure. Toggle on if you're an existing borrower.",
+   258→    form_outstandingOn:
+   259→      "Enter your current outstanding principal and remaining tenure to model prepayments on a loan you're already paying.",
+   260→    form_outstandingPrincipal: "Outstanding principal",
+   261→    // Form actions
+   262→    form_reset: "Reset",
+   263→    form_copyResults: "Copy results",
+   264→    form_shareLink: "Share link",
+   265→    // Results
+   266→    results_title: "Your results",
+   267→    results_comparedTo: "Compared to your original home loan schedule.",
+   268→    results_tenureReduction: "Tenure reduction",
+   269→    results_interestSaved: "Interest saved",
+   270→    results_interestSavedHelper:
+   271→      "Net money you keep by paying less interest over the life of the loan.",
+   272→    results_debtFreeSooner: "Debt-free sooner",
+   273→    results_debtFreeHelper:
+   274→      "Shaved off your original tenure. No change to your tenure with the current prepayment.",
+   275→    results_emiReducedBy: "EMI reduced by",
+   276→    results_emiReducedHelper:
+   277→      "Your EMI drops while your tenure stays the same.",
+   278→    results_whatThisMeans: "What this means",
+   279→    results_originalPayoff: "Original payoff date",
+   280→    results_newPayoff: "New payoff date",
+   281→    results_originalTenure: "Original tenure",
+   282→    results_payoffUnchanged:
+   283→      "Tenure stays the same in EMI mode. Same as original.",
+   284→    results_worthIt: "Worth it?",
+   285→    results_worthItYes: "Yes",
+   286→    results_worthItNo: "Not yet",
+   287→    results_worthItTenure:
+   288→      "You become debt-free sooner and save on interest.",
+   289→    results_worthItEmi: "You save interest and lower your monthly EMI.",
+   290→    results_effectiveSavings: "Effective savings",
+   291→    results_effectiveSavingsHelper:
+   292→      "less interest over the life of the loan",
+   293→    results_originalVsPrepayment: "Original loan vs. with prepayments",
+   294→    results_totalInterest: "Total interest paid",
+   295→    results_totalAmount: "Total amount paid",
+   296→    results_lessOutOfPocket: "less out of pocket",
+   297→    results_monthlyEMI: "Monthly EMI",
+   298→    results_emiReduced: "EMI reduced",
+   299→    results_emisNoLonger: "EMIs no longer required",
+   300→    results_cashFlowFreed: "cash-flow freed up",
+   301→    // Amortization
+   302→    amort_preview: "Amortization preview",
+   303→    amort_snapshot: "Amortization snapshot",
+   304→    amort_description:
+   305→      "Your home loan with prepayments applied — first and final months shown.",
+   306→    amort_monthlyRows: "monthly rows total",
+   307→    amort_month: "Month",
+   308→    amort_openingBalance: "Opening Balance",
+   309→    amort_startingBalance: "Starting balance",
+   310→    amort_emi: "EMI",
+   311→    amort_interest: "Interest",
+   312→    amort_principal: "Principal",
+   313→    amort_prepayment: "Prepayment",
+   314→    amort_closingBalance: "Closing Balance",
+   315→    amort_endingBalance: "Ending balance",
+   316→    amort_monthsBetween: "months in between",
+   317→    // Lead gen
+   318→    lead_title: "Get your full prepayment report",
+   319→    lead_description:
+   320→      "We'll email a detailed PDF/CSV report and share options to reduce your home-loan tenure and interest.",
+   321→    lead_interestSaved: "Interest saved:",
+   322→    lead_soonerBy: "Sooner by:",
+   323→    lead_debtFree: "Debt-free:",
+   324→    lead_name: "Name",
+   325→    lead_namePlaceholder: "Your name",
+   326→    lead_emailOrPhone: "Email or phone",
+   327→    lead_emailOrPhonePlaceholder: "you@example.com or 9876543210",
+   328→    lead_city: "City",
+   329→    lead_cityOptional: "(optional)",
+   330→    lead_cityPlaceholder: "Mumbai",
+   331→    lead_loanBalance: "Current loan balance",
+   332→    lead_loanBalanceOptional: "(optional)",
+   333→    lead_selectRange: "Select range",
+   334→    lead_cta: "Get My Full Prepayment Report",
+   335→    lead_sending: "Sending…",
+   336→    lead_success:
+   337→      "Thanks! We'll email you a detailed PDF/CSV report of your prepayment schedule and share options to reduce your home-loan tenure and interest.",
+   338→    lead_privacy:
+   339→      "We'll only use your details to deliver your report and occasional home-loan tips. Unsubscribe anytime.",
+   340→    // Affiliate
+   341→    affiliate_title: "Next steps to save even more",
+   342→    affiliate_description:
+   343→      "Prepaying is powerful — but it's worth checking whether a lower ROI or professional advice could save you even more. These partners can help.",
+   344→    affiliate_compareRates: "Compare Home Loan Rates",
+   345→    affiliate_compareRatesDesc:
+   346→      "Check today's home loan interest rates from SBI, HDFC, ICICI, Axis and more. A 0.5% lower ROI can save more than prepaying.",
+   347→    affiliate_compareRatesCta: "Compare rates",
+   348→    affiliate_balanceTransfer: "Explore Balance Transfer Offers",
+   349→    affiliate_balanceTransferDesc:
+   350→      "Move your outstanding principal to a lender offering a lower ROI. Most banks charge no foreclosure fee on floating-rate home loans.",
+   351→    affiliate_balanceTransferCta: "Explore offers",
+   352→    affiliate_talkExpert: "Talk to a Loan Expert",
+   353→    affiliate_talkExpertDesc:
+   354→      "Get a free, no-obligation consultation with a home loan advisor who can structure your prepayments and check for foreclosure charges.",
+   355→    affiliate_talkExpertCta: "Talk to an expert",
+   356→    affiliate_refinance: "Check Refinancing Savings",
+   357→    affiliate_refinanceDesc:
+   358→      "Refinancing to a lower rate or shorter tenure might beat prepaying. Run the numbers side by side with current market offers.",
+   359→    affiliate_refinanceCta: "Check savings",
+   360→    affiliate_disclaimer:
+   361→      "Affiliate links — we may earn a commission if you take up an offer, at no extra cost to you.",
+   362→    // Scenarios
+   363→    scenarios_title: "Example prepayment scenarios",
+   364→    scenarios_description:
+   365→      "Real-world strategies on typical Indian home loans (₹35L–₹1Cr at 8.4–8.6% p.a.). Tap any scenario to load it into the calculator above.",
+   366→    scenarios_interestSaved: "Interest saved",
+   367→    scenarios_timeSaved: "Time saved",
+   368→    scenarios_paysOff: "Pays off",
+   369→    scenarios_insteadOf: "instead of",
+   370→    scenarios_loadIntoCalc: "Load into calculator",
+   371→    // FAQ
+   372→    faq_title: "Frequently asked questions",
+   373→    faq_description:
+   374→      "Everything you might want to know about home loan prepayments and EMIs.",
+   375→    // Guides
+   376→    guides_title: "Interest-saving guides",
+   377→    guides_description:
+   378→      "In-depth, India-specific guides to help you save on your home loan.",
+   379→    // Content blocks
+   380→    content_title: "How home loan prepayments work",
+   381→    content_description:
+   382→      "A quick primer on the mechanics behind the numbers above.",
+   383→    // Footer
+   384→    footer_disclaimer:
+   385→      "This calculator is for informational purposes only and does not constitute financial advice. Figures are estimates based on the inputs you provide and assume monthly compounding. Interest rates are indicative — always confirm the exact ROI, fees, and prepayment terms with your bank before deciding.",
+   386→    footer_rights: "All rights reserved.",
+   387→    // Toasts
+   388→    toast_reset_title: "Reset",
+   389→    toast_reset_desc: "Calculator restored to defaults.",
+   390→    toast_copied_title: "Copied!",
+   391→    toast_copied_desc: "Results copied to your clipboard.",
+   392→    toast_shareLink_title: "Share link copied!",
+   393→    toast_shareLink_desc: "Paste it anywhere to share this exact calculation.",
+   394→    toast_scenario_title: "Scenario loaded",
+   395→    toast_scenario_desc: "The calculator now reflects this example strategy.",
+   396→    // Empty state
+   397→    empty_title: "Fill in your mortgage details",
+   398→    empty_description:
+   399→      "Enter a loan amount, interest rate, and term on the left to see your savings, new payoff date, and amortization preview.",
+   400→  },
+   401→
+   402→  hi: {
+   403→    // Header / nav
+   404→    nav_calculator: "कैलकुलेटर",
+   405→    nav_scenarios: "उदाहरण",
+   406→    nav_howItWorks: "कैसे काम करता है",
+   407→    nav_faq: "सामान्य प्रश्न",
+   408→    nav_guides: "गाइड",
+   409→    brand_name: "HomeLoan Calc",
+   410→    brand_tagline: "भारत होम लोन कैलकुलेटर",
+   411→    // Hero
+   412→    hero_badge: "निःशुल्क • तुरंत • सटीक",
+   413→    // Form labels
+   414→    form_title: "होम लोन विवरण",
+   415→    form_subtitle: "कोई भी फ़ील्ड बदलें — परिणाम तुरंत अपडेट हो जाते हैं।",
+   416→    form_yourLoan: "आपका होम लोन",
+   417→    form_loanAmount: "ऋण राशि",
+   418→    form_interestRate: "ब्याज दर (वार्षिक)",
+   419→    form_interestRateSuffix: "% प्रति वर्ष",
+   420→    form_loanTenure: "ऋण अवधि",
+   421→    form_remainingTenure: "शेष अवधि",
+   422→    form_tenureHelper:
+   423→      "वर्षों में अवधि चुनें, या अजीब अवधियों के लिए अतिरिक्त महीने जोड़ें (जैसे 18 वर्ष 6 महीने)।",
+   424→    form_monthlyEMI: "मासिक EMI",
+   425→    form_calculatedEMI: "गणना की गई EMI",
+   426→    form_calculatedEMIHelper:
+   427→      "गणना की गई EMI — ऋण, दर और अवधि से स्वतः निकाली गई। ओवरराइड करने के लिए मान दर्ज करें।",
+   428→    form_customEMIHelper:
+   429→      "आपने कस्टम EMI सेट की है। संदर्भ के लिए गणना की गई EMI दिखाई गई है।",
+   430→    form_useCalculated: "गणना की गई उपयोग करें",
+   431→    form_prepaymentStrategy: "प्रीपेमेंट रणनीति",
+   432→    form_prepaymentMode: "प्रीपेमेंट प्रकार",
+   433→    form_monthlyExtra: "अतिरिक्त मासिक EMI",
+   434→    form_lumpSum: "एकमुश्त",
+   435→    form_both: "दोनों",
+   436→    form_extraAmount: "अतिरिक्त राशि (प्रति माह)",
+   437→    form_effectiveEMI: "प्रभावी EMI",
+   438→    form_startFrom: "शुरू करें",
+   439→    form_month: "माह",
+   440→    form_year: "वर्ष",
+   441→    form_startHelper: "अतिरिक्त EMI इस वर्ष के इस महीने से शुरू होती है।",
+   442→    form_lumpSumAmount: "एकमुश्त राशि",
+   443→    form_applyAfter: "X महीने बाद लागू करें",
+   444→    form_applyAfterHelper:
+   445→      "एकमुश्त राशि इतनी EMI के बाद लागू होती है। वही EMI जारी रहती है, जिससे अवधि कम होती है।",
+   446→    form_annualBonus: "प्रति वर्ष अतिरिक्त (वार्षिक बोनस)",
+   447→    form_annualBonusHelper:
+   448→      "वैकल्पिक। आपके शुरू के महीने से हर 12 महीने में लागू — वार्षिक बोनस या टैक्स रिफंड के लिए उपयोगी।",
+   449→    form_additionalLumpSums: "अतिरिक्त एकमुश्त प्रीपेमेंट",
+   450→    form_add: "जोड़ें",
+   451→    form_amount: "राशि",
+   452→    form_remove: "हटाएँ",
+   453→    form_timingStart: "महीने की शुरुआत में लागू करें",
+   454→    form_timingStartOn:
+   455→      "प्रीपेमेंट ब्याज लगने से पहले मूलधन घटाता है — थोड़ा और बचत करता है।",
+   456→    form_timingStartOff:
+   457→      "प्रीपेमेंट EMI के बाद लागू होता है (जैसा अधिकांश बैंक करते हैं)।",
+   458→    form_loanStartDate: "ऋण आरंभ तिथि",
+   459→    form_startDateHelper:
+   460→      "\"बचाए गए महीनों\" को वास्तविक ऋण समाप्ति तिथियों में बदलने के लिए उपयोग किया जाता है।",
+   461→    form_outstandingMode: "बकाया मूलधन मोड",
+   462→    form_outstandingOff:
+   463→      "नई ऋण राशि और पूरी अवधि दर्ज करें। यदि आप मौजूदा उधारकर्ता हैं तो ऑन करें।",
+   464→    form_outstandingOn:
+   465→      "अपना वर्तमान बकाया मूलधन और शेष अवधि दर्ज करें ताकि चल रहे ऋण पर प्रीपेमेंट मॉडल किया जा सके।",
+   466→    form_outstandingPrincipal: "बकाया मूलधन",
+   467→    // Form actions
+   468→    form_reset: "रीसेट",
+   469→    form_copyResults: "परिणाम कॉपी करें",
+   470→    form_shareLink: "शेयर लिंक",
+   471→    // Results
+   472→    results_title: "आपके परिणाम",
+   473→    results_comparedTo: "आपके मूल होम लोन कार्यक्रम से तुलना।",
+   474→    results_tenureReduction: "अवधि में कमी",
+   475→    results_interestSaved: "बचाया गया ब्याज",
+   476→    results_interestSavedHelper:
+   477→      "ऋण की पूरी अवधि में कम ब्याज चुकाकर आपके पास रहने वाली शुद्ध राशि।",
+   478→    results_debtFreeSooner: "जल्दी ऋण मुक्त",
+   479→    results_debtFreeHelper:
+   480→      "आपकी मूल अवधि से कट गया। वर्तमान प्रीपेमेंट से अवधि में कोई बदलाव नहीं।",
+   481→    results_emiReducedBy: "EMI कम हुई",
+   482→    results_emiReducedHelper:
+   483→      "आपकी EMI घट जाती है, जबकि आपकी अवधि वही रहती है।",
+   484→    results_whatThisMeans: "इसका मतलब",
+   485→    results_originalPayoff: "मूल ऋण समाप्ति तिथि",
+   486→    results_newPayoff: "नई ऋण समाप्ति तिथि",
+   487→    results_originalTenure: "मूल अवधि",
+   488→    results_payoffUnchanged:
+   489→      "EMI मोड में अवधि वही रहती है। मूल के समान।",
+   490→    results_worthIt: "क्या फायदेमंद है?",
+   491→    results_worthItYes: "हाँ",
+   492→    results_worthItNo: "अभी नहीं",
+   493→    results_worthItTenure:
+   494→      "आप जल्दी ऋण मुक्त होते हैं और ब्याज बचत करते हैं।",
+   495→    results_worthItEmi:
+   496→      "आप ब्याज बचाते हैं और मासिक EMI कम करते हैं।",
+   497→    results_effectiveSavings: "प्रभावी बचत",
+   498→    results_effectiveSavingsHelper:
+   499→      "ऋण की पूरी अवधि में कम ब्याज",
+   500→    results_originalVsPrepayment: "मूल ऋण बनाम प्रीपेमेंट के साथ",
+   501→    results_totalInterest: "कुल चुकाया गया ब्याज",
+   502→    results_totalAmount: "कुल चुकाई गई राशि",
+   503→    results_lessOutOfPocket: "कम खर्च",
+   504→    results_monthlyEMI: "मासिक EMI",
+   505→    results_emiReduced: "EMI कम हुई",
+   506→    results_emisNoLonger: "अब आवश्यक नहीं EMI",
+   507→    results_cashFlowFreed: "खाली किया गया कैश फ्लो",
+   508→    // Amortization
+   509→    amort_preview: "अमोर्टाइज़ेशन पूर्वावलोकन",
+   510→    amort_snapshot: "अमोर्टाइज़ेशन स्नैपशॉट",
+   511→    amort_description:
+   512→      "प्रीपेमेंट लागू होने के साथ आपका होम लोन — पहले और अंतिम महीने दिखाए गए।",
+   513→    amort_monthlyRows: "कुल मासिक पंक्तियाँ",
+   514→    amort_month: "माह",
+   515→    amort_openingBalance: "प्रारंभिक शेष",
+   516→    amort_startingBalance: "शुरुआती शेष",
+   517→    amort_emi: "EMI",
+   518→    amort_interest: "ब्याज",
+   519→    amort_principal: "मूलधन",
+   520→    amort_prepayment: "प्रीपेमेंट",
+   521→    amort_closingBalance: "अंतिम शेष",
+   522→    amort_endingBalance: "समाप्त शेष",
+   523→    amort_monthsBetween: "बीच के महीने",
+   524→    // Lead gen
+   525→    lead_title: "अपनी पूरी प्रीपेमेंट रिपोर्ट पाएँ",
+   526→    lead_description:
+   527→      "हम आपको विस्तृत PDF/CSV रिपोर्ट ईमेल करेंगे और आपकी होम लोन अवधि व ब्याज कम करने के विकल्प बताएँगे।",
+   528→    lead_interestSaved: "बचाया गया ब्याज:",
+   529→    lead_soonerBy: "इतनी जल्दी:",
+   530→    lead_debtFree: "ऋण मुक्त:",
+   531→    lead_name: "नाम",
+   532→    lead_namePlaceholder: "आपका नाम",
+   533→    lead_emailOrPhone: "ईमेल या फ़ोन",
+   534→    lead_emailOrPhonePlaceholder: "you@example.com या 9876543210",
+   535→    lead_city: "शहर",
+   536→    lead_cityOptional: "(वैकल्पिक)",
+   537→    lead_cityPlaceholder: "मुंबई",
+   538→    lead_loanBalance: "वर्तमान ऋण बकाया",
+   539→    lead_loanBalanceOptional: "(वैकल्पिक)",
+   540→    lead_selectRange: "श्रेणी चुनें",
+   541→    lead_cta: "मेरी पूरी प्रीपेमेंट रिपोर्ट दें",
+   542→    lead_sending: "भेजा जा रहा है…",
+   543→    lead_success:
+   544→      "धन्यवाद! हम आपको अपनी प्रीपेमेंट कार्यक्रम की विस्तृत PDF/CSV रिपोर्ट ईमेल करेंगे और होम लोन अवधि व ब्याज कम करने के विकल्प बताएँगे।",
+   545→    lead_privacy:
+   546→      "हम आपके विवरण सिर्फ आपकी रिपोर्ट देने और समय-समय पर होम लोन टिप्स भेजने के लिए उपयोग करेंगे। कभी भी अनसब्सक्राइब करें।",
+   547→    // Affiliate
+   548→    affiliate_title: "और अधिक बचत के लिए अगले कदम",
+   549→    affiliate_description:
+   550→      "प्रीपेमेंट शक्तिशाली है — लेकिन यह जाँचना लायक है कि कम ROI या पेशेवर सलाह आपको और अधिक बचत दिला सकती है। ये पार्टनर मदद कर सकते हैं।",
+   551→    affiliate_compareRates: "होम लोन ब्याज दरों की तुलना करें",
+   552→    affiliate_compareRatesDesc:
+   553→      "SBI, HDFC, ICICI, Axis और अन्य की आज की होम लोन ब्याज दरें देखें। 0.5% कम ROI प्रीपेमेंट से ज़्यादा बचत करा सकती है।",
+   554→    affiliate_compareRatesCta: "दरें तुलना करें",
+   555→    affiliate_balanceTransfer: "बैलेंस ट्रांसफर ऑफर देखें",
+   556→    affiliate_balanceTransferDesc:
+   557→      "अपना बकाया मूलधन कम ROI देने वाले ऋणदाता के पास ले जाएँ। अधिकांश बैंक फ्लोटिंग-रेट होम लोन पर कोई फोरक्लोजर शुल्क नहीं लेते।",
+   558→    affiliate_balanceTransferCta: "ऑफर देखें",
+   559→    affiliate_talkExpert: "लोन विशेषज्ञ से बात करें",
+   560→    affiliate_talkExpertDesc:
+   561→      "होम लोन सलाहकार से निःशुल्क, बिना दायित्व परामर्श लें जो आपके प्रीपेमेंट की रणनीति बना सकता है और फोरक्लोजर शुल्क जाँच सकता है।",
+   562→    affiliate_talkExpertCta: "विशेषज्ञ से बात करें",
+   563→    affiliate_refinance: "रिफाइनेंस बचत जाँचें",
+   564→    affiliate_refinanceDesc:
+   565→      "कम दर या छोटी अवधि पर रिफाइनेंस प्रीपेमेंट से बेहतर हो सकता है। वर्तमान बाज़ार ऑफर के साथ संख्याएँ साथ-साथ चलाएँ।",
+   566→    affiliate_refinanceCta: "बचत जाँचें",
+   567→    affiliate_disclaimer:
+   568→      "एफिलिएट लिंक — यदि आप ऑफर लेते हैं तो हमें कमीशन मिल सकता है, आपकी कोई अतिरिक्त लागत नहीं।",
+   569→    // Scenarios
+   570→    scenarios_title: "प्रीपेमेंट परिदृश्य उदाहरण",
+   571→    scenarios_description:
+   572→      "विशिष्ट भारतीय होम लोन पर वास्तविक रणनीतियाँ (₹35 ला–₹1 करोड़, 8.4–8.6% प्रति वर्ष)। कैलकुलेटर में लोड करने के लिए किसी भी परिदृश्य पर टैप करें।",
+   573→    scenarios_interestSaved: "बचाया गया ब्याज",
+   574→    scenarios_timeSaved: "बचाया गया समय",
+   575→    scenarios_paysOff: "ऋण समाप्त",
+   576→    scenarios_insteadOf: "के बजाय",
+   577→    scenarios_loadIntoCalc: "कैलकुलेटर में लोड करें",
+   578→    // FAQ
+   579→    faq_title: "अक्सर पूछे जाने वाले प्रश्न",
+   580→    faq_description:
+   581→      "होम लोन प्रीपेमेंट और EMI के बारे में सब कुछ जो आप जानना चाहेंगे।",
+   582→    // Guides
+   583→    guides_title: "ब्याज बचत गाइड",
+   584→    guides_description:
+   585→      "आपके होम लोन पर बचत करने में मदद के लिए विस्तृत, भारत-विशिष्ट गाइड।",
+   586→    // Content blocks
+   587→    content_title: "होम लोन प्रीपेमेंट कैसे काम करता है",
+   588→    content_description:
+   589→      "ऊपर की संख्याओं के पीछे की यांत्रिकी पर एक संक्षिप्त परिचय।",
+   590→    // Footer
+   591→    footer_disclaimer:
+   592→      "यह कैलकुलेटर केवल जानकारी के उद्देश्य से है और वित्तीय सलाह नहीं है। आंकड़े आपके द्वारा दिए गए इनपुट पर आधारित अनुमान हैं और मासिक चक्रवृद्धि मानते हैं। ब्याज दरें संकेतक हैं — तय करने से पहले हमेशा अपने बैंक से सटीक ROI, शुल्क और प्रीपेमेंट शर्तें पुष्टि करें।",
+   593→    footer_rights: "सर्वाधिकार सुरक्षित।",
+   594→    // Toasts
+   595→    toast_reset_title: "रीसेट",
+   596→    toast_reset_desc: "कैलकुलेटर डिफ़ॉल्ट पर बहाल हो गया।",
+   597→    toast_copied_title: "कॉपी हो गया!",
+   598→    toast_copied_desc: "परिणाम आपके क्लिपबोर्ड पर कॉपी हो गए।",
+   599→    toast_shareLink_title: "शेयर लिंक कॉपी हो गया!",
+   600→    toast_shareLink_desc:
+   601→      "इस सटीक गणना को साझा करने के लिए कहीं भी पेस्ट करें।",
+   602→    toast_scenario_title: "परिदृश्य लोड हो गया",
+   603→    toast_scenario_desc:
+   604→      "कैलकुलेटर अब इस उदाहरण रणनीति को दर्शाता है।",
+   605→    // Empty state
+   606→    empty_title: "अपना होम लोन विवरण भरें",
+   607→    empty_description:
+   608→      "अपनी बचत, नई ऋण समाप्ति तिथि और अमोर्टाइज़ेशन पूर्वावलोकन देखने के लिए बाईं ओर ऋण राशि, ब्याज दर और अवधि दर्ज करें।",
+   609→  },
+   610→};
+   611→
+   612→/**
+   613→ * Loan-balance range options shown in the lead-gen form's "Current loan
+   614→ * balance" select. Six ranges per locale, in increasing order.
+   615→ */
+   616→export const LOAN_BALANCE_RANGES: Record<Locale, string[]> = {
+   617→  en: [
+   618→    "Under ₹10 Lakh",
+   619→    "₹10 L – ₹25 L",
+   620→    "₹25 L – ₹50 L",
+   621→    "₹50 L – ₹75 L",
+   622→    "₹75 L – ₹1 Cr",
+   623→    "Above ₹1 Crore",
+   624→  ],
+   625→  hi: [
+   626→    "₹10 लाख से कम",
+   627→    "₹10 ला – ₹25 ला",
+   628→    "₹25 ला – ₹50 ला",
+   629→    "₹50 ला – ₹75 ला",
+   630→    "₹75 ला – ₹1 करोड़",
+   631→    "₹1 करोड़ से अधिक",
+   632→  ],
+   633→};
+   634→
+   635→/**
+   636→ * Look up a single translated string. Falls back to the English value
+   637→ * if the key is missing for the requested locale (defensive — should
+   638→ * not normally happen because both locales are exhaustive).
+   639→ */
+   640→export function getTranslation(
+   641→  locale: Locale,
+   642→  key: keyof TranslationKey,
+   643→): string {
+   644→  const dict = translations[locale] ?? translations.en;
+   645→  const value = dict[key];
+   646→  if (value === undefined || value === null) {
+   647→    return translations.en[key] ?? String(key);
+   648→  }
+   649→  return value;
+   650→}
+   651→

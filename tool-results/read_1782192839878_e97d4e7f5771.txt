@@ -1,0 +1,345 @@
+     1→/**
+     2→ * India-focused FAQ content, grouped by calculator view so the UI can
+     3→ * surface the most relevant Q&As alongside each section.
+     4→ *
+     5→ * All answers use Indian home-loan terminology (EMI, principal, tenure,
+     6→ * prepayment, foreclosure, outstanding principal, ROI, CIBIL, RBI, lakh,
+     7→ * crore) and reflect 2024-2025 RBI guidelines — in particular the rule
+     8→ * that floating-rate home loans to individual borrowers carry zero
+     9→ * prepayment / foreclosure charges regardless of loan amount.
+    10→ */
+    11→
+    12→export interface FaqGroup {
+    13→  view: string;
+    14→  faqs: { question: string; answer: string }[];
+    15→}
+    16→
+    17→export const INDIA_FAQS: FaqGroup[] = [
+    18→  {
+    19→    view: "prepayment",
+    20→    faqs: [
+    21→      {
+    22→        question: "Are there any prepayment charges on Indian home loans?",
+    23→        answer:
+    24→          "No. As per RBI guidelines updated in June 2024, floating-rate home loans availed by individual borrowers — for any purpose and of any amount — cannot attract prepayment or foreclosure charges. This applies to all banks and NBFCs. The rule does not apply to fixed-rate home loans or to loans availed by non-individuals (companies, LLPs, trusts), which may carry up to 2% charges plus taxes.",
+    25→      },
+    26→      {
+    27→        question: "What is the difference between partial prepayment and foreclosure?",
+    28→        answer:
+    29→          "A partial prepayment is when you pay a part of the outstanding principal in addition to your regular EMI — the loan continues with a reduced principal. Foreclosure is when you pay the entire outstanding principal in one go and close the loan fully. Both are free of charge on floating-rate individual home loans; you typically initiate either through NetBanking or by submitting a prepayment request at your branch.",
+    30→      },
+    31→      {
+    32→        question: "Should I reduce my EMI or reduce my tenure when I prepay?",
+    33→        answer:
+    34→          "Reducing tenure almost always saves more total interest because the principal is repaid faster and the loan closes sooner. Reducing EMI improves monthly cash flow but extends the original tenure, so the loan accrues interest for longer. As a rule of thumb, choose tenure reduction if you can comfortably continue the existing EMI, and choose EMI reduction only if your income has dropped or you need monthly headroom.",
+    35→      },
+    36→      {
+    37→        question: "How much can I save by prepaying ₹1 lakh every year?",
+    38→        answer:
+    39→          "On a ₹50 lakh home loan at 8.50% for 20 years, prepaying ₹1 lakh every year from year 1 typically saves ₹18-22 lakh in total interest and shortens the tenure by around 5-6 years. The earlier you start, the larger the saving — the same ₹1 lakh applied in year 1 saves roughly 4-5x as much interest as the same amount applied in year 15.",
+    40→      },
+    41→      {
+    42→        question: "Is there a minimum amount I need to prepay?",
+    43→        answer:
+    44→          "Most banks do not impose a statutory minimum for partial prepayment, but they may set a practical minimum (often ₹10,000 or one EMI) to avoid processing very small transactions. Some banks cap the number of free prepayments per year on legacy products — check your sanction letter. On repo-linked floating-rate individual loans, RBI's zero-charge rule applies regardless of frequency.",
+    45→      },
+    46→      {
+    47→        question: "Does prepayment affect my CIBIL score?",
+    48→        answer:
+    49→          "No — a prepayment itself does not negatively affect your CIBIL score. In fact, lowering your outstanding principal can improve your credit utilisation ratio and may have a small positive effect over time. What matters for CIBIL is that you continue to pay your regular EMI on time. Prepayments are reported to bureaus as normal account updates, not as separate events.",
+    50→      },
+    51→    ],
+    52→  },
+    53→  {
+    54→    view: "emi",
+    55→    faqs: [
+    56→      {
+    57→        question: "How is home loan EMI calculated in India?",
+    58→        answer:
+    59→          "Indian banks use the standard reducing-balance annuity formula: EMI = P x r x (1+r)^n / ((1+r)^n - 1), where P is the principal, r is the monthly interest rate (annual rate divided by 12 and by 100), and n is the tenure in months. For a ₹50 lakh loan at 8.50% p.a. for 20 years (240 months), this works out to an EMI of approximately ₹43,391. The EMI stays fixed for the tenure unless ROI changes or you prepay.",
+    60→      },
+    61→      {
+    62→        question: "What is the EMI for a ₹50 lakh home loan for 20 years?",
+    63→        answer:
+    64→          "At an indicative 8.50% p.a. ROI, the EMI is about ₹43,391 per month. At 8.40% (SBI's starting rate) it is around ₹43,088; at 9.00% it is around ₹44,986. Even a 50 bps difference moves the EMI by ₹800-900 per month and the total interest by ₹2 lakh over the tenure — which is why even small ROI negotiations matter.",
+    65→      },
+    66→      {
+    67→        question: "Does my EMI change when RBI changes the repo rate?",
+    68→        answer:
+    69→          "For repo-linked home loans (RLLR / BRLLR), the effective rate resets within days to a quarter of an RBI repo change. Banks typically keep the EMI constant and instead adjust the tenure — so a rate cut shortens your tenure and a rate hike extends it. You can request the bank to revise the EMI instead if you prefer — useful if your EMI was a stretch at the original rate.",
+    70→      },
+    71→      {
+    72→        question: "What happens to EMI if I prepay part of the principal?",
+    73→        answer:
+    74→          "By default most banks keep your EMI unchanged and shorten your remaining tenure — this is what the calculator on this page models. If you prefer, you can submit a written request asking the bank to reduce the EMI instead and keep the tenure the same. Reducing EMI improves cash flow but saves less interest than reducing tenure.",
+    75→      },
+    76→      {
+    77→        question: "Can I increase my EMI midway through the loan?",
+    78→        answer:
+    79→          "Yes. Most banks allow you to increase the EMI — typically via a step-up instruction or by setting up a standing instruction for the additional amount as a prepayment. Increasing your EMI is functionally identical to a monthly prepayment: the excess over the contractual EMI goes directly to principal and shortens the tenure, saving interest.",
+    80→      },
+    81→      {
+    82→        question: "What is a step-up EMI home loan?",
+    83→        answer:
+    84→          "A step-up EMI loan starts with a lower EMI that increases by a fixed percentage (typically 5-8%) every few years, matching expected salary growth. This helps young salaried borrowers qualify for a larger loan today because the initial EMI is lower. The trade-off is higher total interest — early EMIs cover mostly interest, so prepayments in the early years are especially powerful on a step-up loan.",
+    85→      },
+    86→    ],
+    87→  },
+    88→  {
+    89→    view: "reduce-emi-vs-tenure",
+    90→    faqs: [
+    91→      {
+    92→        question: "What is the difference between reducing EMI and reducing tenure?",
+    93→        answer:
+    94→          "When you prepay, your bank offers two choices: (1) keep the EMI the same and shorten the tenure, or (2) keep the tenure the same and lower the EMI. Reducing tenure maximises interest saving because the loan ends sooner. Reducing EMI lowers your monthly outflow but extends the original tenure, so the loan accrues interest for longer.",
+    95→      },
+    96→      {
+    97→        question: "Which option saves more interest?",
+    98→        answer:
+    99→          "Reducing tenure always saves more interest, sometimes 3-5x more than reducing EMI for the same prepayment. On a ₹50 lakh loan at 8.50% with a ₹5 lakh prepayment in year 3, choosing tenure reduction typically saves around ₹14-16 lakh in interest, while choosing EMI reduction saves only ₹4-5 lakh over the original tenure.",
+   100→      },
+   101→      {
+   102→        question: "When does reducing EMI make sense?",
+   103→        answer:
+   104→          "Reducing EMI is sensible when your monthly cash flow is constrained — for example after a job change, a salary cut, or a large unexpected expense. It can also make sense if you intend to redirect the freed-up EMI amount into higher-yielding investments (equity mutual funds, etc.) and you are confident of earning more than your home loan ROI after tax.",
+   105→      },
+   106→      {
+   107→        question: "Can I switch between EMI reduction and tenure reduction later?",
+   108→        answer:
+   109→          "In practice, each prepayment locks in your choice for that prepayment. Future prepayments can use a different choice. Some banks also allow you to re-amortise the loan once a year (often called a recast) by paying a small fee. Check your bank's specific policy — most PSU banks (SBI, PNB, BoB) are flexible, while some private banks limit free recasts.",
+   110→      },
+   111→      {
+   112→        question: "If I reduce EMI, can I later increase it again?",
+   113→        answer:
+   114→          "Yes. Reducing the EMI after a prepayment doesn't prevent you from overpaying later — you can always pay more than the reduced EMI as a fresh monthly prepayment. So a common middle-path strategy is: reduce EMI for cash flow safety, then continue overpaying the original (higher) EMI as a monthly prepayment whenever you have the surplus.",
+   115→      },
+   116→      {
+   117→        question: "How does this calculator model the choice?",
+   118→        answer:
+   119→          "By default, the calculator models the tenure-reduction case — your contractual EMI stays the same and overpayments shorten the term. This produces the larger interest saving and is what most disciplined borrowers choose. If you want to see the EMI-reduction case, set the overpayment to zero and note that the prepayment has already been applied to reduce the principal — you would then recompute the EMI on the reduced principal for the original tenure.",
+   120→      },
+   121→    ],
+   122→  },
+   123→  {
+   124→    view: "interest-saving",
+   125→    faqs: [
+   126→      {
+   127→        question: "How much interest can I save by prepaying my home loan?",
+   128→        answer:
+   129→          "It depends on your ROI, outstanding principal and how early you start. On a ₹50 lakh loan at 8.50% for 20 years, prepaying just ₹2,000 a month from month 1 typically saves ₹6-8 lakh in interest and clears the loan about 2-3 years earlier. Prepaying ₹10,000 a month can save ₹25-30 lakh and clear it 7-8 years earlier. Use the calculator above for an exact figure for your loan.",
+   130→      },
+   131→      {
+   132→        question: "Why do early prepayments save so much more interest?",
+   133→        answer:
+   134→          "Indian home loans use reducing-balance amortisation — interest is charged each month on the outstanding principal. In the first year of a 20-year loan, around 80% of each EMI is interest and only 20% is principal. A prepayment in year 1 reduces the principal for the entire remaining 19 years, so it saves interest every single month. A prepayment in year 18 only saves interest for the last 2 years.",
+   135→      },
+   136→      {
+   137→        question: "Is the interest saving from prepayment tax-free?",
+   138→        answer:
+   139→          "Yes — the interest you avoid paying by prepaying is functionally equivalent to a guaranteed, tax-free return equal to your home loan ROI. There is no tax on the saving itself. This is why prepaying a 9% home loan is often compared to a fixed-income investment earning 9% post-tax, which would require roughly 12-13% pre-tax for a 30% slab investor.",
+   140→      },
+   141→      {
+   142→        question: "Is prepayment better than investing the same money?",
+   143→        answer:
+   144→          "There is no universal answer. Prepaying gives a guaranteed, tax-free return equal to your home loan ROI. Equity mutual funds have historically delivered 11-13% long-term returns in India but with market risk and 10% LTCG tax on gains over ₹1.25 lakh (post July 2024). Many borrowers do both: overpay enough to feel secure, and invest the rest for growth.",
+   145→      },
+   146→      {
+   147→        question: "Does prepayment reduce my Section 24(b) tax deduction?",
+   148→        answer:
+   149→          "Section 24(b) allows a deduction of up to ₹2 lakh per year on home loan interest for a self-occupied property. If prepayment lowers your annual interest below ₹2 lakh, you lose the unused portion of the deduction — so for high-income borrowers in the 30% slab, the effective benefit of prepaying is reduced by the tax saving forgone. This is most relevant in the later years of a loan when interest is already low.",
+   150→      },
+   151→      {
+   152→        question: "How is total interest calculated in this calculator?",
+   153→        answer:
+   154→          "The calculator runs two parallel amortization schedules: one with no overpayments (original) and one with your prepayments applied. Total interest saved is the difference between the sum of interest across all months in the original schedule and the same sum in the overpayment schedule. This is the true net saving — not the sum of prepayment amounts, which can be much smaller than the interest avoided.",
+   155→      },
+   156→    ],
+   157→  },
+   158→  {
+   159→    view: "sbi",
+   160→    faqs: [
+   161→      {
+   162→        question: "What is the current SBI home loan interest rate?",
+   163→        answer:
+   164→          "As of 2024-2025, SBI's home loan rates start around 8.40% p.a. for salaried borrowers with strong CIBIL under the repo-linked (RLLR) product, and go up to around 9.30% for higher-risk or fixed-rate variants. The exact ROI depends on your CIBIL score, loan amount, LTV and gender — women borrowers typically get a 5 bps concession under the Her Ghar scheme.",
+   165→      },
+   166→      {
+   167→        question: "Does SBI charge any prepayment penalty?",
+   168→        answer:
+   169→          "No. Floating-rate home loans to individual borrowers at SBI carry zero prepayment and foreclosure charges, in line with RBI guidelines. You can prepay any amount, any number of times, through Yono or at a branch. Fixed-rate SBI home loans may attract 2% charges on the outstanding principal prepaid.",
+   170→      },
+   171→      {
+   172→        question: "How does SBI's repo-linked home loan work?",
+   173→        answer:
+   174→          "SBI's Regular Home Loan is linked to RLLR (SBI Repo Linked Lending Rate), which is the RBI repo rate plus a bank-set spread. The effective ROI resets within five working days of an RBI repo change — so rate cuts reach you quickly. The spread is fixed at sanction based on your CIBIL and LTV, and remains constant for the loan's life unless you formally request a re-pricing.",
+   175→      },
+   176→      {
+   177→        question: "What is the maximum tenure and loan amount for SBI home loans?",
+   178→        answer:
+   179→          "SBI offers a maximum tenure of 30 years — among the longest in the Indian market, which helps lower EMI and improve eligibility. Loan amounts go up to ₹15 crore under the SBI Privilege and Shaurya schemes for select borrowers. For most salaried applicants the practical limit is determined by FOIR (typically capped at 50-55%) and LTV (90% for loans up to ₹30 lakh).",
+   180→      },
+   181→      {
+   182→        question: "Can I transfer my existing home loan to SBI?",
+   183→        answer:
+   184→          "Yes — SBI offers a balance transfer (also called takeover) facility where it pays off your existing lender and reissues the loan at SBI's ROI. This is worthwhile if your current ROI is more than 50 bps above what SBI would offer based on your CIBIL. SBI may also offer a top-up loan at the same ROI during the transfer, which can be used for any purpose.",
+   185→      },
+   186→      {
+   187→        question: "How do I make a prepayment on my SBI home loan?",
+   188→        answer:
+   189→          "You can prepay through Yono (the SBI mobile app), SBI NetBanking, or by visiting your home branch with a prepayment request and cheque / demand draft. Online prepayments are typically credited to principal within one business day. There is no statutory minimum or maximum on floating-rate individual loans, though very small amounts (under one EMI) may not be accepted at the branch counter.",
+   190→      },
+   191→    ],
+   192→  },
+   193→  {
+   194→    view: "hdfc",
+   195→    faqs: [
+   196→      {
+   197→        question: "What is the current HDFC Bank home loan interest rate?",
+   198→        answer:
+   199→          "Post the July 2023 merger of HDFC Limited into HDFC Bank, all new home loans are originated by HDFC Bank. As of 2024-2025, indicative rates start around 8.50% p.a. for salaried borrowers with CIBIL 800+, going up to around 9.40% for lower CIBIL or fixed-rate variants. Women applicants may get a 5 bps concession on the ROI.",
+   200→      },
+   201→      {
+   202→        question: "Does HDFC Bank charge prepayment or foreclosure charges?",
+   203→        answer:
+   204→          "No. Floating-rate home loans availed by individual borrowers carry zero prepayment and foreclosure charges at HDFC Bank, consistent with RBI's June 2024 clarification extending the no-penalty rule to loans of all amounts. Fixed-rate home loans may attract 2% charges plus taxes on the prepaid principal during the fixed-rate period.",
+   205→      },
+   206→      {
+   207→        question: "What happened to my old HDFC Limited home loan after the merger?",
+   208→        answer:
+   209→          "All existing HDFC Limited home loans were transferred to HDFC Bank on 1 July 2023 as part of the merger. Your ROI, EMI, tenure and terms remain unchanged — the loan continues on the same conditions, only the lender's name has changed. You can now service the loan through HDFC Bank NetBanking or the mobile app; prepayment and foreclosure policies remain as per your original sanction.",
+   210→      },
+   211→      {
+   212→        question: "How fast can HDFC Bank disburse a home loan?",
+   213→        answer:
+   214→          "For salaried borrowers with complete documentation, HDFC Bank offers digital in-principle sanction in as little as 10 minutes through the HDFC Bank mobile app, with final disbursal typically in 3-7 working days after property and legal verification. Self-employed applicants usually take 7-10 working days due to additional income documentation and ITR verification.",
+   215→      },
+   216→      {
+   217→        question: "Does HDFC Bank offer a top-up loan with a home loan?",
+   218→        answer:
+   219→          "Yes. After 12 months of regular repayment on your HDFC Bank home loan, you can apply for a top-up loan of up to ₹50 lakh (subject to LTV and income eligibility) at the same ROI as your home loan. The top-up has no end-use restriction and can be used for renovation, education, business, medical or any personal purpose.",
+   220→      },
+   221→      {
+   222→        question: "Can I do a balance transfer to HDFC Bank?",
+   223→        answer:
+   224→          "Yes. HDFC Bank's balance transfer facility pays off your existing home loan and reissues it at HDFC's ROI. This is worthwhile if your current ROI is meaningfully higher than HDFC's offer for your CIBIL profile. HDFC Bank often bundles a top-up loan with the transfer at the same ROI, which is attractive if you also need additional funds.",
+   225→      },
+   226→    ],
+   227→  },
+   228→  {
+   229→    view: "icici",
+   230→    faqs: [
+   231→      {
+   232→        question: "What is the current ICICI Bank home loan interest rate?",
+   233→        answer:
+   234→          "As of 2024-2025, ICICI Bank home loan rates start around 8.50% p.a. for salaried borrowers with strong CIBIL, going up to around 9.60% for lower CIBIL profiles or specific loan structures. Women applicants (first applicant) typically get a 5-10 bps ROI concession under the ICICI Bank Women's Home Loan.",
+   235→      },
+   236→      {
+   237→        question: "Does ICICI Bank charge prepayment penalty?",
+   238→        answer:
+   239→          "No. Floating-rate home loans for individual borrowers at ICICI Bank carry zero prepayment and foreclosure charges, per RBI guidelines. You can make partial prepayments through iMobile Pay or NetBanking with no paperwork for amounts up to a threshold; larger prepayments may require a written request. Fixed-rate loans may attract up to 2% charges plus taxes.",
+   240→      },
+   241→      {
+   242→        question: "What is the ICICI Insta Home Loan?",
+   243→        answer:
+   244→          "Insta Home Loan is ICICI Bank's digital in-principle sanction facility — existing ICICI customers can get an instant sanction in seconds through iMobile Pay or NetBanking based on their banking relationship and CIBIL, without submitting income documents. The sanction is valid for 6 months and can be converted to a final disbursal after property verification.",
+   245→      },
+   246→      {
+   247→        question: "Does ICICI Bank offer a step-up EMI option?",
+   248→        answer:
+   249→          "Yes. ICICI Bank's step-up EMI home loan starts with a lower EMI that increases by a fixed percentage (typically 5-8%) every few years, matching expected salary growth. This is suited for young salaried borrowers in their 20s and early 30s who want a larger loan today than their current income would qualify for at a level EMI.",
+   250→      },
+   251→      {
+   252→        question: "What is the maximum tenure for an ICICI home loan?",
+   253→        answer:
+   254→          "ICICI Bank offers home loan tenure up to 30 years for salaried borrowers, which helps lower the EMI and improve loan eligibility. Self-employed borrowers are typically capped at 20-25 years. Longer tenure means lower EMI but higher total interest — so longer-tenure borrowers benefit most from periodic prepayments.",
+   255→      },
+   256→      {
+   257→        question: "Can I prepay my ICICI home loan online?",
+   258→        answer:
+   259→          "Yes. ICICI Bank allows partial prepayments through iMobile Pay or Internet Banking for floating-rate individual home loans. The prepaid amount is adjusted against outstanding principal typically within one business day. There is no charge for online prepayments and no minimum amount beyond the bank's practical threshold (usually ₹10,000 or one EMI).",
+   260→      },
+   261→    ],
+   262→  },
+   263→  {
+   264→    view: "axis",
+   265→    faqs: [
+   266→      {
+   267→        question: "What is the current Axis Bank home loan interest rate?",
+   268→        answer:
+   269→          "As of 2024-2025, Axis Bank home loan rates start around 8.75% p.a. for salaried borrowers with strong CIBIL, going up to around 9.65% for higher-risk or specific loan structures. The bank offers repo-linked (BRLLR) pricing with quarterly reset on the outstanding principal, ensuring rate changes transmit within at most three months.",
+   270→      },
+   271→      {
+   272→        question: "Does Axis Bank charge prepayment or foreclosure penalty?",
+   273→        answer:
+   274→          "No. Floating-rate home loans for individual borrowers at Axis Bank carry zero prepayment and foreclosure charges per RBI guidelines. You can prepay any amount, any number of times, through Axis Mobile, Internet Banking or a branch. Fixed-rate home loans may attract 2% charges plus taxes on the prepaid principal during the fixed-rate period.",
+   275→      },
+   276→      {
+   277→        question: "What is Axis Bank's BRLLR and how does it differ from MCLR?",
+   278→        answer:
+   279→          "BRLLR (Benchmark Repo Linked Lending Rate) is the repo rate plus a bank-set spread, and is reset quarterly on the outstanding principal. MCLR (Marginal Cost of Funds Based Lending Rate) is based on the bank's cost of funds and resets at longer intervals (6 months or 1 year). BRLLR transmits RBI rate changes faster, so most new Axis home loans are now BRLLR-linked.",
+   280→      },
+   281→      {
+   282→        question: "What is the maximum LTV Axis Bank offers?",
+   283→        answer:
+   284→          "Axis Bank offers LTV up to 90% for home loans up to ₹30 lakh, 80% for loans between ₹30 lakh and ₹75 lakh, and 75% for loans above ₹75 lakh — in line with RBI norms. The actual LTV also depends on the property's appraised value and your income eligibility. A higher LTV reduces your down-payment burden but increases total interest paid over the tenure.",
+   285→      },
+   286→      {
+   287→        question: "What is Axis Bank's FOIR cap for home loans?",
+   288→        answer:
+   289→          "Axis Bank typically applies a FOIR (Fixed Obligations to Income Ratio) cap of 50-55% — meaning all your EMIs including the proposed home loan EMI should not exceed 50-55% of your net monthly income. For a ₹1,00,000 net monthly income, this caps the proposed home loan EMI at around ₹40,000 after accounting for existing EMIs, translating to an eligible loan of roughly ₹48 lakh at 8.75% for 20 years.",
+   290→      },
+   291→      {
+   292→        question: "Can I get a top-up loan from Axis Bank?",
+   293→        answer:
+   294→          "Yes. After 12 months of regular repayment, Axis Bank offers a top-up loan of up to ₹50 lakh at the same ROI as your home loan, with no end-use restriction. The top-up is typically disbursed within 3-5 working days and is useful for renovation, education, business expansion or any other personal purpose. Interest on a top-up used for home renovation may be eligible for Section 24(b) deduction up to ₹30,000 per year.",
+   295→      },
+   296→    ],
+   297→  },
+   298→  {
+   299→    view: "general",
+   300→    faqs: [
+   301→      {
+   302→        question: "What is a home loan EMI?",
+   303→        answer:
+   304→          "EMI (Equated Monthly Instalment) is the fixed monthly payment you make to repay your home loan. Each EMI has two components — interest on the outstanding principal for that month, and a principal repayment that reduces the outstanding balance. The EMI stays fixed for the tenure unless ROI changes or you prepay, but the interest-to-principal ratio shifts every month: interest is high in early years and falls over time.",
+   305→      },
+   306→      {
+   307→        question: "What is the difference between ROI and EMI?",
+   308→        answer:
+   309→          "ROI (Rate of Interest) is the annual percentage your bank charges on the outstanding principal — for example 8.50% p.a. EMI is the fixed monthly payment you make, calculated from the principal, ROI and tenure. A lower ROI reduces your EMI for the same tenure; a longer tenure reduces your EMI for the same ROI but increases total interest paid.",
+   310→      },
+   311→      {
+   312→        question: "How does CIBIL score affect my home loan?",
+   313→        answer:
+   314→          "CIBIL score is a 3-digit number (300-900) reflecting your credit history. Most Indian banks prefer 750+ for the best ROI; 700-749 may still be approved but at a higher rate. A 50 bps ROI difference on a ₹50 lakh 20-year loan costs roughly ₹6,500 extra interest per year — about ₹1.3 lakh over the tenure. Improving CIBIL before applying (pay EMIs on time, keep credit utilisation below 30%, avoid multiple loan enquiries) is one of the highest-leverage financial moves available.",
+   315→      },
+   316→      {
+   317→        question: "What is LTV (Loan-to-Value) and why does it matter?",
+   318→        answer:
+   319→          "LTV is the loan amount expressed as a percentage of the property's appraised value. RBI caps LTV at 90% for loans up to ₹30 lakh, 80% for ₹30-75 lakh, and 75% above ₹75 lakh. A higher LTV reduces your down-payment burden but increases total interest paid and may attract a higher ROI. Bringing a larger down-payment improves your LTV, often unlocks a lower ROI, and reduces the absolute interest you pay over the tenure.",
+   320→      },
+   321→      {
+   322→        question: "What is the difference between fixed and floating ROI?",
+   323→        answer:
+   324→          "A fixed-rate home loan keeps the same ROI for the entire (or a specified) tenure, giving EMI certainty but typically at a 50-100 bps premium to floating. A floating-rate loan moves with a benchmark (repo, MCLR, T-Bill) — so your ROI rises and falls with market rates. Floating loans to individuals also carry zero prepayment penalty under RBI guidelines, while fixed loans may attract 2% charges. Most Indian borrowers choose floating.",
+   325→      },
+   326→      {
+   327→        question: "Can I claim income tax benefits on a home loan?",
+   328→        answer:
+   329→          "Yes. Under Section 80C, principal repayment (including down-payment in some cases) is deductible up to ₹1.5 lakh per year. Under Section 24(b), interest paid is deductible up to ₹2 lakh per year for a self-occupied property (unlimited for let-out property, subject to conditions). For first-time buyers, Section 80EE offers an additional ₹50,000 interest deduction if the loan was sanctioned in the relevant financial year and meets value/income criteria. Note that prepayment reduces future interest, which may reduce your Section 24(b) deduction.",
+   330→      },
+   331→    ],
+   332→  },
+   333→];
+   334→
+   335→/**
+   336→ * Return the FAQ list for a given view, falling back to the "general" group
+   337→ * if the requested view has no matching FAQ group.
+   338→ */
+   339→export function getFaqsForView(view: string): { question: string; answer: string }[] {
+   340→  const match = INDIA_FAQS.find((g) => g.view === view);
+   341→  if (match) return match.faqs;
+   342→  const general = INDIA_FAQS.find((g) => g.view === "general");
+   343→  return general ? general.faqs : [];
+   344→}
+   345→

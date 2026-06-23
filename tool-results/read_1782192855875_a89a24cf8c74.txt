@@ -1,0 +1,723 @@
+     1→     1→     1→"use client";
+     2→     2→     2→
+     3→     3→     3→import * as React from "react";
+     4→     4→     4→import {
+     5→     5→     5→  RotateCcw,
+     6→     6→     6→  Copy,
+     7→     7→     7→  Calculator,
+     8→     8→     8→  Info,
+     9→     9→     9→  Plus,
+    10→    10→    10→  Trash2,
+    11→    11→    11→  CalendarClock,
+    12→    12→    12→  Repeat,
+    13→    13→    13→  Link2,
+    14→    14→    14→} from "lucide-react";
+    15→    15→    15→
+    16→    16→    16→import { cn } from "@/lib/utils";
+    17→    17→    17→import { Input } from "@/components/ui/input";
+    18→    18→    18→import { Label } from "@/components/ui/label";
+    19→    19→    19→import { Button } from "@/components/ui/button";
+    20→    20→    20→import { Switch } from "@/components/ui/switch";
+    21→    21→    21→import { Separator } from "@/components/ui/separator";
+    22→    22→    22→import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+    23→    23→    23→import {
+    24→    24→    24→  Card,
+    25→    25→    25→  CardContent,
+    26→    26→    26→  CardDescription,
+    27→    27→    27→  CardHeader,
+    28→    28→    28→  CardTitle,
+    29→    29→    29→} from "@/components/ui/card";
+    30→    30→    30→import { formatCurrency } from "@/lib/format";
+    31→    31→    31→import type { CalcState } from "@/lib/calc-state";
+    32→    32→    32→import type {
+    33→    33→    33→  OverpaymentType,
+    34→    34→    34→  PrepaymentMode,
+    35→    35→    35→  LumpSumPrepayment,
+    36→    36→    36→} from "@/lib/mortgage";
+    37→    37→    37→
+    38→    38→    38→interface CalculatorFormProps {
+    39→    39→    39→  state: CalcState;
+    40→    40→    40→  /** Auto-calculated EMI, shown as helper text. */
+    41→    41→    41→  calculatedPayment: number;
+    42→    42→    42→  warnings: string[];
+    43→    43→    43→  /** Show the prepayment-strategy section (hidden in pure EMI mode). */
+    44→    44→    44→  showPrepayment: boolean;
+    45→    45→    45→  /** Show the EMI/tenure mode toggle. V1 prepayment view is tenure-only. */
+    46→    46→    46→  showModeToggle: boolean;
+    47→    47→    47→  onChange: (patch: Partial<CalcState>) => void;
+    48→    48→    48→  onReset: () => void;
+    49→    49→    49→  onCopy: () => void;
+    50→    50→    50→  /** Copy the current calculation as a shareable URL. */
+    51→    51→    51→  onCopyShareLink: () => void;
+    52→    52→    52→}
+    53→    53→    53→
+    54→    54→    54→/** A labelled numeric input with an optional prefix/suffix adornment. */
+    55→    55→    55→function NumberField({
+    56→    56→    56→  id,
+    57→    57→    57→  label,
+    58→    58→    58→  value,
+    59→    59→    59→  onChange,
+    60→    60→    60→  prefix,
+    61→    61→    61→  suffix,
+    62→    62→    62→  min = 0,
+    63→    63→    63→  step = 1,
+    64→    64→    64→  helper,
+    65→    65→    65→  invalid,
+    66→    66→    66→  placeholder,
+    67→    67→    67→}: {
+    68→    68→    68→  id: string;
+    69→    69→    69→  label: string;
+    70→    70→    70→  value: number | string;
+    71→    71→    71→  onChange: (v: number) => void;
+    72→    72→    72→  prefix?: string;
+    73→    73→    73→  suffix?: string;
+    74→    74→    74→  min?: number;
+    75→    75→    75→  step?: number;
+    76→    76→    76→  helper?: React.ReactNode;
+    77→    77→    77→  invalid?: boolean;
+    78→    78→    78→  placeholder?: string;
+    79→    79→    79→}) {
+    80→    80→    80→  return (
+    81→    81→    81→    <div className="space-y-1.5">
+    82→    82→    82→      <Label htmlFor={id} className="text-sm font-medium">
+    83→    83→    83→        {label}
+    84→    84→    84→      </Label>
+    85→    85→    85→      <div className="relative">
+    86→    86→    86→        {prefix && (
+    87→    87→    87→          <span className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm">
+    88→    88→    88→            {prefix}
+    89→    89→    89→          </span>
+    90→    90→    90→        )}
+    91→    91→    91→        <Input
+    92→    92→    92→          id={id}
+    93→    93→    93→          type="number"
+    94→    94→    94→          inputMode="decimal"
+    95→    95→    95→          min={min}
+    96→    96→    96→          step={step}
+    97→    97→    97→          value={value === 0 ? "" : value}
+    98→    98→    98→          placeholder={placeholder}
+    99→    99→    99→          onChange={(e) => {
+   100→   100→   100→            const raw = e.target.value;
+   101→   101→   101→            if (raw === "") onChange(0);
+   102→   102→   102→            else onChange(Number(raw));
+   103→   103→   103→          }}
+   104→   104→   104→          aria-invalid={invalid}
+   105→   105→   105→          className={cn(prefix && "pl-7", suffix && "pr-12")}
+   106→   106→   106→        />
+   107→   107→   107→        {suffix && (
+   108→   108→   108→          <span className="text-muted-foreground pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm">
+   109→   109→   109→            {suffix}
+   110→   110→   110→          </span>
+   111→   111→   111→        )}
+   112→   112→   112→      </div>
+   113→   113→   113→      {helper && (
+   114→   114→   114→        <p className="text-muted-foreground text-xs leading-snug">{helper}</p>
+   115→   115→   115→      )}
+   116→   116→   116→    </div>
+   117→   117→   117→  );
+   118→   118→   118→}
+   119→   119→   119→
+   120→   120→   120→export function CalculatorForm({
+   121→   121→   121→  state,
+   122→   122→   122→  calculatedPayment,
+   123→   123→   123→  warnings,
+   124→   124→   124→  showPrepayment,
+   125→   125→   125→  showModeToggle,
+   126→   126→   126→  onChange,
+   127→   127→   127→  onReset,
+   128→   128→   128→  onCopy,
+   129→   129→   129→  onCopyShareLink,
+   130→   130→   130→}: CalculatorFormProps) {
+   131→   131→   131→  const showMonthly =
+   132→   132→   132→    state.overpaymentType === "monthly" || state.overpaymentType === "both";
+   133→   133→   133→  const showLump =
+   134→   134→   134→    state.overpaymentType === "lump" || state.overpaymentType === "both";
+   135→   135→   135→
+   136→   136→   136→  function updateLumpSum(index: number, patch: Partial<LumpSumPrepayment>) {
+   137→   137→   137→    const next = state.lumpSums.map((ls, i) =>
+   138→   138→   138→      i === index ? { ...ls, ...patch } : ls
+   139→   139→   139→    );
+   140→   140→   140→    onChange({ lumpSums: next });
+   141→   141→   141→  }
+   142→   142→   142→  function addLumpSum() {
+   143→   143→   143→    onChange({
+   144→   144→   144→      lumpSums: [...state.lumpSums, { month: 12, amount: 1_00_000 }],
+   145→   145→   145→    });
+   146→   146→   146→  }
+   147→   147→   147→  function removeLumpSum(index: number) {
+   148→   148→   148→    onChange({ lumpSums: state.lumpSums.filter((_, i) => i !== index) });
+   149→   149→   149→  }
+   150→   150→   150→
+   151→   151→   151→  return (
+   152→   152→   152→    <Card className="overflow-hidden">
+   153→   153→   153→      <CardHeader className="pb-4">
+   154→   154→   154→        <div className="flex items-center gap-2">
+   155→   155→   155→          <span className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-lg">
+   156→   156→   156→            <Calculator className="size-4" />
+   157→   157→   157→          </span>
+   158→   158→   158→          <div>
+   159→   159→   159→            <CardTitle className="text-base">Home loan inputs</CardTitle>
+   160→   160→   160→            <CardDescription className="text-xs">
+   161→   161→   161→              Edit any field — results recalculate instantly.
+   162→   162→   162→            </CardDescription>
+   163→   163→   163→          </div>
+   164→   164→   164→        </div>
+   165→   165→   165→      </CardHeader>
+   166→   166→   166→
+   167→   167→   167→      <CardContent className="space-y-6">
+   168→   168→   168→        {/* ---- Input mode toggle: fresh loan vs outstanding principal ---- */}
+   169→   169→   169→        <div className="flex items-center justify-between gap-3 rounded-lg border p-3">
+   170→   170→   170→          <div className="space-y-0.5">
+   171→   171→   171→            <Label htmlFor="inputModeSwitch" className="text-sm font-medium">
+   172→   172→   172→              Outstanding principal mode
+   173→   173→   173→            </Label>
+   174→   174→   174→            <p className="text-muted-foreground text-xs">
+   175→   175→   175→              {state.inputMode === "outstanding"
+   176→   176→   176→                ? "Enter your current outstanding principal and remaining tenure to model prepayments on a loan you're already paying."
+   177→   177→   177→                : "Enter a fresh loan amount and full tenure. Toggle on if you're an existing borrower."}
+   178→   178→   178→            </p>
+   179→   179→   179→          </div>
+   180→   180→   180→          <Switch
+   181→   181→   181→            id="inputModeSwitch"
+   182→   182→   182→            checked={state.inputMode === "outstanding"}
+   183→   183→   183→            onCheckedChange={(checked) =>
+   184→   184→   184→              onChange({ inputMode: checked ? "outstanding" : "principal" })
+   185→   185→   185→            }
+   186→   186→   186→          />
+   187→   187→   187→        </div>
+   188→   188→   188→
+   189→   189→   189→        {/* ---- Your loan ---- */}
+   190→   190→   190→        <section className="space-y-4">
+   191→   191→   191→          <h3 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+   192→   192→   192→            {state.inputMode === "outstanding"
+   193→   193→   193→              ? "Outstanding principal & remaining tenure"
+   194→   194→   194→              : "Your home loan"}
+   195→   195→   195→          </h3>
+   196→   196→   196→
+   197→   197→   197→          <NumberField
+   198→   198→   198→            id="loanAmount"
+   199→   199→   199→            label={
+   200→   200→   200→              state.inputMode === "outstanding"
+   201→   201→   201→                ? "Outstanding principal"
+   202→   202→   202→                : "Loan amount"
+   203→   203→   203→            }
+   204→   204→   204→            prefix="₹"
+   205→   205→   205→            value={state.loanAmount}
+   206→   206→   206→            onChange={(v) => onChange({ loanAmount: v })}
+   207→   207→   207→            step={50000}
+   208→   208→   208→            placeholder="50,00,000"
+   209→   209→   209→            invalid={state.loanAmount <= 0}
+   210→   210→   210→            helper={
+   211→   211→   211→              state.loanAmount <= 0
+   212→   212→   212→                ? "Enter the amount you're borrowing."
+   213→   213→   213→                : state.inputMode === "outstanding"
+   214→   214→   214→                  ? "The principal you still owe today (check your latest statement)."
+   215→   215→   215→                  : "The amount you're borrowing (the principal)."
+   216→   216→   216→            }
+   217→   217→   217→          />
+   218→   218→   218→
+   219→   219→   219→          <NumberField
+   220→   220→   220→            id="annualRate"
+   221→   221→   221→            label="Interest rate (annual)"
+   222→   222→   222→            value={state.annualRate}
+   223→   223→   223→            onChange={(v) => onChange({ annualRate: v })}
+   224→   224→   224→            suffix="% p.a."
+   225→   225→   225→            step={0.05}
+   226→   226→   226→            placeholder="8.5"
+   227→   227→   227→            invalid={state.annualRate < 0}
+   228→   228→   228→            helper="Your home loan's annual rate of interest, e.g. 8.5 for 8.5% p.a."
+   229→   229→   229→          />
+   230→   230→   230→
+   231→   231→   231→          {/* Term: years + months */}
+   232→   232→   232→          <div className="space-y-1.5">
+   233→   233→   233→            <Label className="text-sm font-medium">
+   234→   234→   234→              {state.inputMode === "outstanding" ? "Remaining tenure" : "Loan tenure"}
+   235→   235→   235→            </Label>
+   236→   236→   236→            <div className="grid grid-cols-2 gap-2">
+   237→   237→   237→              <div className="relative">
+   238→   238→   238→                <Input
+   239→   239→   239→                  id="termYears"
+   240→   240→   240→                  type="number"
+   241→   241→   241→                  min={0}
+   242→   242→   242→                  step={1}
+   243→   243→   243→                  value={state.termYears === 0 ? "" : state.termYears}
+   244→   244→   244→                  placeholder="20"
+   245→   245→   245→                  onChange={(e) =>
+   246→   246→   246→                    onChange({
+   247→   247→   247→                      termYears: Math.max(0, Number(e.target.value) || 0),
+   248→   248→   248→                    })
+   249→   249→   249→                  }
+   250→   250→   250→                  className="pr-12"
+   251→   251→   251→                />
+   252→   252→   252→                <span className="text-muted-foreground pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs">
+   253→   253→   253→                  yrs
+   254→   254→   254→                </span>
+   255→   255→   255→              </div>
+   256→   256→   256→              <div className="relative">
+   257→   257→   257→                <Input
+   258→   258→   258→                  id="termMonths"
+   259→   259→   259→                  type="number"
+   260→   260→   260→                  min={0}
+   261→   261→   261→                  max={11}
+   262→   262→   262→                  step={1}
+   263→   263→   263→                  value={state.termExtraMonths === 0 ? "" : state.termExtraMonths}
+   264→   264→   264→                  placeholder="0"
+   265→   265→   265→                  onChange={(e) =>
+   266→   266→   266→                    onChange({
+   267→   267→   267→                      termExtraMonths: Math.min(
+   268→   268→   268→                        11,
+   269→   269→   269→                        Math.max(0, Number(e.target.value) || 0)
+   270→   270→   270→                      ),
+   271→   271→   271→                    })
+   272→   272→   272→                  }
+   273→   273→   273→                  className="pr-12"
+   274→   274→   274→                />
+   275→   275→   275→                <span className="text-muted-foreground pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs">
+   276→   276→   276→                  mos
+   277→   277→   277→                </span>
+   278→   278→   278→              </div>
+   279→   279→   279→            </div>
+   280→   280→   280→            <p className="text-muted-foreground text-xs">
+   281→   281→   281→              Pick a tenure in years, or add extra months for odd tenures (e.g. 18 years &amp; 6 months).
+   282→   282→   282→            </p>
+   283→   283→   283→          </div>
+   284→   284→   284→
+   285→   285→   285→          {/* EMI */}
+   286→   286→   286→          <div className="space-y-1.5">
+   287→   287→   287→            <div className="flex items-center justify-between">
+   288→   288→   288→              <Label htmlFor="monthlyPayment" className="text-sm font-medium">
+   289→   289→   289→                Monthly EMI
+   290→   290→   290→              </Label>
+   291→   291→   291→              {state.paymentIsManual ? (
+   292→   292→   292→                <button
+   293→   293→   293→                  type="button"
+   294→   294→   294→                  onClick={() => onChange({ paymentIsManual: false })}
+   295→   295→   295→                  className="text-xs font-medium text-emerald-600 hover:underline dark:text-emerald-400"
+   296→   296→   296→                >
+   297→   297→   297→                  Use calculated ({formatCurrency(calculatedPayment)})
+   298→   298→   298→                </button>
+   299→   299→   299→              ) : (
+   300→   300→   300→                <span className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
+   301→   301→   301→                  Auto
+   302→   302→   302→                </span>
+   303→   303→   303→              )}
+   304→   304→   304→            </div>
+   305→   305→   305→            <div className="relative">
+   306→   306→   306→              <span className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm">
+   307→   307→   307→                ₹
+   308→   308→   308→              </span>
+   309→   309→   309→              <Input
+   310→   310→   310→                id="monthlyPayment"
+   311→   311→   311→                type="number"
+   312→   312→   312→                min={0}
+   313→   313→   313→                step={100}
+   314→   314→   314→                value={state.monthlyPayment === 0 ? "" : state.monthlyPayment}
+   315→   315→   315→                placeholder={Math.round(calculatedPayment).toString()}
+   316→   316→   316→                onChange={(e) =>
+   317→   317→   317→                  onChange({
+   318→   318→   318→                    monthlyPayment: Number(e.target.value) || 0,
+   319→   319→   319→                    paymentIsManual: true,
+   320→   320→   320→                  })
+   321→   321→   321→                }
+   322→   322→   322→                className="pl-7"
+   323→   323→   323→              />
+   324→   324→   324→            </div>
+   325→   325→   325→            <p className="text-muted-foreground text-xs">
+   326→   326→   326→              {state.paymentIsManual
+   327→   327→   327→                ? "You've set a custom EMI. Calculated EMI: " +
+   328→   328→   328→                  formatCurrency(calculatedPayment) +
+   329→   329→   329→                  "."
+   330→   330→   330→                : "Calculated EMI: " +
+   331→   331→   331→                  formatCurrency(calculatedPayment) +
+   332→   332→   332→                  " — auto-derived from loan, rate and tenure. Enter a value to override."}
+   333→   333→   333→            </p>
+   334→   334→   334→          </div>
+   335→   335→   335→        </section>
+   336→   336→   336→
+   337→   337→   337→        {showPrepayment && (
+   338→   338→   338→          <>
+   339→   339→   339→            <Separator />
+   340→   340→   340→
+   341→   341→   341→            {/* ---- Prepayment strategy ---- */}
+   342→   342→   342→            <section className="space-y-4">
+   343→   343→   343→              <h3 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+   344→   344→   344→                Prepayment strategy
+   345→   345→   345→              </h3>
+   346→   346→   346→
+   347→   347→   347→              {/* Prepayment mode: EMI vs Tenure (hidden on V1 tenure-only views) */}
+   348→   348→   348→              {showModeToggle && (
+   349→   349→   349→                <div className="space-y-1.5">
+   350→   350→   350→                  <Label className="text-sm font-medium">
+   351→   351→   351→                    When you prepay, reduce…
+   352→   352→   352→                  </Label>
+   353→   353→   353→                  <ToggleGroup
+   354→   354→   354→                    type="single"
+   355→   355→   355→                    value={state.prepaymentMode}
+   356→   356→   356→                    onValueChange={(v) => {
+   357→   357→   357→                      if (v) onChange({ prepaymentMode: v as PrepaymentMode });
+   358→   358→   358→                    }}
+   359→   359→   359→                    className="grid w-full grid-cols-2"
+   360→   360→   360→                    variant="outline"
+   361→   361→   361→                  >
+   362→   362→   362→                    <ToggleGroupItem value="tenure" className="text-xs">
+   363→   363→   363→                      <CalendarClock className="mr-1 size-3.5" /> Tenure (finish sooner)
+   364→   364→   364→                    </ToggleGroupItem>
+   365→   365→   365→                    <ToggleGroupItem value="emi" className="text-xs">
+   366→   366→   366→                      <Repeat className="mr-1 size-3.5" /> EMI (lower monthly)
+   367→   367→   367→                    </ToggleGroupItem>
+   368→   368→   368→                  </ToggleGroup>
+   369→   369→   369→                  <p className="text-muted-foreground text-xs">
+   370→   370→   370→                    {state.prepaymentMode === "tenure"
+   371→   371→   371→                      ? "EMI stays the same; prepayments shorten your tenure. Saves the most interest."
+   372→   372→   372→                      : "Tenure stays the same; your EMI reduces after each prepayment. Lower monthly burden, smaller interest saving."}
+   373→   373→   373→                  </p>
+   374→   374→   374→                </div>
+   375→   375→   375→              )}
+   376→   376→   376→
+   377→   377→   377→              {/* Prepayment mode selector */}
+   378→   378→   378→              <div className="space-y-1.5">
+   379→   379→   379→                <Label className="text-sm font-medium">Prepayment mode</Label>
+   380→   380→   380→                <ToggleGroup
+   381→   381→   381→                  type="single"
+   382→   382→   382→                  value={state.overpaymentType}
+   383→   383→   383→                  onValueChange={(v) => {
+   384→   384→   384→                    if (v) onChange({ overpaymentType: v as OverpaymentType });
+   385→   385→   385→                  }}
+   386→   386→   386→                  className="grid w-full grid-cols-3"
+   387→   387→   387→                  variant="outline"
+   388→   388→   388→                >
+   389→   389→   389→                  <ToggleGroupItem value="monthly" className="text-xs">
+   390→   390→   390→                    Monthly Extra EMI
+   391→   391→   391→                  </ToggleGroupItem>
+   392→   392→   392→                  <ToggleGroupItem value="lump" className="text-xs">
+   393→   393→   393→                    Lump Sum
+   394→   394→   394→                  </ToggleGroupItem>
+   395→   395→   395→                  <ToggleGroupItem value="both" className="text-xs">
+   396→   396→   396→                    Both
+   397→   397→   397→                  </ToggleGroupItem>
+   398→   398→   398→                </ToggleGroup>
+   399→   399→   399→              </div>
+   400→   400→   400→
+   401→   401→   401→              {showMonthly && (
+   402→   402→   402→                <>
+   403→   403→   403→                  <NumberField
+   404→   404→   404→                    id="overpaymentMonthly"
+   405→   405→   405→                    label="Extra Amount (per month)"
+   406→   406→   406→                    prefix="₹"
+   407→   407→   407→                    value={state.overpaymentMonthly}
+   408→   408→   408→                    onChange={(v) => onChange({ overpaymentMonthly: v })}
+   409→   409→   409→                    step={1000}
+   410→   410→   410→                    placeholder="10,000"
+   411→   411→   411→                    helper={
+   412→   412→   412→                      <span>
+   413→   413→   413→                        Effective EMI:{" "}
+   414→   414→   414→                        <strong className="text-emerald-700 dark:text-emerald-400">
+   415→   415→   415→                          {formatCurrency(state.monthlyPayment + state.overpaymentMonthly)}
+   416→   416→   416→                        </strong>
+   417→   417→   417→                        /mo (EMI {formatCurrency(state.monthlyPayment)} + extra {formatCurrency(state.overpaymentMonthly)})
+   418→   418→   418→                      </span>
+   419→   419→   419→                    }
+   420→   420→   420→                  />
+   421→   421→   421→                  {/* Start Month + Start Year */}
+   422→   422→   422→                  <div className="space-y-1.5">
+   423→   423→   423→                    <Label className="text-sm font-medium">Start from</Label>
+   424→   424→   424→                    <div className="grid grid-cols-2 gap-2">
+   425→   425→   425→                      <div className="relative">
+   426→   426→   426→                        <Input
+   427→   427→   427→                          id="opStartMonth"
+   428→   428→   428→                          type="number"
+   429→   429→   429→                          min={1}
+   430→   430→   430→                          max={12}
+   431→   431→   431→                          step={1}
+   432→   432→   432→                          value={opStartMonthField(state.overpaymentStartMonth)}
+   433→   433→   433→                          placeholder="1"
+   434→   434→   434→                          onChange={(e) =>
+   435→   435→   435→                            onChange({
+   436→   436→   436→                              overpaymentStartMonth: combineStartMonthYear(
+   437→   437→   437→                                Number(e.target.value) || 1,
+   438→   438→   438→                                opStartYearField(state.overpaymentStartMonth)
+   439→   439→   439→                              ),
+   440→   440→   440→                            })
+   441→   441→   441→                          }
+   442→   442→   442→                          className="pr-12"
+   443→   443→   443→                        />
+   444→   444→   444→                        <span className="text-muted-foreground pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs">
+   445→   445→   445→                          month
+   446→   446→   446→                        </span>
+   447→   447→   447→                      </div>
+   448→   448→   448→                      <div className="relative">
+   449→   449→   449→                        <Input
+   450→   450→   450→                          id="opStartYear"
+   451→   451→   451→                          type="number"
+   452→   452→   452→                          min={1}
+   453→   453→   453→                          step={1}
+   454→   454→   454→                          value={opStartYearField(state.overpaymentStartMonth)}
+   455→   455→   455→                          placeholder="1"
+   456→   456→   456→                          onChange={(e) =>
+   457→   457→   457→                            onChange({
+   458→   458→   458→                              overpaymentStartMonth: combineStartMonthYear(
+   459→   459→   459→                                opStartMonthField(state.overpaymentStartMonth),
+   460→   460→   460→                                Number(e.target.value) || 1
+   461→   461→   461→                              ),
+   462→   462→   462→                            })
+   463→   463→   463→                          }
+   464→   464→   464→                          className="pr-10"
+   465→   465→   465→                        />
+   466→   466→   466→                        <span className="text-muted-foreground pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs">
+   467→   467→   467→                          yr
+   468→   468→   468→                        </span>
+   469→   469→   469→                      </div>
+   470→   470→   470→                    </div>
+   471→   471→   471→                    <p className="text-muted-foreground text-xs">
+   472→   472→   472→                      Extra EMI begins from this month of this year.
+   473→   473→   473→                    </p>
+   474→   474→   474→                  </div>
+   475→   475→   475→                </>
+   476→   476→   476→              )}
+   477→   477→   477→
+   478→   478→   478→              {showLump && (
+   479→   479→   479→                <>
+   480→   480→   480→                  <NumberField
+   481→   481→   481→                    id="overpaymentLumpSum"
+   482→   482→   482→                    label="Lump Sum Amount"
+   483→   483→   483→                    prefix="₹"
+   484→   484→   484→                    value={state.overpaymentLumpSum}
+   485→   485→   485→                    onChange={(v) => onChange({ overpaymentLumpSum: v })}
+   486→   486→   486→                    step={25000}
+   487→   487→   487→                    placeholder="2,00,000"
+   488→   488→   488→                    helper="A single prepayment that reduces your outstanding principal."
+   489→   489→   489→                  />
+   490→   490→   490→                  <NumberField
+   491→   491→   491→                    id="lumpApplyMonth"
+   492→   492→   492→                    label="Apply after X months"
+   493→   493→   493→                    value={state.overpaymentStartMonth}
+   494→   494→   494→                    onChange={(v) =>
+   495→   495→   495→                      onChange({ overpaymentStartMonth: Math.max(1, Math.floor(v)) })
+   496→   496→   496→                    }
+   497→   497→   497→                    step={1}
+   498→   498→   498→                    min={1}
+   499→   499→   499→                    placeholder="24"
+   500→   500→   500→                    helper="The lump sum is applied after this many EMIs. The same EMI continues, reducing your tenure."
+   501→   501→   501→                  />
+   502→   502→   502→                </>
+   503→   503→   503→              )}
+   504→   504→   504→
+   505→   505→   505→              {/* Annual bonus */}
+   506→   506→   506→              <NumberField
+   507→   507→   507→                id="overpaymentAnnual"
+   508→   508→   508→                label="Extra per year (annual bonus)"
+   509→   509→   509→                prefix="₹"
+   510→   510→   510→                value={state.overpaymentAnnual}
+   511→   511→   511→                onChange={(v) => onChange({ overpaymentAnnual: v })}
+   512→   512→   512→                step={5000}
+   513→   513→   513→                placeholder="0"
+   514→   514→   514→                helper={
+   515→   515→   515→                  <span className="inline-flex items-start gap-1">
+   516→   516→   516→                    <Info className="mt-px size-3 shrink-0" />
+   517→   517→   517→                    <span>
+   518→   518→   518→                      Optional. Applied every 12 months from your start month — handy for annual bonuses or tax refunds.
+   519→   519→   519→                    </span>
+   520→   520→   520→                  </span>
+   521→   521→   521→                }
+   522→   522→   522→              />
+   523→   523→   523→
+   524→   524→   524→              {/* Multiple lump sums */}
+   525→   525→   525→              <div className="space-y-2">
+   526→   526→   526→                <div className="flex items-center justify-between">
+   527→   527→   527→                  <Label className="text-sm font-medium">
+   528→   528→   528→                    Additional lump-sum prepayments
+   529→   529→   529→                  </Label>
+   530→   530→   530→                  <Button
+   531→   531→   531→                    type="button"
+   532→   532→   532→                    variant="outline"
+   533→   533→   533→                    size="sm"
+   534→   534→   534→                    onClick={addLumpSum}
+   535→   535→   535→                    className="h-7 px-2 text-xs"
+   536→   536→   536→                  >
+   537→   537→   537→                    <Plus className="size-3.5" />
+   538→   538→   538→                    Add
+   539→   539→   539→                  </Button>
+   540→   540→   540→                </div>
+   541→   541→   541→                {state.lumpSums.length === 0 ? (
+   542→   542→   542→                  <p className="text-muted-foreground text-xs">
+   543→   543→   543→                    Schedule extra lump sums at specific months — e.g. a yearly bonus in month 12, a property-sale proceeds in month 24.
+   544→   544→   544→                  </p>
+   545→   545→   545→                ) : (
+   546→   546→   546→                  <div className="space-y-2">
+   547→   547→   547→                    {state.lumpSums.map((ls, i) => (
+   548→   548→   548→                      <div
+   549→   549→   549→                        key={i}
+   550→   550→   550→                        className="flex items-center gap-2 rounded-lg border p-2"
+   551→   551→   551→                      >
+   552→   552→   552→                        <div className="grid flex-1 grid-cols-2 gap-2">
+   553→   553→   553→                          <div className="relative">
+   554→   554→   554→                            <Input
+   555→   555→   555→                              type="number"
+   556→   556→   556→                              min={1}
+   557→   557→   557→                              step={1}
+   558→   558→   558→                              value={ls.month === 0 ? "" : ls.month}
+   559→   559→   559→                              placeholder="Month"
+   560→   560→   560→                              onChange={(e) =>
+   561→   561→   561→                                updateLumpSum(i, {
+   562→   562→   562→                                  month: Math.max(1, Number(e.target.value) || 1),
+   563→   563→   563→                                })
+   564→   564→   564→                              }
+   565→   565→   565→                              className="h-8 pr-12 text-xs"
+   566→   566→   566→                            />
+   567→   567→   567→                            <span className="text-muted-foreground pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px]">
+   568→   568→   568→                              month
+   569→   569→   569→                            </span>
+   570→   570→   570→                          </div>
+   571→   571→   571→                          <div className="relative">
+   572→   572→   572→                            <span className="text-muted-foreground pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-xs">
+   573→   573→   573→                              ₹
+   574→   574→   574→                            </span>
+   575→   575→   575→                            <Input
+   576→   576→   576→                              type="number"
+   577→   577→   577→                              min={0}
+   578→   578→   578→                              step={10000}
+   579→   579→   579→                              value={ls.amount === 0 ? "" : ls.amount}
+   580→   580→   580→                              placeholder="Amount"
+   581→   581→   581→                              onChange={(e) =>
+   582→   582→   582→                                updateLumpSum(i, {
+   583→   583→   583→                                  amount: Number(e.target.value) || 0,
+   584→   584→   584→                                })
+   585→   585→   585→                              }
+   586→   586→   586→                              className="h-8 pl-6 text-xs"
+   587→   587→   587→                            />
+   588→   588→   588→                          </div>
+   589→   589→   589→                        </div>
+   590→   590→   590→                        <Button
+   591→   591→   591→                          type="button"
+   592→   592→   592→                          variant="ghost"
+   593→   593→   593→                          size="icon"
+   594→   594→   594→                          className="size-8 shrink-0 text-muted-foreground hover:text-destructive"
+   595→   595→   595→                          onClick={() => removeLumpSum(i)}
+   596→   596→   596→                          aria-label="Remove lump sum"
+   597→   597→   597→                        >
+   598→   598→   598→                          <Trash2 className="size-3.5" />
+   599→   599→   599→                        </Button>
+   600→   600→   600→                      </div>
+   601→   601→   601→                    ))}
+   602→   602→   602→                  </div>
+   603→   603→   603→                )}
+   604→   604→   604→              </div>
+   605→   605→   605→
+   606→   606→   606→              {/* Timing toggle */}
+   607→   607→   607→              <div className="flex items-center justify-between gap-3 rounded-lg border p-3">
+   608→   608→   608→                <div className="space-y-0.5">
+   609→   609→   609→                  <Label htmlFor="timingSwitch" className="text-sm font-medium">
+   610→   610→   610→                    Apply at start of month
+   611→   611→   611→                  </Label>
+   612→   612→   612→                  <p className="text-muted-foreground text-xs">
+   613→   613→   613→                    {state.overpaymentTiming === "start"
+   614→   614→   614→                      ? "Prepayment reduces principal before interest is charged — saves a little more."
+   615→   615→   615→                      : "Prepayment applies after the EMI (how most banks process it)."}
+   616→   616→   616→                  </p>
+   617→   617→   617→                </div>
+   618→   618→   618→                <Switch
+   619→   619→   619→                  id="timingSwitch"
+   620→   620→   620→                  checked={state.overpaymentTiming === "start"}
+   621→   621→   621→                  onCheckedChange={(checked) =>
+   622→   622→   622→                    onChange({ overpaymentTiming: checked ? "start" : "end" })
+   623→   623→   623→                  }
+   624→   624→   624→                />
+   625→   625→   625→              </div>
+   626→   626→   626→
+   627→   627→   627→              {/* Start date (loan start) */}
+   628→   628→   628→              <div className="space-y-1.5">
+   629→   629→   629→                <Label htmlFor="startDate" className="text-sm font-medium">
+   630→   630→   630→                  Loan start date
+   631→   631→   631→                </Label>
+   632→   632→   632→                <Input
+   633→   633→   633→                  id="startDate"
+   634→   634→   634→                  type="month"
+   635→   635→   635→                  value={toMonthInputValue(state.startDate)}
+   636→   636→   636→                  onChange={(e) => {
+   637→   637→   637→                    const v = e.target.value;
+   638→   638→   638→                    if (v) onChange({ startDate: fromMonthInputValue(v) });
+   639→   639→   639→                  }}
+   640→   640→   640→                />
+   641→   641→   641→                <p className="text-muted-foreground text-xs">
+   642→   642→   642→                  Used to convert &quot;months saved&quot; into real payoff dates.
+   643→   643→   643→                </p>
+   644→   644→   644→              </div>
+   645→   645→   645→            </section>
+   646→   646→   646→          </>
+   647→   647→   647→        )}
+   648→   648→   648→
+   649→   649→   649→        {/* Warnings */}
+   650→   650→   650→        {warnings.length > 0 && (
+   651→   651→   651→          <div className="space-y-2 rounded-lg border border-amber-300/60 bg-amber-50 p-3 dark:border-amber-700/40 dark:bg-amber-950/30">
+   652→   652→   652→            {warnings.map((w, i) => (
+   653→   653→   653→              <p
+   654→   654→   654→                key={i}
+   655→   655→   655→                className="text-xs leading-snug text-amber-800 dark:text-amber-200"
+   656→   656→   656→              >
+   657→   657→   657→                <span className="font-semibold">Heads up:</span> {w}
+   658→   658→   658→              </p>
+   659→   659→   659→            ))}
+   660→   660→   660→          </div>
+   661→   661→   661→        )}
+   662→   662→   662→
+   663→   663→   663→        {/* Actions */}
+   664→   664→   664→        <div className="grid grid-cols-3 gap-2 pt-1">
+   665→   665→   665→          <Button
+   666→   666→   666→            variant="outline"
+   667→   667→   667→            size="sm"
+   668→   668→   668→            onClick={onReset}
+   669→   669→   669→          >
+   670→   670→   670→            <RotateCcw className="size-4" />
+   671→   671→   671→            Reset
+   672→   672→   672→          </Button>
+   673→   673→   673→          <Button
+   674→   674→   674→            variant="outline"
+   675→   675→   675→            size="sm"
+   676→   676→   676→            onClick={onCopyShareLink}
+   677→   677→   677→          >
+   678→   678→   678→            <Link2 className="size-4" />
+   679→   679→   679→            Share link
+   680→   680→   680→          </Button>
+   681→   681→   681→          <Button
+   682→   682→   682→            variant="default"
+   683→   683→   683→            size="sm"
+   684→   684→   684→            onClick={onCopy}
+   685→   685→   685→            className="bg-emerald-600 hover:bg-emerald-700"
+   686→   686→   686→          >
+   687→   687→   687→            <Copy className="size-4" />
+   688→   688→   688→            Copy results
+   689→   689→   689→          </Button>
+   690→   690→   690→        </div>
+   691→   691→   691→      </CardContent>
+   692→   692→   692→    </Card>
+   693→   693→   693→  );
+   694→   694→   694→}
+   695→   695→   695→
+   696→   696→   696→function toMonthInputValue(d: Date): string {
+   697→   697→   697→  const m = String(d.getMonth() + 1).padStart(2, "0");
+   698→   698→   698→  const y = d.getFullYear();
+   699→   699→   699→  return `${y}-${m}`;
+   700→   700→   700→}
+   701→   701→   701→
+   702→   702→   702→function fromMonthInputValue(v: string): Date {
+   703→   703→   703→  const [y, m] = v.split("-").map(Number);
+   704→   704→   704→  return new Date(y, (m || 1) - 1, 1);
+   705→   705→   705→}
+   706→   706→   706→
+   707→   707→   707→/** Convert an absolute EMI month to the calendar-style month field (1–12). */
+   708→   708→   708→function opStartMonthField(absoluteMonth: number): number {
+   709→   709→   709→  return ((Math.max(1, absoluteMonth) - 1) % 12) + 1;
+   710→   710→   710→}
+   711→   711→   711→
+   712→   712→   712→/** Convert an absolute EMI month to the year field (1-indexed). */
+   713→   713→   713→function opStartYearField(absoluteMonth: number): number {
+   714→   714→   714→  return Math.floor((Math.max(1, absoluteMonth) - 1) / 12) + 1;
+   715→   715→   715→}
+   716→   716→   716→
+   717→   717→   717→/** Combine a calendar month (1–12) and year (1+) back into an absolute EMI month. */
+   718→   718→   718→function combineStartMonthYear(month: number, year: number): number {
+   719→   719→   719→  const m = Math.min(12, Math.max(1, Math.floor(month)));
+   720→   720→   720→  const y = Math.max(1, Math.floor(year));
+   721→   721→   721→  return (y - 1) * 12 + m;
+   722→   722→   722→}
+   723→   723→   723→

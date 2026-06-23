@@ -22,10 +22,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { formatCurrency, formatDate, formatDuration } from "@/lib/format";
+import { t, type Lang } from "@/lib/i18n";
 import type { MortgageResult } from "@/lib/mortgage";
 
 interface EmailCaptureProps {
   result: MortgageResult;
+  lang?: Lang;
 }
 
 const LOAN_BALANCE_RANGES = [
@@ -39,7 +41,8 @@ const LOAN_BALANCE_RANGES = [
 
 type Status = "idle" | "loading" | "success" | "error";
 
-export function EmailCapture({ result }: EmailCaptureProps) {
+export function EmailCapture({ result, lang = "en" }: EmailCaptureProps) {
+  const tr = (key: string) => t(lang, key);
   const [name, setName] = React.useState("");
   const [contact, setContact] = React.useState("");
   const [city, setCity] = React.useState("");
@@ -126,11 +129,10 @@ export function EmailCapture({ result }: EmailCaptureProps) {
           </span>
           <div>
             <CardTitle className="text-base">
-              Get your full prepayment report
+              {tr("lead.heading")}
             </CardTitle>
             <CardDescription className="text-xs">
-              We&rsquo;ll email a detailed PDF/CSV report and share options to
-              reduce your home-loan tenure and interest.
+              {tr("lead.description")}
             </CardDescription>
           </div>
         </div>
@@ -169,7 +171,7 @@ export function EmailCapture({ result }: EmailCaptureProps) {
             {/* Name */}
             <div className="space-y-1.5">
               <Label htmlFor="lead-name" className="text-sm font-medium">
-                Name
+                {tr("lead.name")}
               </Label>
               <div className="relative">
                 <User className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2" />
@@ -188,7 +190,7 @@ export function EmailCapture({ result }: EmailCaptureProps) {
             {/* Email or phone */}
             <div className="space-y-1.5">
               <Label htmlFor="contact" className="text-sm font-medium">
-                Email or phone
+                {tr("lead.emailOrPhone")}
               </Label>
               <div className="relative">
                 <Mail className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2" />
@@ -215,7 +217,7 @@ export function EmailCapture({ result }: EmailCaptureProps) {
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label htmlFor="lead-city" className="text-sm font-medium">
-                  City <span className="text-muted-foreground font-normal">(optional)</span>
+                  {tr("lead.cityOptional")}
                 </Label>
                 <div className="relative">
                   <MapPin className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2" />
@@ -232,7 +234,7 @@ export function EmailCapture({ result }: EmailCaptureProps) {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="loan-range" className="text-sm font-medium">
-                  Current loan balance <span className="text-muted-foreground font-normal">(optional)</span>
+                  {tr("lead.loanBalanceOptional")}
                 </Label>
                 <Select value={loanRange} onValueChange={setLoanRange}>
                   <SelectTrigger id="loan-range" className="h-11 w-full">
@@ -258,12 +260,12 @@ export function EmailCapture({ result }: EmailCaptureProps) {
               {status === "loading" ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
-                  Sending&hellip;
+                  {tr("lead.sending")}
                 </>
               ) : (
                 <>
                   <Send className="size-4" />
-                  Get My Full Prepayment Report
+                  {tr("lead.cta")}
                 </>
               )}
             </Button>

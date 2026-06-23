@@ -9,6 +9,8 @@ import type { ViewMeta } from "@/lib/views";
 
 interface BreadcrumbProps {
   view: ViewMeta;
+  /** Current UI language — flips "Home" to "होम" and uses Hindi canonical. */
+  lang?: "en" | "hi";
 }
 
 /**
@@ -16,9 +18,10 @@ interface BreadcrumbProps {
  * view changes. The JSON-LD is injected into a <script> tag so search engines
  * see the trail for each "page".
  */
-export function Breadcrumb({ view }: BreadcrumbProps) {
+export function Breadcrumb({ view, lang = "en" }: BreadcrumbProps) {
+  const homeLabel = lang === "hi" ? "होम" : "Home";
   const items = [
-    { label: "Home", href: "?tool=prepayment" },
+    { label: homeLabel, href: "?tool=prepayment" },
     ...view.breadcrumbs.map((b) => ({
       label: b.label,
       href: b.view ? `?tool=${b.view}` : undefined,

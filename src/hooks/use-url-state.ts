@@ -20,6 +20,7 @@ export type PrepaymentModeUrl = "monthly" | "lump" | "both";
 
 export interface ShareableState {
   tool?: string;
+  lang?: "en" | "hi";
   // Phase 4 params (preferred)
   mode?: PrepaymentModeUrl;
   amount?: number;
@@ -52,6 +53,8 @@ export function parseUrlState(): ShareableState {
   const out: ShareableState = {};
   const tool = params.get("tool");
   if (tool) out.tool = tool;
+  const lang = params.get("lang");
+  if (lang === "en" || lang === "hi") out.lang = lang;
 
   const num = (k: string) => {
     const v = params.get(k);
@@ -105,6 +108,7 @@ export function writeUrlState(state: ShareableState) {
   if (typeof window === "undefined") return;
   const params = new URLSearchParams();
   if (state.tool) params.set("tool", state.tool);
+  if (state.lang === "hi") params.set("lang", "hi");
   if (state.mode) params.set("mode", state.mode);
   const setNum = (k: string, v: number | undefined) => {
     if (v !== undefined && isFinite(v) && v !== 0) params.set(k, String(v));
@@ -135,6 +139,7 @@ export function buildShareUrl(state: ShareableState): string {
   if (typeof window === "undefined") return "";
   const params = new URLSearchParams();
   if (state.tool) params.set("tool", state.tool);
+  if (state.lang === "hi") params.set("lang", "hi");
   if (state.mode) params.set("mode", state.mode);
   const setNum = (k: string, v: number | undefined) => {
     if (v !== undefined && isFinite(v) && v !== 0) params.set(k, String(v));

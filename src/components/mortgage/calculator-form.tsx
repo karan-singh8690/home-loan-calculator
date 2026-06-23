@@ -28,6 +28,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/format";
+import { t, type Lang } from "@/lib/i18n";
 import type { CalcState } from "@/lib/calc-state";
 import type {
   OverpaymentType,
@@ -44,6 +45,8 @@ interface CalculatorFormProps {
   showPrepayment: boolean;
   /** Show the EMI/tenure mode toggle. V1 prepayment view is tenure-only. */
   showModeToggle: boolean;
+  /** UI language for label translations. */
+  lang?: Lang;
   onChange: (patch: Partial<CalcState>) => void;
   onReset: () => void;
   onCopy: () => void;
@@ -123,11 +126,13 @@ export function CalculatorForm({
   warnings,
   showPrepayment,
   showModeToggle,
+  lang = "en",
   onChange,
   onReset,
   onCopy,
   onCopyShareLink,
 }: CalculatorFormProps) {
+  const tr = (key: string) => t(lang, key);
   const showMonthly =
     state.overpaymentType === "monthly" || state.overpaymentType === "both";
   const showLump =
@@ -156,9 +161,11 @@ export function CalculatorForm({
             <Calculator className="size-4" />
           </span>
           <div>
-            <CardTitle className="text-base">Home loan inputs</CardTitle>
+            <CardTitle className="text-base">{lang === "hi" ? "होम लोन विवरण" : "Home loan inputs"}</CardTitle>
             <CardDescription className="text-xs">
-              Edit any field — results recalculate instantly.
+              {lang === "hi"
+                ? "कोई भी फ़ील्ड बदलें — परिणाम तुरंत अपडेट होते हैं।"
+                : "Edit any field — results recalculate instantly."}
             </CardDescription>
           </div>
         </div>
@@ -169,12 +176,16 @@ export function CalculatorForm({
         <div className="flex items-center justify-between gap-3 rounded-lg border p-3">
           <div className="space-y-0.5">
             <Label htmlFor="inputModeSwitch" className="text-sm font-medium">
-              Outstanding principal mode
+              {tr("form.outstandingMode")}
             </Label>
             <p className="text-muted-foreground text-xs">
               {state.inputMode === "outstanding"
-                ? "Enter your current outstanding principal and remaining tenure to model prepayments on a loan you're already paying."
-                : "Enter a fresh loan amount and full tenure. Toggle on if you're an existing borrower."}
+                ? lang === "hi"
+                  ? "अपना वर्तमान बकाया मूलधन और शेष अवधि दर्ज करें।"
+                  : "Enter your current outstanding principal and remaining tenure to model prepayments on a loan you're already paying."
+                : lang === "hi"
+                  ? "नई ऋण राशि और पूरी अवधि दर्ज करें। मौजूदा उधारकर्ता हैं तो टॉगल करें।"
+                  : "Enter a fresh loan amount and full tenure. Toggle on if you're an existing borrower."}
             </p>
           </div>
           <Switch
@@ -190,16 +201,20 @@ export function CalculatorForm({
         <section className="space-y-4">
           <h3 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
             {state.inputMode === "outstanding"
-              ? "Outstanding principal & remaining tenure"
-              : "Your home loan"}
+              ? lang === "hi"
+                ? "बकाया मूलधन और शेष अवधि"
+                : "Outstanding principal & remaining tenure"
+              : tr("form.yourHomeLoan")}
           </h3>
 
           <NumberField
             id="loanAmount"
             label={
               state.inputMode === "outstanding"
-                ? "Outstanding principal"
-                : "Loan amount"
+                ? lang === "hi"
+                  ? "बकाया मूलधन"
+                  : "Outstanding principal"
+                : tr("form.loanAmount")
             }
             prefix="₹"
             value={state.loanAmount}
@@ -218,20 +233,22 @@ export function CalculatorForm({
 
           <NumberField
             id="annualRate"
-            label="Interest rate (annual)"
+            label={tr("form.interestRate")}
             value={state.annualRate}
             onChange={(v) => onChange({ annualRate: v })}
             suffix="% p.a."
             step={0.05}
             placeholder="8.5"
             invalid={state.annualRate < 0}
-            helper="Your home loan's annual rate of interest, e.g. 8.5 for 8.5% p.a."
+            helper={lang === "hi" ? "वार्षिक ब्याज दर, जैसे 8.5 का अर्थ 8.5% प्रति वर्ष।" : "Your home loan's annual rate of interest, e.g. 8.5 for 8.5% p.a."}
           />
 
           {/* Term: years + months */}
           <div className="space-y-1.5">
             <Label className="text-sm font-medium">
-              {state.inputMode === "outstanding" ? "Remaining tenure" : "Loan tenure"}
+              {state.inputMode === "outstanding"
+                ? lang === "hi" ? "शेष अवधि" : "Remaining tenure"
+                : tr("form.loanTenure")}
             </Label>
             <div className="grid grid-cols-2 gap-2">
               <div className="relative">
@@ -286,7 +303,7 @@ export function CalculatorForm({
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <Label htmlFor="monthlyPayment" className="text-sm font-medium">
-                Monthly EMI
+                {tr("form.monthlyEMI")}
               </Label>
               {state.paymentIsManual ? (
                 <button
@@ -294,11 +311,11 @@ export function CalculatorForm({
                   onClick={() => onChange({ paymentIsManual: false })}
                   className="text-xs font-medium text-emerald-600 hover:underline dark:text-emerald-400"
                 >
-                  Use calculated ({formatCurrency(calculatedPayment)})
+                  {tr("form.useCalculated")} ({formatCurrency(calculatedPayment)})
                 </button>
               ) : (
                 <span className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
-                  Auto
+                  {tr("form.auto")}
                 </span>
               )}
             </div>
@@ -324,12 +341,13 @@ export function CalculatorForm({
             </div>
             <p className="text-muted-foreground text-xs">
               {state.paymentIsManual
-                ? "You've set a custom EMI. Calculated EMI: " +
+                ? (lang === "hi" ? "आपने कस्टम EMI सेट की है। " : "You've set a custom EMI. ") +
+                  tr("form.calculatedEMI") + ": " + formatCurrency(calculatedPayment) + "."
+                : tr("form.calculatedEMI") + ": " +
                   formatCurrency(calculatedPayment) +
-                  "."
-                : "Calculated EMI: " +
-                  formatCurrency(calculatedPayment) +
-                  " — auto-derived from loan, rate and tenure. Enter a value to override."}
+                  (lang === "hi"
+                    ? " — ऋण, दर और अवधि से स्वचालित गणना। बदलने के लिए मान दर्ज करें।"
+                    : " — auto-derived from loan, rate and tenure. Enter a value to override.")}
             </p>
           </div>
         </section>
@@ -341,7 +359,7 @@ export function CalculatorForm({
             {/* ---- Prepayment strategy ---- */}
             <section className="space-y-4">
               <h3 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-                Prepayment strategy
+                {tr("form.prepaymentStrategy")}
               </h3>
 
               {/* Prepayment mode: EMI vs Tenure (hidden on V1 tenure-only views) */}
@@ -376,7 +394,7 @@ export function CalculatorForm({
 
               {/* Prepayment mode selector */}
               <div className="space-y-1.5">
-                <Label className="text-sm font-medium">Prepayment mode</Label>
+                <Label className="text-sm font-medium">{tr("form.prepaymentMode")}</Label>
                 <ToggleGroup
                   type="single"
                   value={state.overpaymentType}
@@ -387,13 +405,13 @@ export function CalculatorForm({
                   variant="outline"
                 >
                   <ToggleGroupItem value="monthly" className="text-xs">
-                    Monthly Extra EMI
+                    {tr("form.monthlyExtraEMI")}
                   </ToggleGroupItem>
                   <ToggleGroupItem value="lump" className="text-xs">
-                    Lump Sum
+                    {tr("form.lumpSum")}
                   </ToggleGroupItem>
                   <ToggleGroupItem value="both" className="text-xs">
-                    Both
+                    {tr("form.both")}
                   </ToggleGroupItem>
                 </ToggleGroup>
               </div>
@@ -668,7 +686,7 @@ export function CalculatorForm({
             onClick={onReset}
           >
             <RotateCcw className="size-4" />
-            Reset
+            {tr("form.reset")}
           </Button>
           <Button
             variant="outline"
@@ -676,7 +694,7 @@ export function CalculatorForm({
             onClick={onCopyShareLink}
           >
             <Link2 className="size-4" />
-            Share link
+            {tr("form.shareLink")}
           </Button>
           <Button
             variant="default"
@@ -685,7 +703,7 @@ export function CalculatorForm({
             className="bg-emerald-600 hover:bg-emerald-700"
           >
             <Copy className="size-4" />
-            Copy results
+            {tr("form.copyResults")}
           </Button>
         </div>
       </CardContent>

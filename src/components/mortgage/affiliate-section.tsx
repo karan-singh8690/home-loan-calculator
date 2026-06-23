@@ -46,18 +46,27 @@ const AFFILIATE_LINKS = [
   },
 ];
 
-export function AffiliateSection() {
+export function AffiliateSection({ lang = "en" }: { lang?: "en" | "hi" }) {
+  const isHi = lang === "hi";
+  // Hindi card labels (titles + descriptions stay English for brand clarity,
+  // but headings/CTAs translate per the spec).
+  const titles = isHi
+    ? ["होम लोन दरों की तुलना करें", "बैलेंस ट्रांसफर विकल्प देखें", "विशेषज्ञ से बात करें", "रिफाइनेंस बचत जांचें"]
+    : AFFILIATE_LINKS.map((a) => a.title);
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-xl font-bold tracking-tight">Next steps to save even more</h2>
+        <h2 className="text-xl font-bold tracking-tight">
+          {isHi ? "और बचत के लिए अगले कदम" : "Next steps to save even more"}
+        </h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Prepaying is powerful — but it's worth checking whether a lower ROI or
-          professional advice could save you even more. These partners can help.
+          {isHi
+            ? "प्रीपेमेंट शक्तिशाली है — लेकिन कम ब्याज दर या पेशेवर सलाह से और बचत संभव है। ये पार्टनर मदद कर सकते हैं।"
+            : "Prepaying is powerful — but it's worth checking whether a lower ROI or professional advice could save you even more. These partners can help."}
         </p>
       </div>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-        {AFFILIATE_LINKS.map((item) => (
+        {AFFILIATE_LINKS.map((item, i) => (
           <a
             key={item.title}
             href={item.href}
@@ -68,7 +77,7 @@ export function AffiliateSection() {
                 <div className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 mb-2 flex size-9 items-center justify-center rounded-lg">
                   <item.icon className="size-5" />
                 </div>
-                <CardTitle className="text-sm">{item.title}</CardTitle>
+                <CardTitle className="text-sm">{titles[i]}</CardTitle>
                 <CardDescription className="text-xs leading-relaxed">
                   {item.description}
                 </CardDescription>

@@ -17,25 +17,28 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { GUIDES } from "@/lib/india-guides";
+import { HINDI_GUIDES } from "@/lib/hindi-content";
+import { t, type Lang } from "@/lib/i18n";
 
 /**
  * Interest-saving guides section — long-form educational content for SEO.
  * Each guide is expandable to reveal its full sections.
  */
-export function GuidesSection() {
+export function GuidesSection({ lang = "en" }: { lang?: Lang }) {
+  const guides = lang === "hi" ? HINDI_GUIDES : GUIDES;
   return (
     <section className="space-y-4">
       <div>
         <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight">
           <BookOpen className="size-5 text-emerald-600" />
-          Interest-saving guides
+          {t(lang, "guides.title")}
         </h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          In-depth, India-specific guides to help you save on your home loan.
+          {t(lang, "guides.subtitle")}
         </p>
       </div>
       <Accordion type="single" collapsible className="w-full">
-        {GUIDES.map((g, i) => (
+        {guides.map((g, i) => (
           <AccordionItem key={g.id} value={`guide-${i}`}>
             <AccordionTrigger className="hover:no-underline">
               <div className="flex flex-1 items-center justify-between gap-3 pr-2 text-left">

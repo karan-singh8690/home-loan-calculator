@@ -27,15 +27,19 @@ import {
   formatDateLong,
   formatDuration,
 } from "@/lib/format";
+import { t, type Lang } from "@/lib/i18n";
 import type { MortgageResult } from "@/lib/mortgage";
 
 interface ResultsSectionProps {
   result: MortgageResult;
   /** Percentage reduction in total interest (Phase 4 effective savings). */
   effectiveSavingsPct?: number;
+  /** UI language for label translations. */
+  lang?: Lang;
 }
 
-export function ResultsSection({ result, effectiveSavingsPct }: ResultsSectionProps) {
+export function ResultsSection({ result, effectiveSavingsPct, lang = "en" }: ResultsSectionProps) {
+  const tr = (key: string) => t(lang, key);
   if (!result.valid) {
     return (
       <Card className="border-dashed">
@@ -66,7 +70,7 @@ export function ResultsSection({ result, effectiveSavingsPct }: ResultsSectionPr
         <CardHeader className="relative pb-2">
           <div className="flex items-center gap-2">
             <Sparkles className="size-4 text-emerald-600 dark:text-emerald-400" />
-            <CardTitle className="text-base">Your results</CardTitle>
+            <CardTitle className="text-base">{tr("results.title")}</CardTitle>
             {isEmiMode ? (
               <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 ml-1 text-[10px]">
                 <Repeat className="mr-1 size-3" /> EMI reduction
@@ -78,7 +82,7 @@ export function ResultsSection({ result, effectiveSavingsPct }: ResultsSectionPr
             )}
           </div>
           <CardDescription className="text-xs">
-            Compared to your original home loan schedule.
+            {tr("results.comparedToOriginal")}
           </CardDescription>
         </CardHeader>
         <CardContent className="relative">
@@ -88,7 +92,7 @@ export function ResultsSection({ result, effectiveSavingsPct }: ResultsSectionPr
               <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300">
                 <PiggyBank className="size-4" />
                 <span className="text-xs font-semibold tracking-wide uppercase">
-                  Interest saved
+                  {tr("results.interestSaved")}
                 </span>
               </div>
               <p className="mt-1 text-3xl font-bold tracking-tight text-emerald-700 dark:text-emerald-300 sm:text-4xl">
@@ -123,7 +127,7 @@ export function ResultsSection({ result, effectiveSavingsPct }: ResultsSectionPr
                   <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300">
                     <Clock className="size-4" />
                     <span className="text-xs font-semibold tracking-wide uppercase">
-                      Debt-free sooner
+                      {tr("results.debtFreeSooner")}
                     </span>
                   </div>
                   <p className="mt-1 text-3xl font-bold tracking-tight text-emerald-700 dark:text-emerald-300 sm:text-4xl">
@@ -159,7 +163,7 @@ export function ResultsSection({ result, effectiveSavingsPct }: ResultsSectionPr
           {/* Plain-English summary */}
           <div className="mt-4 rounded-xl border border-emerald-600/20 bg-emerald-50/60 p-4 dark:bg-emerald-950/20">
             <p className="text-xs font-semibold tracking-wide text-emerald-800 uppercase dark:text-emerald-200">
-              What this means
+              {tr("results.whatThisMeans")}
             </p>
             <p className="mt-1 text-sm leading-relaxed text-foreground">
               {buildSummary(result)}
@@ -200,7 +204,7 @@ export function ResultsSection({ result, effectiveSavingsPct }: ResultsSectionPr
           </span>
           <div>
             <p className="text-sm font-semibold">
-              Worth it? {isWorthIt(result) ? "Yes" : "Not yet"}
+              {tr("results.worthIt")} {isWorthIt(result) ? tr("results.worthItYes") : (lang === "hi" ? "अभी नहीं" : "Not yet")}
             </p>
             <p className="text-muted-foreground text-xs">
               {isWorthIt(result)

@@ -3,10 +3,23 @@
 import * as React from "react";
 import type { ViewMeta } from "@/lib/views";
 import type { FAQ } from "@/lib/faq";
+import type { Lang } from "@/lib/i18n";
+
+export interface HindiViewMeta {
+  metaTitle: string;
+  metaDescription: string;
+  title: string;
+  subtitle: string;
+  canonical: string;
+}
 
 interface DynamicMetaProps {
   view: ViewMeta;
   faqs: FAQ[];
+  /** Current UI language. */
+  lang?: Lang;
+  /** Hindi metadata override for the current view (when lang === "hi"). */
+  hindiMeta?: HindiViewMeta | null;
 }
 
 /**
@@ -15,26 +28,32 @@ interface DynamicMetaProps {
  * Instead we patch <title>, meta description, canonical link, and the
  * view-specific FAQ JSON-LD on the client whenever the view changes.
  *
- * A canonical URL hint is also emitted so search engines consolidate signals
- * to the view's canonical path.
+ * When `lang === "hi"` and `hindiMeta` is provided, Hindi metadata and a
+ * `/hi/`-prefixed canonical are emitted instead of the English defaults.
  */
-export function DynamicMeta({ view, faqs }: DynamicMetaProps) {
+export function DynamicMeta({ view, faqs, lang = "en", hindiMeta }: DynamicMetaProps) {
+  const isHindi = lang === "hi" && hindiMeta;
+  const metaTitle = isHindi ? hindiMeta!.metaTitle : view.metaTitle;
+  const metaDescription = isHindi ? hindiMeta!.metaDescription : view.metaDescription;
+  const canonical = isHindi ? hindiMeta!.canonical : view.canonical;
+
   React.useEffect(() => {
     // Title
-    document.title = view.metaTitle;
+    document.title = metaTitle;
 
     // Meta description
-    setMeta("description", view.metaDescription);
+    setMeta("description", metaDescription);
 
     // Canonical link
-    setCanonical(view.canonical);
+    setCanonical(canonical);
 
     // OpenGraph / Twitter updates for share previews
-    setMetaProperty("og:title", view.metaTitle);
-    setMetaProperty("og:description", view.metaDescription);
-    setMetaProperty("og:url", `https://homeloan-calculator.example${view.canonical}`);
-    setMeta("twitter:title", view.metaTitle);
-    setMeta("twitter:description", view.metaDescription);
+    setMetaProperty("og:title", metaTitle);
+    setMetaProperty("og:description", metaDescription);
+    setMetaProperty("og:url", `https://homeloan-calculator.example${canonical}`);
+    setMetaProperty("og:locale", lang === "hi" ? "hi_IN" : "en_IN");
+    setMeta("twitter:title", metaTitle);
+    setMeta("twitter:description", metaDescription);
 
     // View-specific FAQ JSON-LD
     let script = document.getElementById("view-faq-jsonld");
@@ -58,7 +77,7 @@ export function DynamicMeta({ view, faqs }: DynamicMetaProps) {
     } else {
       script.textContent = "";
     }
-  }, [view, faqs]);
+  }, [metaTitle, metaDescription, canonical, lang, faqs]);
 
   return null;
 }

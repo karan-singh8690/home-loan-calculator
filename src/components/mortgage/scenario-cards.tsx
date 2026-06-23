@@ -17,30 +17,33 @@ import { formatCurrency, formatDate, formatDuration } from "@/lib/format";
 import { calculateMortgage, addMonths, calcMonthlyPayment } from "@/lib/mortgage";
 import { INDIA_SCENARIOS } from "@/lib/india-scenarios";
 import type { IndiaScenarioInput } from "@/lib/india-scenarios";
+import { HINDI_SCENARIOS } from "@/lib/hindi-content";
+import { t, type Lang } from "@/lib/i18n";
 
 interface ScenarioCardsProps {
   /** Called when a user wants to load a scenario into the live calculator. */
   onLoad?: (input: IndiaScenarioInput) => void;
+  lang?: Lang;
 }
 
-export function ScenarioCards({ onLoad }: ScenarioCardsProps) {
+export function ScenarioCards({ onLoad, lang = "en" }: ScenarioCardsProps) {
   // A stable "today" for scenario payoff-date math.
   const today = React.useMemo(() => new Date(), []);
+  const scenarios = lang === "hi" ? HINDI_SCENARIOS : INDIA_SCENARIOS;
 
   return (
     <section className="space-y-4">
       <div>
         <h2 className="text-xl font-bold tracking-tight">
-          Example prepayment scenarios
+          {t(lang, "scenarios.title")}
         </h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Real-world strategies on typical Indian home loans (₹35L–₹1Cr at
-          8.4–8.6% p.a.). Tap any scenario to load it into the calculator above.
+          {t(lang, "scenarios.subtitle")}
         </p>
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {INDIA_SCENARIOS.map((scn) => {
+        {scenarios.map((scn) => {
           const result = calculateMortgage({
             ...scn.input,
             monthlyPayment: calcMonthlyPayment(
@@ -75,7 +78,7 @@ export function ScenarioCards({ onLoad }: ScenarioCardsProps) {
                 <div className="grid grid-cols-2 gap-2">
                   <Stat
                     icon={<TrendingDown className="size-3.5" />}
-                    label="Interest saved"
+                    label={t(lang, "scenarios.interestSaved")}
                     value={
                       result.valid
                         ? formatCurrency(result.totalInterestSaved)
@@ -84,7 +87,7 @@ export function ScenarioCards({ onLoad }: ScenarioCardsProps) {
                   />
                   <Stat
                     icon={<Clock className="size-3.5" />}
-                    label="Time saved"
+                    label={t(lang, "scenarios.timeSaved")}
                     value={
                       result.valid && result.monthsSaved > 0
                         ? formatDuration(result.monthsSaved)
@@ -94,11 +97,11 @@ export function ScenarioCards({ onLoad }: ScenarioCardsProps) {
                 </div>
                 {result.valid && (
                   <p className="text-muted-foreground text-[11px]">
-                    Pays off{" "}
+                    {t(lang, "scenarios.paysOff")}{" "}
                     <span className="font-medium text-foreground">
                       {formatDate(addMonths(today, result.newTermMonths))}
                     </span>{" "}
-                    instead of{" "}
+                    {t(lang, "scenarios.insteadOf")}{" "}
                     <span className="text-foreground">
                       {formatDate(addMonths(today, result.originalTermMonths))}
                     </span>
@@ -112,7 +115,7 @@ export function ScenarioCards({ onLoad }: ScenarioCardsProps) {
                     className="mt-auto w-full"
                     onClick={() => onLoad(scn.input)}
                   >
-                    Load into calculator
+                    {t(lang, "scenarios.loadIntoCalc")}
                     <ArrowRight className="size-3.5" />
                   </Button>
                 )}

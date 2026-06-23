@@ -186,3 +186,64 @@ Work Log:
 
 Stage Summary:
 - All success criteria met. Page load 94ms (<2s), calc updates instant (<200ms), mobile-first, no refresh, URL auto-syncs, results shareable. User can complete the full journey (enter details → choose mode → view 4 outputs → copy share link → submit lead → click affiliate) in under 30 seconds. Lint clean.
+
+---
+Task ID: 1
+Agent: general-purpose (hindi-content)
+Task: Generate Hindi content library (i18n strings, 50+ landing pages, FAQs, guides, scenarios)
+
+Work Log:
+- Read worklog.md and existing src/lib/india-faqs.ts, src/lib/india-guides.ts, src/lib/india-scenarios.ts to learn the project conventions (interface style, scenario input shape with OverpaymentTiming = "start" | "end", guide section structure with heading/body, FAQ content style referencing RBI June 2024 no-penalty rule, Section 80C/24(b)/80EE tax provisions, CIBIL-tiered ROI bands, post-July 2024 LTCG 10% above ₹1.25 lakh, RLLR/BRLLR/I-BCLR repo linkage, FOIR caps, HDFC-HDFC Bank merger).
+- Verified tsconfig.json is strict-mode ESNext with bundler module resolution; confirmed the target file src/lib/hindi-content.ts did not already exist.
+- Created src/lib/hindi-content.ts (single file, ~1500 lines) exporting all required types, consts, and helper functions:
+  1. Lang type ("en" | "hi") + TranslationKey interface + TRANSLATIONS dictionary. 90 English + 90 Hindi keys covering all UI strings from the spec: app.*, nav.*, form.* (25 fields incl. outstandingMode = "बकाया मूलधन मोड"), results.* (24 fields incl. amortizationPreview = "अमोर्टाइजेशन पूर्वावलोकन"), lead.* (10 fields), affiliate.* (7 fields incl. compareRates/balanceTransfer/talkExpert/refinanceSavings), scenarios.* (7 fields), faq.*, guides.*, content.* (subtitles in Hindi), lang.switchToHi/switchToEn, footer.disclaimer/rights.
+  2. HindiLandingPage interface + HINDI_LANDING_PAGES array (51 pages, exceeds 50+ requirement): 10 calculator pages, 4 bank pages (SBI/HDFC/ICICI/Axis with realistic 2024-25 rates RLLR/BRLLR/I-BCLR, no-penalty policy, YONO/NetBanking process), 10 Hinglish pages (Roman script — "Home Loan Jaldi Kaise Khatam Kare", "EMI Reduce Kare Ya Tenure", "Lump Sum Prepayment Fayde", etc.), 10 scenario pages (₹35L/₹40L/₹50L/₹60L/₹75L/₹80L/₹90L/₹1Cr/₹2Cr with realistic EMI numbers), 10 guide pages, 7 general-info pages (prepayment-kya-hai, foreclosure-charges, cibil-score-info, tax-benefits-info, floating-vs-fixed-rate, home-loan-emi-formula, prepayment-charges-rules). Each page has unique Hindi/Hinglish title, h1, 2-3 sentence intro, metaTitle, metaDescription, /hi/ canonical path, and 2-3 inline FAQs.
+  3. HindiFaq interface + HINDI_FAQ_LIBRARY array (19 FAQs, within 15-20 range) covering: प्रीपेमेंट क्या है, कितना ब्याज बचेगा, जल्दी चुकाना सही है क्या, EMI कम या अवधि, SBI/HDFC/ICICI/Axis प्रीपेमेंट शुल्क, फ्लोटिंग vs फिक्स्ड रेट, टैक्स लाभ, CIBIL स्कोर, बैलेंस ट्रांसफर, प्रीपेमेंट रिटर्न, CIBIL प्रभाव, EMI सूत्र, फोरक्लोज़र प्रक्रिया, टैक्स लाभ कमी, सबसे असरदार तरीका.
+  4. HindiGuide interface + HINDI_GUIDES array (5 guides, 4 sections each = 20 sections): होम लोन ब्याज में लाखों कैसे बचाएं, प्रीपेमेंट vs निवेश: भारत में क्या बेहतर है, EMI गणना सूत्र समझें, EMI कम या अवधि कम: क्या चुनें, CIBIL स्कोर का होम लोन ROI पर प्रभाव. Each section has 3-4 sentences of genuine Hindi copy adapted from the English india-guides.ts content with Indian-specific numbers (₹50 lakh @ 8.50% / 20yr examples, 30% slab tax math, ₹1.25 lakh LTCG threshold, 750+/700-749 CIBIL tiers).
+  5. HindiScenario interface + HINDI_SCENARIOS array (6 scenarios) with Hindi titles/strategies and full input shape (loanAmount, annualRate, termMonths, overpaymentMonthly, overpaymentLumpSum, overpaymentAnnual, overpaymentStartMonth, overpaymentTiming: "start" | "end"): ₹50L + ₹10K/mo, ₹1Cr + ₹10L lump at month 24, ₹75L EMI-vs-tenure ₹15K/mo, ₹35L round-up EMI, ₹50L monthly+annual bonus, ₹1Cr aggressive pre-retirement ₹25K/mo.
+  6. HINDI_CONTENT_BLOCKS array (4 educational blocks): प्रीपेमेंट से ब्याज कम (TrendingDown), अवधि घटना (CalendarClock), EMI vs अवधि — क्या चुनें (Scale), प्रीपेमेंट से पहले जांच (ShieldCheck). Each body 3-4 sentences.
+  7. Three helper functions: getHindiFaqsForType(type) — predicate-filtered lookup with fall-through to full library, supports prepayment/general/emi/sbi/hdfc/icici/axis/bank/balance-transfer/refinance/cibil/tax/foreclosure types; getHindiLandingPage(id) — single-page lookup by id; getHindiLandingPagesByType(type) — type-filtered list.
+- Ran npx tsc --noEmit (project-wide) — src/lib/hindi-content.ts is clean (0 errors). Pre-existing errors remain only in examples/websocket/ and skills/ directories (socket.io-client import, image-edit API mismatch, stock-analysis analyzer type) — all unrelated to this task.
+- Ran npx eslint src/lib/hindi-content.ts — 0 errors, 0 warnings.
+- Did NOT modify any existing files (india-faqs.ts, india-guides.ts, india-scenarios.ts, i18n.ts, mortgage.ts, views.ts all untouched). Did NOT write test code.
+
+Stage Summary:
+- One new file created, TypeScript-strict-clean and lint-clean, ready to import by Next.js pages/components:
+  - src/lib/hindi-content.ts (~1500 lines)
+- All required exports present:
+  - Lang, TranslationKey types + TRANSLATIONS const (90 en + 90 hi keys — all 90 UI strings from spec covered in both languages)
+  - HindiLandingPage interface + HINDI_LANDING_PAGES array (51 pages: 10 calculator + 4 bank + 10 hinglish + 10 scenario + 17 guide/general-info — exceeds 50+ requirement; each page has unique id, type, title, h1, intro, metaTitle, metaDescription, /hi/ canonical, 2-3 inline FAQs)
+  - HindiFaq interface + HINDI_FAQ_LIBRARY array (19 reusable FAQs — within 15-20 range)
+  - HindiGuide interface + HINDI_GUIDES array (5 in-depth guides, 4 sections each = 20 sections of real Hindi copy)
+  - HindiScenario interface + HINDI_SCENARIOS array (6 scenarios with full input shape compatible with existing engine's overpaymentTiming: "start" | "end")
+  - HINDI_CONTENT_BLOCKS array (4 educational cards, 3-4 sentences each)
+  - 3 helper functions: getHindiFaqsForType, getHindiLandingPage, getHindiLandingPagesByType
+- All Hindi content uses Indian home-loan terminology (होम लोन, EMI, प्रीपेमेंट, अवधि, ब्याज, बकाया, मूलधन, ऋण समाप्ति, फोरक्लोज़र) and Indian currency context (₹, लाख, करोड़). English acronym "EMI" retained in Hindi copy. Hinglish pages use Roman script per spec. Numbers reflect 2024-2025 Indian market (8.40%-9.65% p.a. ROI bands, ₹43,391 EMI on ₹50L @ 8.5%/20yr, ₹80,523 EMI on ₹1Cr @ 8.5%/25yr, ₹1.3 lakh interest cost per 100 bps on ₹50L/20yr).
+- All content reflects current RBI guidelines (June 2024 zero prepayment/foreclosure charges on floating-rate individual home loans regardless of amount), Section 80C/24(b)/80EE tax provisions, CIBIL-tiered ROI bands (750+/700-749/<700), post-July 2024 LTCG (10% above ₹1.25 lakh), RLLR (SBI)/BRLLR (Axis)/I-BCLR (ICICI) repo linkage, HDFC-HDFC Bank merger continuity.
+- Ready for downstream agents to wire into Hindi locale pages (/hi/ routes), Hindi FAQ accordion, Hindi guides listing, Hindi scenario cards, and i18n translation function swapping.
+
+---
+Task ID: phase5-hindi-localization
+Agent: main (Z.ai Code)
+Task: Phase 5 — Hindi Localization, Hinglish SEO, and Programmatic Content Expansion. Bilingual platform (English + Hindi) with language switching, Hindi SEO landing pages, Hindi FAQs/guides/scenarios, Hinglish pages, translated UI + monetization.
+
+Work Log:
+- Launched subagent (Task ID 1) that created `src/lib/hindi-content.ts` (~1500 lines): 90 UI translation keys (en+hi), 51 Hindi/Hinglish landing pages, 19 reusable Hindi FAQs, 5 Hindi guides, 6 Hindi scenarios, 4 Hindi content blocks, 3 helper functions.
+- Created `src/lib/i18n.ts` — `t(lang, key)` translation lookup with English fallback + `parseLang()`/`isLang()` helpers.
+- Created `src/hooks/use-lang.ts` — language state hook syncing to `?lang=` URL param + localStorage, updates `<html lang>`.
+- Updated `src/hooks/use-url-state.ts` — added `lang` to ShareableState, parseUrlState, writeUrlState, buildShareUrl (so shareable links preserve language).
+- Created `src/components/mortgage/language-switcher.tsx` — compact English | हिन्दी toggle preserving page/inputs/URL/results (no navigation, just state swap).
+- Updated `src/components/mortgage/dynamic-meta.tsx` — accepts `lang` + `hindiMeta` props; emits Hindi title/meta/canonical (`/hi/...`), `og:locale=hi_IN`, Hindi FAQ JSON-LD when lang=hi.
+- Updated `src/components/mortgage/breadcrumb.tsx` — accepts `lang`, flips "Home" → "होम".
+- Updated `src/components/mortgage/calculator-form.tsx` — accepts `lang`, uses `t()` for all labels (होम लोन विवरण, ऋण राशि, मासिक EMI, प्रीपेमेंट रणनीति, etc.), action buttons (रीसेट, शेयर लिंक, परिणाम कॉपी करें).
+- Updated `src/components/mortgage/results-section.tsx` — accepts `lang`, translates results title, interest saved, debt-free sooner, worth-it badge, what-this-means.
+- Updated `src/components/mortgage/email-capture.tsx` — accepts `lang`, translates lead-gen heading, field labels, CTA ("मेरी पूरी प्रीपेमेंट रिपोर्ट प्राप्त करें").
+- Updated `src/components/mortgage/affiliate-section.tsx` — accepts `lang`, translates 4 card titles to Hindi (होम लोन दरों की तुलना करें, बैलेंस ट्रांसफर विकल्प देखें, विशेषज्ञ से बात करें, रिफाइनेंस बचत जांचें).
+- Updated `src/components/mortgage/faq-section.tsx` — accepts `lang`, renders Hindi FAQs from `getHindiFaqsForType()` when lang=hi, English otherwise.
+- Updated `src/components/mortgage/scenario-cards.tsx` — accepts `lang`, renders `HINDI_SCENARIOS` when lang=hi, `INDIA_SCENARIOS` otherwise; translates stat labels.
+- Updated `src/components/mortgage/guides-section.tsx` — accepts `lang`, renders `HINDI_GUIDES` when lang=hi.
+- Created `src/components/mortgage/hindi-landing-pages.tsx` — browsable grid of all 51 Hindi/Hinglish landing pages grouped by type (calculator, bank, scenario, guide, Hinglish) with internal linking.
+- Updated `src/app/page.tsx` — wired `useLang()` hook, language switcher in header, Hindi H1/subtitle per view, hindiMeta for DynamicMeta, lang prop to all components, Hindi landing pages section (Hindi mode only), lang in URL sync + share link.
+
+Stage Summary:
+- Phase 5 complete. Bilingual platform (English default + Hindi via ?lang=hi). Language switcher preserves all state (page, inputs, URL params, results). 90 UI strings translated. 51 Hindi/Hinglish landing pages rendered as browsable hub. Hindi FAQs/guides/scenarios/content blocks all wired. Hindi SEO metadata (title, meta, canonical /hi/..., og:locale, FAQ JSON-LD) emitted dynamically. Affiliate CTAs translated. Lint clean, TypeScript clean, VLM-verified Hindi rendering with no visual issues.

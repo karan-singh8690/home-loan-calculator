@@ -29,6 +29,7 @@ import {
   type ViewMeta,
 } from "@/lib/views";
 import { useToast } from "@/hooks/use-toast";
+import { useLang } from "@/hooks/use-lang";
 import {
   parseUrlState,
   writeUrlState,
@@ -54,10 +55,14 @@ import { BankInfoBlock } from "@/components/mortgage/bank-info-block";
 import { Breadcrumb } from "@/components/mortgage/breadcrumb";
 import { DynamicMeta } from "@/components/mortgage/dynamic-meta";
 import { ExportButtons } from "@/components/mortgage/export-buttons";
+import { LanguageSwitcher } from "@/components/mortgage/language-switcher";
+import { HindiLandingPagesSection } from "@/components/mortgage/hindi-landing-pages";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 export default function HomeLoanPlatform() {
   const { toast } = useToast();
+  const { lang, toggleLang } = useLang();
   const initialUrl = useInitialUrlState();
 
   // ---- View state (synced to ?tool=) ----
@@ -165,6 +170,7 @@ export default function HomeLoanPlatform() {
       : undefined;
     writeUrlState({
       tool: viewId,
+      lang,
       mode,
       amount: state.loanAmount,
       rate: state.annualRate,
@@ -181,6 +187,7 @@ export default function HomeLoanPlatform() {
     });
   }, [
     viewId,
+    lang,
     state.loanAmount,
     state.annualRate,
     state.termYears,
@@ -250,6 +257,7 @@ export default function HomeLoanPlatform() {
       : undefined;
     const url = buildShareUrl({
       tool: viewId,
+      lang,
       mode,
       amount: state.loanAmount,
       rate: state.annualRate,
@@ -334,13 +342,62 @@ export default function HomeLoanPlatform() {
     [viewId]
   );
 
+  // Hindi H1/subtitle for the current view (sourced from the Hindi landing
+  // pages library). Falls back to English when not available.
+  const hindiTitle = React.useMemo(() => {
+    if (lang !== "hi") return "";
+    const map: Record<ViewId, string> = {
+      prepayment: "होम लोन प्रीपेमेंट कैलकुलेटर (अवधि कम करें)",
+      emi: "होम लोन EMI कैलकुलेटर",
+      "reduce-emi-vs-tenure": "EMI कम करें या अवधि कम करें कैलकुलेटर",
+      "interest-saving": "होम लोन ब्याज बचत कैलकुलेटर",
+      sbi: "SBI होम लोन प्रीपेमेंट कैलकुलेटर",
+      hdfc: "HDFC होम लोन प्रीपेमेंट कैलकुलेटर",
+      icici: "ICICI होम लोन प्रीपेमेंट कैलकुलेटर",
+      axis: "Axis होम लोन प्रीपेमेंट कैलकुलेटर",
+    };
+    return map[viewId] || "";
+  }, [lang, viewId]);
+
+  const hindiSubtitle = React.useMemo(() => {
+    if (lang !== "hi") return "";
+    const map: Record<ViewId, string> = {
+      prepayment:
+        "प्रीपेमेंट से कितना ब्याज बचेगा और कितनी अवधि कम होगी — तुरंत देखें। EMI वही रहती है, अवधि घटती है।",
+      emi: "अपनी मासिक EMI तुरंत गणना करें। ऋण राशि, ब्याज दर और अवधि दर्ज करें।",
+      "reduce-emi-vs-tenure":
+        "प्रीपेमेंट पर EMI कम करें या अवधि? दोनों विकल्प एक साथ तुलना करें।",
+      "interest-saving":
+        "होम लोन पर कितना ब्याज बच सकता है? विभिन्न प्रीपेमेंट रणनीतियों की तुलना करें।",
+      sbi: "SBI होम लोन की EMI और प्रीपेमेंट बचत गणना करें।",
+      hdfc: "HDFC होम लोन की EMI और प्रीपेमेंट बचत गणना करें।",
+      icici: "ICICI होम लोन की EMI और प्रीपेमेंट बचत गणना करें।",
+      axis: "Axis होम लोन की EMI और प्रीपेमेंट बचत गणना करें।",
+    };
+    return map[viewId] || "";
+  }, [lang, viewId]);
+
+  // Hindi metadata for the DynamicMeta component.
+  const hindiMeta = React.useMemo(() => {
+    if (lang !== "hi") return null;
+    return {
+      metaTitle: hindiTitle
+        ? `${hindiTitle} | EMI व ब्याज बचत कैलक्युलेटर`
+        : view.metaTitle,
+      metaDescription: hindiSubtitle || view.metaDescription,
+      title: hindiTitle || view.title,
+      subtitle: hindiSubtitle || view.subtitle,
+      canonical: `/hi${view.canonical}`,
+    };
+  }, [lang, hindiTitle, hindiSubtitle, view]);
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <DynamicMeta view={view} faqs={faqsForView} />
+      <DynamicMeta view={view} faqs={faqsForView} lang={lang} hindiMeta={hindiMeta} />
 
       {/* ---- Header ---- */}
       <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-2 px-4">
           <Link
             href="?tool=prepayment"
             className="flex items-center gap-2"
@@ -353,13 +410,18 @@ export default function HomeLoanPlatform() {
               <Home className="size-4" />
             </span>
             <div className="leading-none">
-              <p className="text-sm font-bold tracking-tight">HomeLoan Calc</p>
+              <p className="text-sm font-bold tracking-tight">
+                {t(lang, "app.name")}
+              </p>
               <p className="text-muted-foreground text-[10px]">
-                India home loan calculator
+                {t(lang, "app.tagline")}
               </p>
             </div>
           </Link>
-          <NavMenu viewId={viewId} onNavigate={handleNavigate} />
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher lang={lang} onToggle={toggleLang} />
+            <NavMenu viewId={viewId} onNavigate={handleNavigate} />
+          </div>
         </div>
       </header>
 
@@ -367,17 +429,21 @@ export default function HomeLoanPlatform() {
         {/* ---- Hero / intro ---- */}
         <section className="border-b bg-gradient-to-b from-emerald-50/60 to-background dark:from-emerald-950/20">
           <div className="mx-auto max-w-7xl px-4 py-8 sm:py-10">
-            <Breadcrumb view={view} />
+            <Breadcrumb view={view} lang={lang} />
             <div className="mt-4 max-w-3xl">
               <span className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold">
                 <TrendingDown className="size-3.5" />
-                {bank ? `${bank.shortName} home loan` : "Free • Instant • Accurate"}
+                {bank
+                  ? `${bank.shortName} home loan`
+                  : lang === "hi"
+                    ? "निःशुल्क • तुरंत • सटीक"
+                    : "Free • Instant • Accurate"}
               </span>
               <h1 className="mt-3 text-2xl font-bold tracking-tight text-balance sm:text-3xl md:text-4xl">
-                {view.title}
+                {hindiTitle || view.title}
               </h1>
               <p className="text-muted-foreground mt-2 text-sm text-pretty sm:text-base">
-                {view.subtitle}
+                {hindiSubtitle || view.subtitle}
               </p>
             </div>
           </div>
@@ -395,6 +461,7 @@ export default function HomeLoanPlatform() {
                   warnings={result.warnings}
                   showPrepayment={view.showPrepayment}
                   showModeToggle={view.showModeToggle}
+                  lang={lang}
                   onChange={handleChange}
                   onReset={handleReset}
                   onCopy={handleCopy}
@@ -404,7 +471,7 @@ export default function HomeLoanPlatform() {
 
               {/* Right: results */}
               <div className="space-y-4">
-                <ResultsSection result={result} effectiveSavingsPct={effectiveSavingsPct} />
+                <ResultsSection result={result} effectiveSavingsPct={effectiveSavingsPct} lang={lang} />
                 {view.compareBoth && result.valid && (
                   <EmiVsTenureComparison result={result} originalEMI={effectivePayment} />
                 )}
@@ -446,15 +513,15 @@ export default function HomeLoanPlatform() {
             )}
             <BalanceTransferSection />
             <RefinanceOffersSection />
-            <AffiliateSection />
-            <EmailCapture result={result} />
+            <AffiliateSection lang={lang} />
+            <EmailCapture result={result} lang={lang} />
           </div>
         </section>
 
         {/* ---- Scenarios ---- */}
         <section id="scenarios" className="scroll-mt-16 border-t">
           <div className="mx-auto max-w-7xl px-4 py-10">
-            <ScenarioCards onLoad={handleLoadScenario} />
+            <ScenarioCards onLoad={handleLoadScenario} lang={lang} />
           </div>
         </section>
 
@@ -468,16 +535,25 @@ export default function HomeLoanPlatform() {
         {/* ---- Guides ---- */}
         <section id="guides" className="scroll-mt-16 border-t">
           <div className="mx-auto max-w-7xl px-4 py-10">
-            <GuidesSection />
+            <GuidesSection lang={lang} />
           </div>
         </section>
 
         {/* ---- FAQ ---- */}
         <section id="faq" className="scroll-mt-16 border-t bg-muted/30">
           <div className="mx-auto max-w-3xl px-4 py-10">
-            <FaqSection view={viewId} />
+            <FaqSection view={viewId} lang={lang} />
           </div>
         </section>
+
+        {/* ---- Hindi landing pages hub (Hindi mode only) ---- */}
+        {lang === "hi" && (
+          <section className="border-t">
+            <div className="mx-auto max-w-7xl px-4 py-10">
+              <HindiLandingPagesSection lang={lang} />
+            </div>
+          </section>
+        )}
       </main>
 
       {/* ---- Footer ---- */}
