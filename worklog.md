@@ -271,3 +271,43 @@ Work Log:
 
 Stage Summary:
 - Phase 6 complete. Lead form upgraded to qualified-lead funnel. All required fields (lender, balance, rate, city) collect via dropdowns/radio for <15s completion. Lead score (0-100) computed internally and stored in DB with tier (high/medium/low). Calculator context auto-attached (loanAmount, EMI, tenure, extra, lump, interestSaved, timeSaved). Verified: high-tier lead (₹50L-1Cr, 9.0%) = score 85; medium (₹25-50L, 8.5%) = 65; low (<₹10L, 7.0%) = 5. Success message shows savings recap. Trust section present. Analytics tracking wired. Bilingual (Hindi + English). Lint clean, TypeScript clean.
+
+---
+Task ID: hindi-read-more
+Agent: main (Z.ai Code)
+Task: Extend the Hindi SEO page system — generate full unique descriptions for all 51 Hindi pages, replace "..." truncation with [और पढ़ें]/[कम दिखाएं] toggle, ensure full content is server-rendered in HTML (not hidden from search engines).
+
+Work Log:
+- Added `body: string` field to the `HindiLandingPage` interface in `src/lib/hindi-content.ts`.
+- Generated full unique SEO-rich Hindi body descriptions (150-300 words each) for all 51 HINDI_LANDING_PAGES entries:
+  - 10 calculator pages (how the calculator works, inputs, outputs, examples)
+  - 4 bank pages (SBI/HDFC/ICICI/Axis rates, policies, prepayment)
+  - 10 scenario pages (₹30L-₹2Cr loan scenarios with specific savings)
+  - 10 Hinglish pages (natural Roman-script Hindi-English)
+  - 17 guide/info pages (prepayment, foreclosure, CIBIL, tax, EMI formula, etc.)
+- Fixed multiline string syntax (actual newlines → `\n` escape sequences in TypeScript string literals).
+- Created `src/components/mortgage/expandable-text.tsx` — ExpandableText component with:
+  - Intro text always visible
+  - Full body text always in the DOM (inside a div with CSS max-height transition) — NOT hidden from search engines
+  - [और पढ़ें] / [कम दिखाएं] toggle button with chevron icon rotation
+  - Smooth 300ms max-height + opacity transition for expand/collapse
+  - aria-expanded attribute for accessibility
+  - No page refresh — pure client-side state toggle
+- Updated `src/components/mortgage/hindi-landing-pages.tsx`:
+  - Replaced `CardDescription` with `line-clamp-2` (truncation) with `ExpandableText` component
+  - Passes `intro`, `body`, `expandLabel="और पढ़ें"`, `collapseLabel="कम दिखाएं"` to each card
+  - Removed unused `CardDescription` and `CardContent` imports
+- Verified with Agent Browser:
+  - All 51 cards have [और पढ़ें] toggle ✓
+  - No `line-clamp-2` truncation remains ✓
+  - Full body text (1,227 chars in sample) in the DOM even when collapsed ✓
+  - Collapsed div uses `max-h-0 opacity-0` (NOT `display:none`) — content visible to search engines ✓
+  - Click [और पढ़ें] → toggle changes to [कम दिखाएं], body expands with smooth animation ✓
+  - Click [कम दिखाएं] → collapses back ✓
+  - No page refresh ✓
+
+Stage Summary:
+- All 51 Hindi landing pages now have full unique body descriptions (150-300 words each) in Hindi/Hinglish.
+- The "..." truncation (line-clamp-2) has been replaced with an [और पढ़ें]/[कम दिखाएं] toggle that expands inline with smooth CSS animation.
+- Full body text is always in the server-rendered HTML DOM (inside a CSS-collapsed div with max-height transition, NOT display:none) — search engines can crawl the complete content.
+- Lint clean, TypeScript clean, browser-verified.

@@ -6,8 +6,6 @@ import { ArrowRight, FileText, BookOpen, Calculator, Building2, Lightbulb, Trend
 import { cn } from "@/lib/utils";
 import {
   Card,
-  CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -17,6 +15,7 @@ import {
   type HindiLandingPage,
 } from "@/lib/hindi-content";
 import type { Lang } from "@/lib/i18n";
+import { ExpandableText } from "@/components/mortgage/expandable-text";
 
 interface HindiLandingPagesSectionProps {
   lang: Lang;
@@ -113,9 +112,12 @@ function LandingPageCard({
             <ArrowRight className="text-muted-foreground group-hover:text-emerald-600 size-3.5 transition-colors" />
           </div>
           <CardTitle className="text-sm leading-snug">{page.h1}</CardTitle>
-          <CardDescription className="line-clamp-2 text-xs leading-relaxed">
-            {page.intro}
-          </CardDescription>
+          <ExpandableText
+            intro={page.intro}
+            body={page.body}
+            expandLabel="और पढ़ें"
+            collapseLabel="कम दिखाएं"
+          />
         </CardHeader>
       </Card>
     </button>

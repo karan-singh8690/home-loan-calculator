@@ -1,0 +1,1919 @@
+     1→/**
+     2→ * Hindi content library for the India Home Loan Prepayment Calculator.
+     3→ *
+     4→ * Exports:
+     5→ *  - Lang / TranslationKey types + TRANSLATIONS dictionary (English + Hindi)
+     6→ *  - HindiLandingPage interface + HINDI_LANDING_PAGES array (50+ SEO pages)
+     7→ *  - HindiFaq interface + HINDI_FAQ_LIBRARY (15-20 reusable FAQs)
+     8→ *  - HindiGuide interface + HINDI_GUIDES (5 in-depth guides)
+     9→ *  - HindiScenario interface + HINDI_SCENARIOS (6 prepayment scenarios)
+    10→ *  - HINDI_CONTENT_BLOCKS (4 educational cards)
+    11→ *  - Helper functions: getHindiFaqsForType, getHindiLandingPage,
+    12→ *    getHindiLandingPagesByType
+    13→ *
+    14→ * All Devanagari content uses Indian home-loan terminology — होम लोन, EMI,
+    15→ * प्रीपेमेंट, अवधि, ब्याज, बकाया, मूलधन, ऋण समाप्ति, फोरक्लोज़र. The English
+    16→ * acronym "EMI" is retained in Hindi copy since it is universally used in
+    17→ * Indian financial parlance. Hinglish landing pages use Roman-script Hindi.
+    18→ *
+    19→ * Content reflects 2024-2025 RBI guidelines: zero prepayment / foreclosure
+    20→ * charges on floating-rate individual home loans regardless of amount,
+    21→ * Section 80C / 24(b) / 80EE tax provisions, CIBIL-tiered ROI bands, and
+    22→ * post-July 2024 LTCG rules (10% on equity gains above ₹1.25 lakh).
+    23→ */
+    24→
+    25→// ---------------------------------------------------------------------------
+    26→// 1. UI string translations
+    27→// ---------------------------------------------------------------------------
+    28→
+    29→export type Lang = "en" | "hi";
+    30→
+    31→export interface TranslationKey {
+    32→  [key: string]: string;
+    33→}
+    34→
+    35→export const TRANSLATIONS: Record<Lang, TranslationKey> = {
+    36→  en: {
+    37→    "app.name": "Home Loan Calculator",
+    38→    "app.tagline": "India Home Loan Calculator",
+    39→    "nav.calculator": "Calculator",
+    40→    "nav.scenarios": "Scenarios",
+    41→    "nav.howItWorks": "How it works",
+    42→    "nav.faq": "FAQ",
+    43→    "nav.guides": "Guides",
+    44→    "form.loanAmount": "Loan amount",
+    45→    "form.interestRate": "Annual interest rate",
+    46→    "form.loanTenure": "Loan tenure",
+    47→    "form.monthlyEMI": "Monthly EMI",
+    48→    "form.calculatedEMI": "Calculated EMI",
+    49→    "form.auto": "Auto",
+    50→    "form.useCalculated": "Use calculated",
+    51→    "form.prepaymentStrategy": "Prepayment strategy",
+    52→    "form.prepaymentMode": "Prepayment mode",
+    53→    "form.monthlyExtraEMI": "Extra monthly EMI",
+    54→    "form.lumpSum": "Lump sum prepayment",
+    55→    "form.both": "Both",
+    56→    "form.extraAmount": "Extra amount (monthly)",
+    57→    "form.effectiveEMI": "Effective EMI",
+    58→    "form.lumpSumAmount": "Lump sum amount",
+    59→    "form.applyAfter": "Apply after X months",
+    60→    "form.startFrom": "Start from",
+    61→    "form.applyAtStart": "Apply at the start of the month",
+    62→    "form.loanStartDate": "Loan start date",
+    63→    "form.reset": "Reset",
+    64→    "form.copyResults": "Copy results",
+    65→    "form.shareLink": "Share link",
+    66→    "form.outstandingMode": "Outstanding principal mode",
+    67→    "form.yourHomeLoan": "Your home loan",
+    68→    "form.prepaymentType": "Prepayment type",
+    69→    "results.title": "Your results",
+    70→    "results.comparedToOriginal": "Compared to your original home loan schedule.",
+    71→    "results.interestSaved": "Interest saved",
+    72→    "results.debtFreeSooner": "Debt-free sooner",
+    73→    "results.emiReducedBy": "EMI reduced by",
+    74→    "results.effectiveSavings": "Effective savings",
+    75→    "results.lessInterest": "less interest",
+    76→    "results.whatThisMeans": "What this means",
+    77→    "results.worthIt": "Is it worth it?",
+    78→    "results.worthItYes": "Yes",
+    79→    "results.originalPayoff": "Original payoff date",
+    80→    "results.newPayoff": "New payoff date",
+    81→    "results.originalTenure": "Original tenure",
+    82→    "results.newTenure": "New tenure",
+    83→    "results.totalInterest": "Total interest paid",
+    84→    "results.totalAmount": "Total amount paid",
+    85→    "results.amortizationPreview": "Amortization preview",
+    86→    "results.month": "Month",
+    87→    "results.openingBalance": "Opening balance",
+    88→    "results.emi": "EMI",
+    89→    "results.interest": "Interest",
+    90→    "results.principal": "Principal",
+    91→    "results.prepayment": "Prepayment",
+    92→    "results.closingBalance": "Closing balance",
+    93→    "lead.heading": "Get your full prepayment report",
+    94→    "lead.description":
+    95→      "We'll email you a detailed PDF/CSV report and share options to reduce your home-loan tenure and interest.",
+    96→    "lead.name": "Name",
+    97→    "lead.emailOrPhone": "Email or phone",
+    98→    "lead.city": "City",
+    99→    "lead.cityOptional": "City (optional)",
+   100→    "lead.loanBalance": "Current loan balance",
+   101→    "lead.loanBalanceOptional": "Current loan balance (optional)",
+   102→    "lead.cta": "Get my full prepayment report",
+   103→    "lead.sending": "Sending...",
+   104→    "affiliate.title": "Next steps for more savings",
+   105→    "affiliate.subtitle":
+   106→      "Prepayment is powerful — but a lower interest rate or professional advice can save you even more. These partners can help.",
+   107→    "affiliate.compareRates": "Compare home loan rates",
+   108→    "affiliate.balanceTransfer": "Explore balance transfer offers",
+   109→    "affiliate.talkExpert": "Talk to a loan expert",
+   110→    "affiliate.refinanceSavings": "Check refinancing savings",
+   111→    "affiliate.disclaimer":
+   112→      "Affiliate link — we may earn a commission if you take an offer, at no extra cost to you.",
+   113→    "scenarios.title": "Example prepayment scenarios",
+   114→    "scenarios.subtitle":
+   115→      "Real strategies on Indian home loans (₹35L–₹1Cr). Tap any scenario to load it into the calculator.",
+   116→    "scenarios.loadIntoCalc": "Load into calculator",
+   117→    "scenarios.interestSaved": "Interest saved",
+   118→    "scenarios.timeSaved": "Time saved",
+   119→    "scenarios.paysOff": "Pays off",
+   120→    "scenarios.insteadOf": "instead of",
+   121→    "faq.title": "Frequently asked questions",
+   122→    "faq.subtitle": "Everything you want to know about home loan prepayment and EMI.",
+   123→    "guides.title": "Interest-saving guides",
+   124→    "guides.subtitle": "India-specific guides to help you save on your home loan.",
+   125→    "content.title": "How home loan prepayment works",
+   126→    "content.subtitle": "A short primer on the mechanics behind the numbers above.",
+   127→    "lang.switchToHi": "हिन्दी",
+   128→    "lang.switchToEn": "English",
+   129→    "footer.disclaimer":
+   130→      "This calculator is for informational purposes only and is not financial advice.",
+   131→    "footer.rights": "All rights reserved.",
+   132→  },
+   133→  hi: {
+   134→    "app.name": "होम लोन कैलकुलेटर",
+   135→    "app.tagline": "भारत होम लोन कैलक्युलेटर",
+   136→    "nav.calculator": "कैलकुलेटर",
+   137→    "nav.scenarios": "उदाहरण",
+   138→    "nav.howItWorks": "कैसे काम करता है",
+   139→    "nav.faq": "सामान्य प्रश्न",
+   140→    "nav.guides": "गाइड",
+   141→    "form.loanAmount": "ऋण राशि",
+   142→    "form.interestRate": "वार्षिक ब्याज दर",
+   143→    "form.loanTenure": "ऋण अवधि",
+   144→    "form.monthlyEMI": "मासिक EMI",
+   145→    "form.calculatedEMI": "गणना की गई EMI",
+   146→    "form.auto": "स्वचालित",
+   147→    "form.useCalculated": "गणना की गई का उपयोग करें",
+   148→    "form.prepaymentStrategy": "प्रीपेमेंट रणनीति",
+   149→    "form.prepaymentMode": "प्रीपेमेंट मोड",
+   150→    "form.monthlyExtraEMI": "अतिरिक्त मासिक EMI",
+   151→    "form.lumpSum": "एकमुश्त प्रीपेमेंट",
+   152→    "form.both": "दोनों",
+   153→    "form.extraAmount": "अतिरिक्त राशि (मासिक)",
+   154→    "form.effectiveEMI": "प्रभावी EMI",
+   155→    "form.lumpSumAmount": "एकमुश्त राशि",
+   156→    "form.applyAfter": "X महीने बाद लागू करें",
+   157→    "form.startFrom": "शुरू करें",
+   158→    "form.applyAtStart": "महीने की शुरुआत में लागू करें",
+   159→    "form.loanStartDate": "ऋण शुरू तिथि",
+   160→    "form.reset": "रीसेट",
+   161→    "form.copyResults": "परिणाम कॉपी करें",
+   162→    "form.shareLink": "शेयर लिंक",
+   163→    "form.outstandingMode": "बकाया मूलधन मोड",
+   164→    "form.yourHomeLoan": "आपका होम लोन",
+   165→    "form.prepaymentType": "प्रीपेमेंट प्रकार",
+   166→    "results.title": "आपके परिणाम",
+   167→    "results.comparedToOriginal": "आपके मूल होम लोन शेड्यूल की तुलना में।",
+   168→    "results.interestSaved": "बचाया गया ब्याज",
+   169→    "results.debtFreeSooner": "जल्दी ऋण मुक्त",
+   170→    "results.emiReducedBy": "EMI में कमी",
+   171→    "results.effectiveSavings": "प्रभावी बचत",
+   172→    "results.lessInterest": "कम ब्याज",
+   173→    "results.whatThisMeans": "इसका क्या अर्थ है",
+   174→    "results.worthIt": "क्या यह फायदेमंद है?",
+   175→    "results.worthItYes": "हाँ",
+   176→    "results.originalPayoff": "मूल ऋण समाप्ति तिथि",
+   177→    "results.newPayoff": "नई ऋण समाप्ति तिथि",
+   178→    "results.originalTenure": "मूल अवधि",
+   179→    "results.newTenure": "नई अवधि",
+   180→    "results.totalInterest": "कुल ब्याज भुगतान",
+   181→    "results.totalAmount": "कुल भुगतान राशि",
+   182→    "results.amortizationPreview": "अमोर्टाइजेशन पूर्वावलोकन",
+   183→    "results.month": "महीना",
+   184→    "results.openingBalance": "शुरुआती शेष",
+   185→    "results.emi": "EMI",
+   186→    "results.interest": "ब्याज",
+   187→    "results.principal": "मूलधन",
+   188→    "results.prepayment": "प्रीपेमेंट",
+   189→    "results.closingBalance": "अंतिम शेष",
+   190→    "lead.heading": "अपनी पूरी प्रीपेमेंट रिपोर्ट प्राप्त करें",
+   191→    "lead.description":
+   192→      "हम आपको विस्तृत PDF/CSV रिपोर्ट ईमेल करेंगे और अपने होम लोन की अवधि और ब्याज कम करने के विकल्प शेयर करेंगे।",
+   193→    "lead.name": "नाम",
+   194→    "lead.emailOrPhone": "ईमेल या फोन",
+   195→    "lead.city": "शहर",
+   196→    "lead.cityOptional": "शहर (वैकल्पिक)",
+   197→    "lead.loanBalance": "वर्तमान ऋण शेष",
+   198→    "lead.loanBalanceOptional": "वर्तमान ऋण शेष (वैकल्पिक)",
+   199→    "lead.cta": "मेरी पूरी प्रीपेमेंट रिपोर्ट प्राप्त करें",
+   200→    "lead.sending": "भेजा जा रहा है…",
+   201→    "affiliate.title": "और बचत के लिए अगले कदम",
+   202→    "affiliate.subtitle":
+   203→      "प्रीपेमेंट शक्तिशाली है — लेकिन कम ब्याज दर या पेशेवर सलाह से और बचत संभव है। ये पार्टनर मदद कर सकते हैं।",
+   204→    "affiliate.compareRates": "होम लोन दरों की तुलना करें",
+   205→    "affiliate.balanceTransfer": "बैलेंस ट्रांसफर विकल्प देखें",
+   206→    "affiliate.talkExpert": "विशेषज्ञ से बात करें",
+   207→    "affiliate.refinanceSavings": "रिफाइनेंस बचत जांचें",
+   208→    "affiliate.disclaimer":
+   209→      "एफिलिएट लिंक — यदि आप कोई ऑफर लेते हैं तो हमें कमीशन मिल सकता है, आपको कोई अतिरिक्त लागत नहीं।",
+   210→    "scenarios.title": "उदाहरण प्रीपेमेंट परिदृश्य",
+   211→    "scenarios.subtitle":
+   212→      "भारतीय होम लोन पर वास्तविक रणनीतियाँ (₹35L–₹1Cr)। किसी भी परिदृश्य को कैलकुलेटर में लोड करने के लिए टैप करें।",
+   213→    "scenarios.loadIntoCalc": "कैलकुलेटर में लोड करें",
+   214→    "scenarios.interestSaved": "ब्याज बचत",
+   215→    "scenarios.timeSaved": "समय बचत",
+   216→    "scenarios.paysOff": "ऋण समाप्त",
+   217→    "scenarios.insteadOf": "के बजाय",
+   218→    "faq.title": "सामान्य प्रश्न",
+   219→    "faq.subtitle":
+   220→      "होम लोन प्रीपेमेंट और EMI के बारे में सब कुछ जो आप जानना चाहते हैं।",
+   221→    "guides.title": "ब्याज बचत गाइड",
+   222→    "guides.subtitle":
+   223→      "अपने होम लोन पर बचत करने में मदद के लिए भारत-विशिष्ट गाइड।",
+   224→    "content.title": "होम लोन प्रीपेमेंट कैसे काम करता है",
+   225→    "content.subtitle":
+   226→      "ऊपर दिए गए आंकड़ों के पीछे की यांत्रिकी पर एक संक्षिप्त प्राइमर।",
+   227→    "lang.switchToHi": "हिन्दी",
+   228→    "lang.switchToEn": "English",
+   229→    "footer.disclaimer":
+   230→      "यह कैलक्युलेटर केवल सूचना के उद्देश्य से है और वित्तीय सलाह नहीं है।",
+   231→    "footer.rights": "सर्वाधिकार सुरक्षित।",
+   232→  },
+   233→};
+   234→
+   235→// ---------------------------------------------------------------------------
+   236→// 2. Hindi landing pages (50+)
+   237→// ---------------------------------------------------------------------------
+   238→
+   239→export interface HindiLandingPage {
+   240→  id: string;
+   241→  type: "calculator" | "guide" | "scenario" | "hinglish" | "bank";
+   242→  title: string;
+   243→  h1: string;
+   244→  intro: string;
+   245→  metaTitle: string;
+   246→  metaDescription: string;
+   247→  canonical: string;
+   248→  faqs?: { question: string; answer: string }[];
+   249→}
+   250→
+   251→export const HINDI_LANDING_PAGES: HindiLandingPage[] = [
+   252→  // ---- 10 calculator pages ----
+   253→  {
+   254→    id: "home-loan-prepayment-calculator",
+   255→    type: "calculator",
+   256→    title: "होम लोन प्रीपेमेंट कैलक्युलेटर",
+   257→    h1: "होम लोन प्रीपेमेंट कैलक्युलेटर — ब्याज और अवधि बचाएं",
+   258→    intro:
+   259→      "होम लोन प्रीपेमेंट कैलक्युलेटर से जानें कि मासिक अतिरिक्त EMI या एकमुश्त प्रीपेमेंट से आप कितना ब्याज बचा सकते हैं और कितनी जल्दी ऋण मुक्त हो सकते हैं। अपनी ऋण राशि, ब्याज दर और अवधि दर्ज करें और तुरंत परिणाम पाएं।",
+   260→    metaTitle:
+   261→      "होम लोन प्रीपेमेंट कैलक्युलेटर | ब्याज बचत जानें - Hindi",
+   262→    metaDescription:
+   263→      "मुफ्त होम लोन प्रीपेमेंट कैलक्युलेटर। मासिक अतिरिक्त EMI या एकमुश्त प्रीपेमेंट से कितना ब्याज और समय बचेगा, तुरंत गणना करें। भारतीय बैंक दरों के अनुसार।",
+   264→    canonical: "/hi/home-loan-prepayment-calculator",
+   265→    faqs: [
+   266→      {
+   267→        question: "प्रीपेमेंट से कितना ब्याज बचेगा?",
+   268→        answer:
+   269→          "यह आपकी ऋण राशि, ब्याज दर, अवधि और प्रीपेमेंट राशि पर निर्भर करता है। ₹50 लाख के होम लोन पर 8.5% दर और 20 वर्ष की अवधि में मात्र ₹10,000 मासिक प्रीपेमेंट से लगभग ₹21 लाख तक ब्याज बच सकता है और ऋण 7 वर्ष जल्दी समाप्त हो सकता है।",
+   270→      },
+   271→      {
+   272→        question: "क्या प्रीपेमेंट पर कोई शुल्क लगता है?",
+   273→        answer:
+   274→          "फ्लोटिंग दर वाले व्यक्तिगत होम लोन पर RBI के अनुसार कोई प्रीपेमेंट या फोरक्लोज़र शुल्क नहीं लगता, चाहे ऋण राशि कुछ भी हो। फिक्स्ड दर वाले लोन पर 2% तक शुल्क लग सकता है।",
+   275→      },
+   276→      {
+   277→        question: "कैलक्युलेटर के परिणाम कितने सटीक हैं?",
+   278→        answer:
+   279→          "यह कैलक्युलेटर मानक amortization सूत्र का उपयोग करता है और बैंक की गणना से मेल खाता है। वास्तविक संख्याएं आपकी बैंक की दर संशोधन और दैनिक ब्याज गणना पद्धति के आधार पर मामूली भिन्नता ले सकती हैं।",
+   280→      },
+   281→    ],
+   282→  },
+   283→  {
+   284→    id: "home-loan-emi-calculator",
+   285→    type: "calculator",
+   286→    title: "होम लोन EMI कैलक्युलेटर",
+   287→    h1: "होम लोन EMI कैलक्युलेटर — मासिक किस्त की गणना",
+   288→    intro:
+   289→      "होम लोन EMI कैलक्युलेटर से अपनी मासिक EMI तुरंत जानें। ऋण राशि, ब्याज दर और अवधि दर्ज करें और देखें कि आपकी मासिक किस्त कितनी होगी।",
+   290→    metaTitle: "होम लोन EMI कैलक्युलेटर | मासिक किस्त जानें - Hindi",
+   291→    metaDescription:
+   292→      "होम लोन EMI कैलक्युलेटर। ऋण राशि, ब्याज दर और अवधि दर्ज करके अपनी मासिक EMI तुरंत गणना करें। भारतीय बैंक दरों के अनुसार।",
+   293→    canonical: "/hi/home-loan-emi-calculator",
+   294→    faqs: [
+   295→      {
+   296→        question: "EMI की गणना कैसे होती है?",
+   297→        answer:
+   298→          "EMI = P × r × (1+r)^n / ((1+r)^n - 1), जहाँ P ऋण राशि, r मासिक ब्याज दर (वार्षिक दर / 12 / 100) और n महीनों में अवधि है। उदाहरण के लिए ₹50 लाख का लोन 8.5% दर पर 20 वर्ष के लिए लगभग ₹43,391 की मासिक EMI देता है।",
+   299→      },
+   300→      {
+   301→        question: "क्या EMI पूरे ऋण अवधि में समान रहती है?",
+   302→        answer:
+   303→          "फिक्स्ड दर वाले लोन में EMI समान रहती है। फ्लोटिंग दर वाले लोन में बैंक आमतौर पर EMI समान रखता है और अवधि समायोजित करता है — हालाँकि आप EMI संशोधन का अनुरोध भी कर सकते हैं।",
+   304→      },
+   305→    ],
+   306→  },
+   307→  {
+   308→    id: "home-loan-interest-saving-calculator",
+   309→    type: "calculator",
+   310→    title: "होम लोन ब्याज बचत कैलक्युलेटर",
+   311→    h1: "होम लोन ब्याज बचत कैलक्युलेटर",
+   312→    intro:
+   313→      "जानें कि प्रीपेमेंट, बैलेंस ट्रांसफर या रिफाइनेंस से आप अपने होम लोन पर कितना ब्याज बचा सकते हैं। यह कैलक्युलेटर आपको सबसे अच्छी रणनीति चुनने में मदद करता है।",
+   314→    metaTitle: "होम लोन ब्याज बचत कैलक्युलेटर | लाखों बचाएं - Hindi",
+   315→    metaDescription:
+   316→      "प्रीपेमेंट, बैलेंस ट्रांसफर और रिफाइनेंस से होम लोन पर कितना ब्याज बचेगा, जानें। तुलना करें और सबसे अच्छी रणनीति चुनें।",
+   317→    canonical: "/hi/home-loan-interest-saving-calculator",
+   318→    faqs: [
+   319→      {
+   320→        question: "सबसे ज्यादा ब्याज कैसे बचाया जा सकता है?",
+   321→        answer:
+   322→          "तीन सबसे असरदार तरीके हैं — ऋण के पहले वर्ष में छोटा मासिक प्रीपेमेंट शुरू करना, सालाना बोनस से एकमुश्त प्रीपेमेंट करना, और जब दरें ऊँची हों तब बचत से बड़ा प्रीपेमेंट करना। अवधि घटाना EMI घटाने से 3-5 गुना ज्यादा ब्याज बचाता है।",
+   323→      },
+   324→      {
+   325→        question: "क्या बैलेंस ट्रांसफर से ब्याज बचत होती है?",
+   326→        answer:
+   327→          "हाँ, यदि आपको 0.5% कम दर मिले तो ₹50 लाख के लोन पर 20 वर्ष में लगभग ₹4-6 लाख ब्याज बच सकता है। ट्रांसफर का प्रोसेसिंग शुल्क (आमतौर पर 0.5%) भी इसमें शामिल कर लें।",
+   328→      },
+   329→    ],
+   330→  },
+   331→  {
+   332→    id: "home-loan-part-payment-calculator",
+   333→    type: "calculator",
+   334→    title: "होम लोन पार्ट पेमेंट कैलक्युलेटर",
+   335→    h1: "होम लोन पार्ट पेमेंट कैलक्युलेटर",
+   336→    intro:
+   337→      "पार्ट पेमेंट कैलक्युलेटर से जानें कि आंशिक प्रीपेमेंट से आपकी अवधि और ब्याज पर क्या असर पड़ेगा। मूलधन घटने से हर महीने कम ब्याज लगेगा।",
+   338→    metaTitle: "होम लोन पार्ट पेमेंट कैलक्युलेटर | अवधि कम करें - Hindi",
+   339→    metaDescription:
+   340→      "होम लोन पार्ट पेमेंट कैलक्युलेटर। आंशिक प्रीपेमेंट से कितनी अवधि और ब्याज बचेगा, तुरंत गणना करें।",
+   341→    canonical: "/hi/home-loan-part-payment-calculator",
+   342→    faqs: [
+   343→      {
+   344→        question: "पार्ट पेमेंट और प्रीपेमेंट में क्या अंतर है?",
+   345→        answer:
+   346→          "दोनों एक ही हैं — जब आप EMI के अतिरिक्त कुछ राशि जमा करके मूलधन घटाते हैं तो उसे पार्ट पेमेंट या प्रीपेमेंट कहते हैं। फोरक्लोज़र तब होता है जब पूरा बकाया एक ही बार में चुकाकर लोन बंद कर देते हैं।",
+   347→      },
+   348→      {
+   349→        question: "पार्ट पेमेंट के बाद EMI कम होगी या अवधि?",
+   350→        answer:
+   351→          "दोनों में से एक चुन सकते हैं। अवधि घटाने से ज्यादा ब्याज बचता है, EMI घटाने से मासिक बोझ कम होता है। बैंक आमतौर पर अवधि ही घटाते हैं; EMI घटाने के लिए अलग से अनुरोध करना पड़ता है।",
+   352→      },
+   353→    ],
+   354→  },
+   355→  {
+   356→    id: "home-loan-lump-sum-prepayment-calculator",
+   357→    type: "calculator",
+   358→    title: "एकमुश्त प्रीपेमेंट कैलक्युलेटर",
+   359→    h1: "एकमुश्त प्रीपेमेंट कैलक्युलेटर — बोनस या बिक्री से बचत",
+   360→    intro:
+   361→      "एकमुश्त प्रीपेमेंट कैलक्युलेटर से जानें कि सालाना बोनस, निवेश की वसूली या संपत्ति बिक्री से मिली राशि को एक बार में जमा करने पर आपकी अवधि कितनी कम होगी और कितना ब्याज बचेगा।",
+   362→    metaTitle:
+   363→      "एकमुश्त प्रीपेमेंट कैलक्युलेटर | Lump Sum Prepayment - Hindi",
+   364→    metaDescription:
+   365→      "एकमुश्त प्रीपेमेंट से कितना ब्याज और समय बचेगा, जानें। बोनस, निवेश या संपत्ति बिक्री की राशि के लिए उपयोग करें।",
+   366→    canonical: "/hi/home-loan-lump-sum-prepayment-calculator",
+   367→    faqs: [
+   368→      {
+   369→        question: "एकमुश्त प्रीपेमेंट कब सबसे असरदार है?",
+   370→        answer:
+   371→          "ऋण के पहले 5-7 वर्षों में किया गया एकमुश्त प्रीपेमेंट सबसे ज्यादा ब्याज बचाता है, क्योंकि शुरुआती वर्षों में EMI का बड़ा हिस्सा ब्याज में जाता है। ₹1 लाख का प्रीपेमेंट पहले वर्ष में करीब ₹1.85 लाख ब्याज बचा सकता है।",
+   372→      },
+   373→      {
+   374→        question: "क्या कोई न्यूनतम एकमुश्त प्रीपेमेंट राशि होती है?",
+   375→        answer:
+   376→          "अधिकतर बैंकों में कोई न्यूनतम राशि नहीं है, लेकिन कुछ बैंक ₹10,000 या एक EMI के बराबर न्यूनतम राशि मान सकते हैं। नेटबैंकिंग या शाखा में प्रीपेमेंट रिक्वेस्ट जमा करें।",
+   377→      },
+   378→    ],
+   379→  },
+   380→  {
+   381→    id: "home-loan-tenure-reduction-calculator",
+   382→    type: "calculator",
+   383→    title: "होम लोन अवधि कम करने का कैलक्युलेटर",
+   384→    h1: "होम लोन अवधि कम करने का कैलक्युलेटर",
+   385→    intro:
+   386→      "अवधि घटाने वाला कैलक्युलेटर बताता है कि प्रीपेमेंट करने पर आपका होम लोन कितने वर्ष जल्दी खत्म होगा। EMI समान रखते हुए अवधि घटाना सबसे ज्यादा ब्याज बचाता है।",
+   387→    metaTitle:
+   388→      "होम लोन अवधि कम करने का कैलक्युलेटर | Tenure Reduction - Hindi",
+   389→    metaDescription:
+   390→      "प्रीपेमेंट से होम लोन की अवधि कितनी कम होगी, जानें। EMI समान रखते हुए सबसे ज्यादा ब्याज बचाने का तरीका।",
+   391→    canonical: "/hi/home-loan-tenure-reduction-calculator",
+   392→    faqs: [
+   393→      {
+   394→        question: "अवधि घटाना बेहतर है या EMI घटाना?",
+   395→        answer:
+   396→          "अवधि घटाना लगभग हमेशा बेहतर है — इससे 3-5 गुना ज्यादा ब्याज बचता है। ₹50 लाख के लोन पर ₹5 लाख के प्रीपेमेंट से अवधि घटाने पर ₹14-16 लाख ब्याज बचता है, जबकि EMI घटाने पर केवल ₹4-5 लाख।",
+   397→      },
+   398→      {
+   399→        question: "अवधि कम करने के लिए बैंक को कैसे बताएं?",
+   400→        answer:
+   401→          "प्रीपेमेंट करते समय बैंक को लिखित रूप से बताएं कि आप EMI समान रखना चाहते हैं और अवधि घटाना चाहते हैं। अधिकतर बैंक नेटबैंकिंग में यह विकल्प देते हैं।",
+   402→      },
+   403→    ],
+   404→  },
+   405→  {
+   406→    id: "home-loan-emi-reduction-calculator",
+   407→    type: "calculator",
+   408→    title: "होम लोन EMI कम करने का कैलक्युलेटर",
+   409→    h1: "होम लोन EMI कम करने का कैलक्युलेटर",
+   410→    intro:
+   411→      "EMI घटाने वाला कैलक्युलेटर बताता है कि प्रीपेमेंट के बाद अवधि समान रखते हुए आपकी मासिक EMI कितनी कम होगी। यह तब उपयोगी है जब मासिक नकदी बोझ कम करना हो।",
+   412→    metaTitle:
+   413→      "होम लोन EMI कम करने का कैलक्युलेटर | EMI Reduction - Hindi",
+   414→    metaDescription:
+   415→      "प्रीपेमेंट के बाद EMI कितनी कम होगी, जानें। मासिक नकदी बोझ कम करने के लिए अवधि समान रखें।",
+   416→    canonical: "/hi/home-loan-emi-reduction-calculator",
+   417→    faqs: [
+   418→      {
+   419→        question: "EMI घटाने का फायदा क्या है?",
+   420→        answer:
+   421→          "EMI घटाने से मासिक नकदी बोझ कम होता है, जो नौकरी परिवर्तन, वेतन कटौती या बड़े खर्च के बाद उपयोगी है। इससे FOIR भी सुधरता है, जिससे दूसरा लोन लेने में आसानी होती है।",
+   422→      },
+   423→      {
+   424→        question: "EMI घटाने का नुकसान क्या है?",
+   425→        answer:
+   426→          "अवधि समान रहने से लोन ज्यादा दिनों तक चलता है और कुल ब्याज ज्यादा लगता है। इसीलिए वित्तीय सलाहकार अक्सर अवधि घटाने की सलाह देते हैं, जब तक कि नकदी बोझ न हो।",
+   427→      },
+   428→    ],
+   429→  },
+   430→  {
+   431→    id: "home-loan-foreclosure-calculator",
+   432→    type: "calculator",
+   433→    title: "होम लोन फोरक्लोज़र कैलक्युलेटर",
+   434→    h1: "होम लोन फोरक्लोज़र कैलक्युलेटर",
+   435→    intro:
+   436→      "फोरक्लोज़र कैलक्युलेटर से जानें कि पूरा बकाया चुकाकर लोन कब और कैसे बंद किया जा सकता है। फ्लोटिंग दर वाले व्यक्तिगत लोन पर फोरक्लोज़र शुल्क मुक्त है।",
+   437→    metaTitle: "होम लोन फोरक्लोज़र कैलक्युलेटर | Foreclosure - Hindi",
+   438→    metaDescription:
+   439→      "होम लोन फोरक्लोज़र कैलक्युलेटर। पूरा बकाया चुकाकर लोन कैसे बंद करें, जानें। फ्लोटिंग दर पर शुल्क मुक्त।",
+   440→    canonical: "/hi/home-loan-foreclosure-calculator",
+   441→    faqs: [
+   442→      {
+   443→        question: "फोरक्लोज़र पर क्या शुल्क लगता है?",
+   444→        answer:
+   445→          "फ्लोटिंग दर वाले व्यक्तिगत होम लोन पर शून्य शुल्क (RBI नियम)। फिक्स्ड दर वाले लोन पर 2% तक प्रीपेमेंट शुल्क लग सकता है, साथ ही GST। गैर-व्यक्तिगत उधारकर्ताओं (कंपनी, LLP) पर भी शुल्क लग सकता है।",
+   446→      },
+   447→      {
+   448→        question: "फोरक्लोज़र के लिए क्या प्रक्रिया है?",
+   449→        answer:
+   450→          "बैंक की वेबसाइट या शाखा से फोरक्लोज़र रिक्वेस्ट फॉर्म भरें, बकाया राशि का ब्यौरा लें, राशि जमा करें, और फिर NOC और मूल दस्तावेज़ वापस लें। प्रक्रिया 7-15 कार्यदिवसों में पूरी हो जाती है।",
+   451→      },
+   452→    ],
+   453→  },
+   454→  {
+   455→    id: "home-loan-balance-transfer-calculator",
+   456→    type: "calculator",
+   457→    title: "होम लोन बैलेंस ट्रांसफर कैलक्युलेटर",
+   458→    h1: "होम लोन बैलेंस ट्रांसफर कैलक्युलेटर",
+   459→    intro:
+   460→      "बैलेंस ट्रांसफर कैलक्युलेटर से जानें कि किसी दूसरे बैंक में लोन ट्रांसफर करके आप कितना ब्याज बचा सकते हैं। अपनी वर्तमान दर और नई पेशकश दर की तुलना करें।",
+   461→    metaTitle: "होम लोन बैलेंस ट्रांसफर कैलक्युलेटर | Balance Transfer - Hindi",
+   462→    metaDescription:
+   463→      "होम लोन बैलेंस ट्रांसफर से कितना ब्याज बचेगा, जानें। वर्तमान दर और नई दर की तुलना करें।",
+   464→    canonical: "/hi/home-loan-balance-transfer-calculator",
+   465→    faqs: [
+   466→      {
+   467→        question: "बैलेंस ट्रांसफर कब फायदेमंद है?",
+   468→        answer:
+   469→          "जब आपको वर्तमान दर से कम से कम 0.5% कम दर मिले और बकाया अवधि 10 वर्ष से ज्यादा हो। ₹50 लाख के लोन पर 0.5% कम दर से 20 वर्ष में लगभग ₹4-6 लाख ब्याज बचता है।",
+   470→      },
+   471→      {
+   472→        question: "बैलेंस ट्रांसफर में क्या खर्च आते हैं?",
+   473→        answer:
+   474→          "नए बैंक का प्रोसेसिंग शुल्क (आमतौर पर लोन राशि का 0.25-0.50%), मूल्यांकन शुल्क, कानूनी शुल्क और मोहर शुल्क। पुराने बैंक से फोरक्लोज़र पर फ्लोटिंग दर में कोई शुल्क नहीं।",
+   475→      },
+   476→    ],
+   477→  },
+   478→  {
+   479→    id: "home-loan-refinance-calculator",
+   480→    type: "calculator",
+   481→    title: "होम लोन रिफाइनेंस कैलक्युलेटर",
+   482→    h1: "होम लोन रिफाइनेंस कैलक्युलेटर",
+   483→    intro:
+   484→      "रिफाइनेंस कैलक्युलेटर से जानें कि कम दर पर नया लोन लेकर पुराना लोन चुकाने से कितनी बचत होगी। ब्याज दर, अवधि और शुल्क की तुलना करें।",
+   485→    metaTitle: "होम लोन रिफाइनेंस कैलक्युलेटर | Refinance Savings - Hindi",
+   486→    metaDescription:
+   487→      "होम लोन रिफाइनेंस से कितनी बचत होगी, जानें। दर, अवधि और शुल्क की तुलना करें।",
+   488→    canonical: "/hi/home-loan-refinance-calculator",
+   489→    faqs: [
+   490→      {
+   491→        question: "रिफाइनेंस और बैलेंस ट्रांसफर में अंतर है?",
+   492→        answer:
+   493→          "दोनों एक ही हैं — पुराना लोन चुकाकर नया लोन लेना। 'बैलेंस ट्रांसफर' शब्द अक्सर उसी बकाया को नए बैंक में ले जाने के लिए प्रयोग होता है, जबकि 'रिफाइनेंस' में आप अवधि या राशि भी बदल सकते हैं या अतिरिक्त राशि (टॉप-अप) ले सकते हैं।",
+   494→      },
+   495→      {
+   496→        question: "रिफाइनेंस के लिए CIBIL स्कोर क्या चाहिए?",
+   497→        answer:
+   498→          "अधिकतर बैंक 750+ CIBIL स्कोर पर सर्वोत्तम दर देते हैं। 700-749 पर थोड़ी ज्यादा दर मिल सकती है, 700 से कम पर अनुमोदन मुश्किल हो सकता है। आवेदन से पहले अपनी CIBIL रिपोर्ट जांच लें।",
+   499→      },
+   500→    ],
+   501→  },
+   502→
+   503→  // ---- 4 bank pages ----
+   504→  {
+   505→    id: "sbi-home-loan-prepayment-calculator",
+   506→    type: "bank",
+   507→    title: "SBI होम लोन प्रीपेमेंट कैलक्युलेटर",
+   508→    h1: "SBI होम लोन प्रीपेमेंट कैलक्युलेटर",
+   509→    intro:
+   510→      "SBI होम लोन पर प्रीपेमेंट का असर जानें। SBI फ्लोटिंग दर (RLLR आधारित) पर व्यक्तिगत उधारकर्ताओं से कोई प्रीपेमेंट या फोरक्लोज़र शुल्क नहीं लेता। अपनी EMI और बचत गणना करें।",
+   511→    metaTitle: "SBI होम लोन प्रीपेमेंट कैलक्युलेटर | SBI Prepayment - Hindi",
+   512→    metaDescription:
+   513→      "SBI होम लोन पर प्रीपेमेंट से कितना ब्याज और समय बचेगा, जानें। RLLR दर, फोरक्लोज़र शुल्क और प्रीपेमेंट नियम।",
+   514→    canonical: "/hi/sbi-home-loan-prepayment-calculator",
+   515→    faqs: [
+   516→      {
+   517→        question: "SBI होम लोन पर प्रीपेमेंट शुल्क क्या है?",
+   518→        answer:
+   519→          "SBI फ्लोटिंग दर (RLLR आधारित) वाले व्यक्तिगत होम लोन पर शून्य प्रीपेमेंट और फोरक्लोज़र शुल्क लेता है, चाहे राशि कुछ भी हो। फिक्स्ड दर पर 2% शुल्क लागू हो सकता है।",
+   520→      },
+   521→      {
+   522→        question: "SBI होम लोन पर प्रीपेमेंट कैसे करें?",
+   523→        answer:
+   524→          "SBI YONO ऐप या नेटबैंकिंग में लॉगिन करें, लोन खाता चुनें, 'Prepayment' विकल्प से राशि दर्ज करें और भुगतान करें। वैकल्पिक रूप से शाखा में चेक जमा कर प्रीपेमेंट रिक्वेस्ट दे सकते हैं।",
+   525→      },
+   526→      {
+   527→        question: "SBI की वर्तमान होम लोन दर क्या है?",
+   528→        answer:
+   529→          "2024-2025 में SBI की फ्लोटिंग होम लोन दर लगभग 8.40% से 9.30% वार्षिक के बीच है, CIBIL स्कोर और उधारकर्ता श्रेणी के आधार पर। सैलरी खाता वाले ग्राहकों को कुछ छूट मिल सकती है।",
+   530→      },
+   531→    ],
+   532→  },
+   533→  {
+   534→    id: "hdfc-home-loan-prepayment-calculator",
+   535→    type: "bank",
+   536→    title: "HDFC होम लोन प्रीपेमेंट कैलक्युलेटर",
+   537→    h1: "HDFC होम लोन प्रीपेमेंट कैलक्युलेटर",
+   538→    intro:
+   539→      "HDFC (अब HDFC Bank) होम लोन पर प्रीपेमेंट और बचत गणना करें। HDFC फ्लोटिंग दर वाले व्यक्तिगत लोन पर कोई प्रीपेमेंट शुल्क नहीं लेता। अपनी EMI और बचत देखें।",
+   540→    metaTitle: "HDFC होम लोन प्रीपेमेंट कैलक्युलेटर | HDFC Prepayment - Hindi",
+   541→    metaDescription:
+   542→      "HDFC होम लोन पर प्रीपेमेंट से कितना ब्याज और समय बचेगा, जानें। दर, फोरक्लोज़र शुल्क और प्रीपेमेंट नियम।",
+   543→    canonical: "/hi/hdfc-home-loan-prepayment-calculator",
+   544→    faqs: [
+   545→      {
+   546→        question: "HDFC होम लोन पर प्रीपेमेंट शुल्क क्या है?",
+   547→        answer:
+   548→          "HDFC फ्लोटिंग दर वाले व्यक्तिगत होम लोन पर शून्य प्रीपेमेंट और फोरक्लोज़र शुल्क लेता है। HDFC और HDFC Bank के विलय के बाद भी यह नीति जारी है। फिक्स्ड दर पर 2% शुल्क लागू हो सकता है।",
+   549→      },
+   550→      {
+   551→        question: "HDFC की वर्तमान होम लोन दर क्या है?",
+   552→        answer:
+   553→          "2024-2025 में HDFC की फ्लोटिंग होम लोन दर लगभग 8.50% से 9.40% वार्षिक के बीच है, CIBIL स्कोर और उधारकर्ता श्रेणी के आधार पर। महिला उधारकर्ताओं को कुछ खास योजनाओं में छूट मिल सकती है।",
+   554→      },
+   555→      {
+   556→        question: "HDFC में प्रीपेमेंट कैसे करें?",
+   557→        answer:
+   558→          "HDFC नेटबैंकिंग या मोबाइल ऐप में लॉगिन करें, लोन खाता चुनें, 'Prepayment' विकल्प से राशि दर्ज करें। वैकल्पिक रूप से किसी भी HDFC शाखा में चेक या DD जमा कर सकते हैं।",
+   559→      },
+   560→    ],
+   561→  },
+   562→  {
+   563→    id: "icici-home-loan-prepayment-calculator",
+   564→    type: "bank",
+   565→    title: "ICICI होम लोन प्रीपेमेंट कैलक्युलेटर",
+   566→    h1: "ICICI होम लोन प्रीपेमेंट कैलक्युलेटर",
+   567→    intro:
+   568→      "ICICI Bank होम लोन पर प्रीपेमेंट का असर जानें। ICICI फ्लोटिंग दर (I-BCLR आधारित) पर व्यक्तिगत उधारकर्ताओं से कोई प्रीपेमेंट या फोरक्लोज़र शुल्क नहीं लेता।",
+   569→    metaTitle:
+   570→      "ICICI होम लोन प्रीपेमेंट कैलक्युलेटर | ICICI Prepayment - Hindi",
+   571→    metaDescription:
+   572→      "ICICI होम लोन पर प्रीपेमेंट से कितना ब्याज और समय बचेगा, जानें। I-BCLR दर, फोरक्लोज़र शुल्क और नियम।",
+   573→    canonical: "/hi/icici-home-loan-prepayment-calculator",
+   574→    faqs: [
+   575→      {
+   576→        question: "ICICI होम लोन पर प्रीपेमेंट शुल्क क्या है?",
+   577→        answer:
+   578→          "ICICI Bank फ्लोटिंग दर (I-BCLR आधारित) वाले व्यक्तिगत होम लोन पर शून्य प्रीपेमेंट और फोरक्लोज़र शुल्क लेता है। फिक्स्ड दर पर 2% शुल्क लागू हो सकता है।",
+   579→      },
+   580→      {
+   581→        question: "ICICI की वर्तमान होम लोन दर क्या है?",
+   582→        answer:
+   583→          "2024-2025 में ICICI Bank की फ्लोटिंग होम लोन दर लगभग 8.50% से 9.60% वार्षिक के बीच है, CIBIL स्कोर और उधारकर्ता श्रेणी के आधार पर। वेतन खाता वाले ग्राहकों को 'Instabizz' या खास योजनाओं में छूट मिल सकती है।",
+   584→      },
+   585→    ],
+   586→  },
+   587→  {
+   588→    id: "axis-home-loan-prepayment-calculator",
+   589→    type: "bank",
+   590→    title: "Axis होम लोन प्रीपेमेंट कैलक्युलेटर",
+   591→    h1: "Axis होम लोन प्रीपेमेंट कैलक्युलेटर",
+   592→    intro:
+   593→      "Axis Bank होम लोन पर प्रीपेमेंट और बचत गणना करें। Axis फ्लोटिंग दर (BRLLR आधारित) पर व्यक्तिगत उधारकर्ताओं से कोई प्रीपेमेंट या फोरक्लोज़र शुल्क नहीं लेता।",
+   594→    metaTitle:
+   595→      "Axis होम लोन प्रीपेमेंट कैलक्युलेटर | Axis Prepayment - Hindi",
+   596→    metaDescription:
+   597→      "Axis Bank होम लोन पर प्रीपेमेंट से कितना ब्याज और समय बचेगा, जानें। BRLLR दर, फोरक्लोज़र शुल्क और नियम।",
+   598→    canonical: "/hi/axis-home-loan-prepayment-calculator",
+   599→    faqs: [
+   600→      {
+   601→        question: "Axis होम लोन पर प्रीपेमेंट शुल्क क्या है?",
+   602→        answer:
+   603→          "Axis Bank फ्लोटिंग दर (BRLLR आधारित) वाले व्यक्तिगत होम लोन पर शून्य प्रीपेमेंट और फोरक्लोज़र शुल्क लेता है। फिक्स्ड दर पर 2% शुल्क लागू हो सकता है।",
+   604→      },
+   605→      {
+   606→        question: "Axis की वर्तमान होम लोन दर क्या है?",
+   607→        answer:
+   608→          "2024-2025 में Axis Bank की फ्लोटिंग होम लोन दर लगभग 8.75% से 9.65% वार्षिक के बीच है, CIBIL स्कोर और उधारकर्ता श्रेणी के आधार पर। वेतन खाता वाले ग्राहकों को विशेष छूट मिल सकती है।",
+   609→      },
+   610→    ],
+   611→  },
+   612→
+   613→  // ---- 10 Hinglish (Roman script) pages ----
+   614→  {
+   615→    id: "home-loan-jaldi-kaise-khatam-kare",
+   616→    type: "hinglish",
+   617→    title: "Home Loan Jaldi Kaise Khatam Kare - 7 Tarike",
+   618→    h1: "Home Loan Jaldi Kaise Khatam Kare? 7 Asaan Tarike",
+   619→    intro:
+   620→      "Home loan jaldi khatam karne ke 7 asaan tarike jaaniye - monthly extra EMI, lump sum prepayment, annual bonus se payment, EMI badhana, tenure kam karna, balance transfer aur foreclosure. Har tarike ka fayda aur nuksaan samjho.",
+   621→    metaTitle: "Home Loan Jaldi Kaise Khatam Kare? 7 Asaan Tarike",
+   622→    metaDescription:
+   623→      "Home loan jaldi khatam karne ke 7 tarike - extra EMI, lump sum prepayment, bonus se payment, balance transfer, foreclosure. Step-by-step guide.",
+   624→    canonical: "/hi/home-loan-jaldi-kaise-khatam-kare",
+   625→    faqs: [
+   626→      {
+   627→        question: "Home loan jaldi khatam karne ka sabse best tarika kya hai?",
+   628→        answer:
+   629→          "Sabse best tarika hai pehle saal se hi chhota monthly prepayment shuru karna, aur saal mein kam se kam ek lump sum prepayment karna. EMI same rakhein aur tenure kam karein - isse 3-5 guna zyada byaaj bachta hai.",
+   630→      },
+   631→      {
+   632→        question: "Kya prepayment karne se CIBIL score kharab hota hai?",
+   633→        answer:
+   634→          "Nahi, bilkul nahi. Prepayment karne se CIBIL score achha hota hai kyunki aapka outstanding principal kam hota hai aur aap debt-free ho jaate hain. Foreclosure bhi CIBIL score ko improve karta hai.",
+   635→      },
+   636→    ],
+   637→  },
+   638→  {
+   639→    id: "emi-reduce-kare-ya-tenure",
+   640→    type: "hinglish",
+   641→    title: "EMI Reduce Kare Ya Tenure? Kya Behtar Hai",
+   642→    h1: "EMI Reduce Kare Ya Tenure - Kya Behtar Hai?",
+   643→    intro:
+   644→      "Prepayment ke baad EMI reduce karein ya tenure reduce karein? Dono ke fayde aur nuksaan samjho. Zyada tar cases mein tenure kam karna behtar hota hai kyunki isse 3-5 guna zyada byaaj bachta hai.",
+   645→    metaTitle: "EMI Reduce Kare Ya Tenure? Kya Behtar Hai - Guide",
+   646→    metaDescription:
+   647→      "Prepayment ke baad EMI kam karein ya tenure kam karein? Dono ke fayde aur nuksaan. Kaunsa behtar hai aur kab, jaaniye.",
+   648→    canonical: "/hi/emi-reduce-kare-ya-tenure",
+   649→    faqs: [
+   650→      {
+   651→        question: "Tenure kam karne se kitna byaaj bachta hai?",
+   652→        answer:
+   653→          "₹50 lakh ke loan par 8.5% dhar aur 20 saal ki avadhi mein ₹5 lakh ke prepayment se tenure kam karne par lagbhag ₹14-16 lakh byaaj bachta hai, jabki EMI kam karne par sirf ₹4-5 lakh bachta hai. Tenure kam karna 3-5 guna behtar hai.",
+   654→      },
+   655→      {
+   656→        question: "Kab EMI reduce karna chahiye?",
+   657→        answer:
+   658→          "EMI reduce karein jab monthly cash flow mein dikkat ho - job change, salary cut, medical expense ya bachhe ki education ke baad. Isse FOIR bhi sudharta hai jisse doosra loan lene mein aasani hoti hai.",
+   659→      },
+   660→    ],
+   661→  },
+   662→  {
+   663→    id: "home-loan-prepayment-kaise-kare",
+   664→    type: "hinglish",
+   665→    title: "Home Loan Prepayment Kaise Kare - Step by Step",
+   666→    h1: "Home Loan Prepayment Kaise Kare? Step by Step Guide",
+   667→    intro:
+   668→      "Home loan prepayment kaise karein - online aur offline dono tarike jaaniye. NetBanking, mobile app, branch visit - sabhi options. Prepayment se pehle dhyan rakhne wali baatein aur documents.",
+   669→    metaTitle: "Home Loan Prepayment Kaise Kare? Step by Step Guide",
+   670→    metaDescription:
+   671→      "Home loan prepayment karne ka step-by-step tarika - NetBanking, mobile app, branch. Documents, charges aur process jaaniye.",
+   672→    canonical: "/hi/home-loan-prepayment-kaise-kare",
+   673→    faqs: [
+   674→      {
+   675→        question: "Prepayment karne ke liye kya documents chahiye?",
+   676→        answer:
+   677→          "Online prepayment ke liye sirf NetBanking login chahiye. Branch mein prepayment ke liye loan account number, PAN card, aur cheque ya DD chahiye. Kuch banks mein prepayment request form bharna padta hai.",
+   678→      },
+   679→      {
+   680→        question: "Prepayment karne ke baad kya NOC milta hai?",
+   681→        answer:
+   682→          "Nahi, prepayment (part payment) par NOC nahi milta. NOC sirf foreclosure par milta hai jab aap poora loan band karte hain. Prepayment par bank updated amortization schedule de sakta hai.",
+   683→      },
+   684→    ],
+   685→  },
+   686→  {
+   687→    id: "lump-sum-prepayment-fayde",
+   688→    type: "hinglish",
+   689→    title: "Lump Sum Prepayment Ke Fayde - Kab Karein",
+   690→    h1: "Lump Sum Prepayment Ke Fayde Aur Kab Karein",
+   691→    intro:
+   692→      "Lump sum prepayment ke fayde jaaniye - bonus, investment maturity, property sale ya inheritance se mila paisa loan mein lagana. Kab karein aur kitna karein, iski puri guide.",
+   693→    metaTitle: "Lump Sum Prepayment Ke Fayde | Kab Karein - Guide",
+   694→    metaDescription:
+   695→      "Lump sum prepayment ke fayde aur kab karna chahiye. Bonus, property sale, inheritance ya investment se paisa lagane ka tarika.",
+   696→    canonical: "/hi/lump-sum-prepayment-fayde",
+   697→    faqs: [
+   698→      {
+   699→        question: "Lump sum prepayment kab sabse faydemand hota hai?",
+   700→        answer:
+   701→          "Loan ke pehle 5-7 saal mein kiya gaya lump sum prepayment sabse zyada byaaj bachata hai kyunki shuruati saalon mein EMI ka bada hissa byaaj mein jata hai. ₹1 lakh ka prepayment pehle saal mein karib ₹1.85 lakh byaaj bacha sakta hai.",
+   702→      },
+   703→      {
+   704→        question: "Lump sum prepayment kitna karein?",
+   705→        answer:
+   706→          "Koi fix rule nahi hai, lekin ideal tarika hai saal mein kam se kam ek EMI ke barabar lump sum prepayment karna. Agar bonus ya maturity se ₹1-3 lakh milte hain, to poora amount prepayment mein laga dein.",
+   707→      },
+   708→    ],
+   709→  },
+   710→  {
+   711→    id: "part-payment-kaise-kare",
+   712→    type: "hinglish",
+   713→    title: "Part Payment Kaise Kare - Home Loan",
+   714→    h1: "Part Payment Kaise Kare? Home Loan Ke Liye Guide",
+   715→    intro:
+   716→      "Part payment yaani EMI ke alawa kuch extra paisa jama karke principal kam karna. Kaise karein, kitna karein, kab karein - sab kuch is guide mein. Part payment se byaaj aur tenure dono kam hote hain.",
+   717→    metaTitle: "Part Payment Kaise Kare? Home Loan Guide - Hindi/Hinglish",
+   718→    metaDescription:
+   719→      "Home loan part payment kaise karein - process, charges, best time. Step-by-step guide NetBanking aur branch ke liye.",
+   720→    canonical: "/hi/part-payment-kaise-kare",
+   721→    faqs: [
+   722→      {
+   723→        question: "Part payment aur prepayment mein kya antar hai?",
+   724→        answer:
+   725→          "Dono same hain - jab aap EMI ke alawa kuch extra paisa jama karke principal kam karte hain use part payment ya prepayment kehte hain. Foreclosure tab hota hai jab poora bakiya ek hi baar mein chuka kar loan band kar dete hain.",
+   726→      },
+   727→      {
+   728→        question: "Part payment ka minimum amount kya hai?",
+   729→        answer:
+   730→          "Zyada tar banks mein koi minimum amount nahi hai, lekin kuch banks ₹10,000 ya ek EMI ke barabar minimum maan sakte hain. NetBanking ya branch mein prepayment request jama karein.",
+   731→      },
+   732→    ],
+   733→  },
+   734→  {
+   735→    id: "foreclosure-charges-kya-hai",
+   736→    type: "hinglish",
+   737→    title: "Foreclosure Charges Kya Hai? RBI Rules",
+   738→    h1: "Foreclosure Charges Kya Hai? RBI Ke Niyam Jaaniye",
+   739→    intro:
+   740→      "Foreclosure charges kya hai aur RBI ke rules kya kehte hain - jaaniye. Floating rate par individual home loan mein zero charges, fixed rate par 2% tak. Sabhi banks ke rules aur process.",
+   741→    metaTitle: "Foreclosure Charges Kya Hai? RBI Rules 2024 - Hindi/Hinglish",
+   742→    metaDescription:
+   743→      "Foreclosure charges kya hai, RBI ke niyam, kitne percent lagte hain, kab nahi lagte - sab kuch jaaniye.",
+   744→    canonical: "/hi/foreclosure-charges-kya-hai",
+   745→    faqs: [
+   746→      {
+   747→        question: "Foreclosure charges kab nahi lagte?",
+   748→        answer:
+   749→          "RBI ke June 2024 ke niyam ke anusar, floating rate wale individual home loans par koi foreclosure charges nahi lagte, chahe loan amount kuch bhi ho. Ye sabhi banks aur NBFCs par lagu hota hai. Fixed rate ya non-individual loans par 2% tak lag sakte hain.",
+   750→      },
+   751→      {
+   752→        question: "Foreclosure process kitne din mein complete hoti hai?",
+   753→        answer:
+   754→          "Bank mein foreclosure request dene ke baad 7-15 working days mein process complete ho jati hai. NOC aur original documents 15-30 days mein mil jaate hain. Agar bank der kare to RBI Ombudsman se shikayat kar sakte hain.",
+   755→      },
+   756→    ],
+   757→  },
+   758→  {
+   759→    id: "emi-calculate-kaise-kare",
+   760→    type: "hinglish",
+   761→    title: "EMI Calculate Kaise Kare - Formula Aur Tarika",
+   762→    h1: "EMI Calculate Kaise Kare? Formula Aur Asaan Tarika",
+   763→    intro:
+   764→      "EMI calculate kaise karein - formula samjho aur apni EMI nikalo. Loan amount, interest rate aur tenure se EMI kaise nikalti hai, puri samajh. Online calculator se turant result.",
+   765→    metaTitle: "EMI Calculate Kaise Kare? Formula Aur Asaan Tarika",
+   766→    metaDescription:
+   767→      "EMI calculate karne ka formula aur tarika. Loan amount, rate aur tenure se monthly EMI kaise nikalein, jaaniye.",
+   768→    canonical: "/hi/emi-calculate-kaise-kare",
+   769→    faqs: [
+   770→      {
+   771→        question: "EMI ka formula kya hai?",
+   772→        answer:
+   773→          "EMI = P × r × (1+r)^n / ((1+r)^n - 1), jahan P loan amount, r monthly interest rate (annual rate / 12 / 100) aur n months mein tenure. Example: ₹50 lakh ka loan 8.5% par 20 saal ke liye lagbhag ₹43,391 monthly EMI deta hai.",
+   774→      },
+   775→      {
+   776→        question: "EMI change kar sakte hain?",
+   777→        answer:
+   778→          "Floating rate loan mein EMI change karne ka request bank se kar sakte hain. Aksar banks rate badhane par tenure badhate hain EMI same rakh ke. Aap EMI badhane ya ghatane ka request kar sakte hain, lekin tenure adjust hoga.",
+   779→      },
+   780→    ],
+   781→  },
+   782→  {
+   783→    id: "balance-transfer-fayde",
+   784→    type: "hinglish",
+   785→    title: "Balance Transfer Ke Fayde Aur Nuksaan",
+   786→    h1: "Home Loan Balance Transfer - Fayde Aur Nuksaan",
+   787→    intro:
+   788→      "Balance transfer ke fayde aur nuksaan dono samjho. Kab karna chahiye, kab nahi. Naya bank, kam dhar, kya documents chahiye - sab kuch is detailed guide mein.",
+   789→    metaTitle: "Balance Transfer Ke Fayde | Kab Karein - Guide",
+   790→    metaDescription:
+   791→      "Home loan balance transfer ke fayde, nuksaan, charges, kab karna chahiye. SBI, HDFC, ICICI, Axis me transfer karne ki guide.",
+   792→    canonical: "/hi/balance-transfer-fayde",
+   793→    faqs: [
+   794→      {
+   795→        question: "Balance transfer kab faydemand hota hai?",
+   796→        answer:
+   797→          "Jab aapko current rate se kam se kam 0.5% kam rate mile aur bakiya tenure 10 saal se zyada ho. ₹50 lakh ke loan par 0.5% kam rate se 20 saal mein lagbhag ₹4-6 lakh byaaj bachta hai.",
+   798→      },
+   799→      {
+   800→        question: "Balance transfer mein kya kharch aate hain?",
+   801→        answer:
+   802→          "Naye bank ka processing fee (loan amount ka 0.25-0.50%), valuation fee, legal fee aur stamp duty. Purane bank se floating rate par koi foreclosure charge nahi. Saare kharch ko bachat se compare kar lein.",
+   803→      },
+   804→    ],
+   805→  },
+   806→  {
+   807→    id: "house-loan-quickly-pay-off",
+   808→    type: "hinglish",
+   809→    title: "House Loan Quickly Pay Off - 5 Strategies",
+   810→    h1: "House Loan Quickly Pay Off - 5 Proven Strategies",
+   811→    intro:
+   812→      "House loan quickly pay off karne ke 5 proven strategies jaaniye. Step-up prepayment, EMI rounding, annual bonus se payment, bi-annual lump sum, aur aggressive early payment. Har strategy ke numbers samet.",
+   813→    metaTitle: "House Loan Quickly Pay Off - 5 Proven Strategies",
+   814→    metaDescription:
+   815→      "Apne house loan ko jaldi pay off karne ke 5 strategies. Numbers samet, real examples. Extra EMI, lump sum, step-up prepayment.",
+   816→    canonical: "/hi/house-loan-quickly-pay-off",
+   817→    faqs: [
+   818→      {
+   819→        question: "House loan jaldi khatam karne ka sabse fast tarika kya hai?",
+   820→        answer:
+   821→          "Sabse fast tarika hai monthly EMI ko 1.5-2 guna badhana. ₹50 lakh ke 20-saal loan ko 10 saal mein khatam karne ke liye lagbhag ₹18,605/month extra pay karna padega. Aur bhi fast karne ke liye saal mein 1-2 lakh lump sum bhi add karein.",
+   822→      },
+   823→      {
+   824→        question: "Kya prepayment karke tax benefit kho jaata hai?",
+   825→        answer:
+   826→          "Section 24(b) ke under ₹2 lakh/year tak interest deduction milta hai. Agar aapka annual interest already ₹2 lakh se kam hai (last years mein), to prepayment se unused deduction kho jaata hai. Isliye early years mein prepayment fully faydemand hai.",
+   827→      },
+   828→    ],
+   829→  },
+   830→  {
+   831→    id: "prepayment-or-investment",
+   832→    type: "hinglish",
+   833→    title: "Prepayment Karein Ya Investment - Kya Behtar",
+   834→    h1: "Prepayment Karein Ya Investment? Kya Behtar Hai",
+   835→    intro:
+   836→      "Extra paisa home loan prepayment mein lagayein ya equity mutual funds mein invest karein? Dono ke returns compare karein - 8.5% guaranteed tax-free vs 11-13% expected equity returns.",
+   837→    metaTitle: "Prepayment Karein Ya Investment? Kya Behtar - Guide",
+   838→    metaDescription:
+   839→      "Home loan prepayment vs investment - kya behtar hai. Returns comparison, tax impact, risk analysis. Decision framework.",
+   840→    canonical: "/hi/prepayment-or-investment",
+   841→    faqs: [
+   842→      {
+   843→        question: "Prepayment ka return kitna hota hai?",
+   844→        answer:
+   845→          "Prepayment ka return guaranteed hota hai aur aapke home loan ROI ke barabar hota hai - jo ki post-tax hai. 8.5% ke loan par prepayment karne se 8.5% post-tax guaranteed return milta hai, jo FD se behtar hai (FD par tax lagta hai).",
+   846→      },
+   847→      {
+   848→        question: "Equity mutual funds mein invest karein ya prepayment?",
+   849→        answer:
+   850→          "30% tax slab wale ke liye: 12% pre-tax equity return = 11.1% post-tax (₹1.25 lakh ke baad 10% LTCG). 8.5% post-tax prepayment se 2-3% zyada, lekin volatility aur risk ke saath. Hybrid approach best hai - 60:40 equity aur prepayment mein split.",
+   851→      },
+   852→    ],
+   853→  },
+   854→
+   855→  // ---- 10 scenario pages (loan sizes) ----
+   856→  {
+   857→    id: "50-lakh-home-loan-prepayment",
+   858→    type: "scenario",
+   859→    title: "₹50 लाख होम लोन प्रीपेमेंट कैलक्युलेटर",
+   860→    h1: "₹50 लाख होम लोन प्रीपेमेंट — ब्याज और अवधि बचत",
+   861→    intro:
+   862→      "₹50 लाख का होम लोन भारत में सबसे आम है। 8.5% दर पर 20 वर्ष की अवधि में मात्र ₹10,000 मासिक प्रीपेमेंट से लगभग ₹21 लाख ब्याज बच सकता है और ऋण 7 वर्ष जल्दी समाप्त हो सकता है।",
+   863→    metaTitle: "₹50 लाख होम लोन प्रीपेमेंट कैलक्युलेटर | Byaaj Bachat",
+   864→    metaDescription:
+   865→      "₹50 लाख होम लोन पर prepayment se kitna byaaj aur samay bachega. Real examples with monthly extra EMI aur lump sum.",
+   866→    canonical: "/hi/50-lakh-home-loan-prepayment",
+   867→    faqs: [
+   868→      {
+   869→        question: "₹50 लाख के लोन की EMI कितनी होगी?",
+   870→        answer:
+   871→          "8.5% दर पर 20 वर्ष की अवधि में ₹50 लाख के लोन की मासिक EMI लगभग ₹43,391 होगी। 25 वर्ष के लिए ₹40,261 और 30 वर्ष के लिए ₹38,446 होगी।",
+   872→      },
+   873→      {
+   874→        question: "₹50 लाख के लोन पर कितना प्रीपेमेंट करना चाहिए?",
+   875→        answer:
+   876→          "आय के अनुसार, सालाना आय का 10-20% प्रीपेमेंट में लगाना एक अच्छा लक्ष्य है। ₹1 लाख मासिक आय पर ₹10,000-20,000 प्रीपेमेंट करें। साथ ही सालाना बोनस का पूरा हिस्सा भी जमा करें।",
+   877→      },
+   878→    ],
+   879→  },
+   880→  {
+   881→    id: "75-lakh-home-loan-prepayment",
+   882→    type: "scenario",
+   883→    title: "₹75 लाख होम लोन प्रीपेमेंट कैलक्युलेटर",
+   884→    h1: "₹75 लाख होम लोन प्रीपेमेंट — बचत गणना",
+   885→    intro:
+   886→      "₹75 लाख का होम लोन मेट्रो शहरों की टियर-2 संपत्तियों के लिए आम है। 8.6% दर पर 20 वर्ष की अवधि में ₹15,000 मासिक प्रीपेमेंट से लगभग ₹33 लाख ब्याज बच सकता है।",
+   887→    metaTitle: "₹75 लाख होम लोन प्रीपेमेंट कैलक्युलेटर | Byaaj Bachat",
+   888→    metaDescription:
+   889→      "₹75 लाख होम लोन पर prepayment se kitna byaaj aur samay bachega. Monthly extra EMI aur lump sum ke examples.",
+   890→    canonical: "/hi/75-lakh-home-loan-prepayment",
+   891→    faqs: [
+   892→      {
+   893→        question: "₹75 लाख के लोन की EMI कितनी होगी?",
+   894→        answer:
+   895→          "8.6% दर पर 20 वर्ष की अवधि में ₹75 लाख के लोन की मासिक EMI लगभग ₹65,617 होगी। 25 वर्ष के लिए लगभग ₹60,723 और 30 वर्ष के लिए लगभग ₹58,073 होगी।",
+   896→      },
+   897→      {
+   898→        question: "₹75 लाख के लोन पर ₹10 लाख का प्रीपेमेंट क्या करेगा?",
+   899→        answer:
+   900→          "तीसरे वर्ष में ₹10 लाख का एकमुश्त प्रीपेमेंट आपकी अवधि लगभग 5-6 वर्ष घटा सकता है और ₹25-30 लाख तक ब्याज बचा सकता है। यह संपत्ति बिक्री या बड़े बोनस के लिए आदर्श है।",
+   901→      },
+   902→    ],
+   903→  },
+   904→  {
+   905→    id: "1-crore-home-loan-prepayment",
+   906→    type: "scenario",
+   907→    title: "₹1 करोड़ होम लोन प्रीपेमेंट कैलक्युलेटर",
+   908→    h1: "₹1 करोड़ होम लोन प्रीपेमेंट — बड़ी बचत",
+   909→    intro:
+   910→      "₹1 करोड़ का होम लोन मेट्रो शहरों की प्रीमियम संपत्तियों के लिए आम है। 8.5% दर पर 25 वर्ष की अवधि में ₹25,000 मासिक प्रीपेमेंट से लगभग ₹65 लाख तक ब्याज बच सकता है और ऋण 8 वर्ष जल्दी समाप्त हो सकता है।",
+   911→    metaTitle: "₹1 करोड़ होम लोन प्रीपेमेंट कैलक्युलेटर | 1 Crore Loan",
+   912→    metaDescription:
+   913→      "₹1 करोड़ होम लोन पर prepayment se kitna byaaj aur samay bachega. Large metro loans ke liye examples.",
+   914→    canonical: "/hi/1-crore-home-loan-prepayment",
+   915→    faqs: [
+   916→      {
+   917→        question: "₹1 करोड़ के लोन की EMI कितनी होगी?",
+   918→        answer:
+   919→          "8.5% दर पर 25 वर्ष की अवधि में ₹1 करोड़ के लोन की मासिक EMI लगभग ₹80,523 होगी। 20 वर्ष के लिए लगभग ₹86,782 और 30 वर्ष के लिए लगभग ₹76,891 होगी।",
+   920→      },
+   921→      {
+   922→        question: "₹1 करोड़ के लोन पर कर क्या लाभ मिलेगा?",
+   923→        answer:
+   924→          "Section 24(b) के तहत ₹2 लाख तक ब्याज पर कर कटौती मिलती है, और Section 80C के तहत मूलधन चुकौती पर ₹1.5 लाख तक। पहले वर्ष की कर बचत ₹60,000-70,000 तक हो सकती है, खासकर 30% स्लैब में।",
+   925→      },
+   926→    ],
+   927→  },
+   928→  {
+   929→    id: "35-lakh-home-loan-prepayment",
+   930→    type: "scenario",
+   931→    title: "₹35 लाख होम लोन प्रीपेमेंट कैलक्युलेटर",
+   932→    h1: "₹35 लाख होम लोन प्रीपेमेंट — टियर-2 शहर",
+   933→    intro:
+   934→      "₹35 लाख का होम लोन टियर-2 शहरों और छोटे मेट्रो में आम है। 8.4% दर पर 20 वर्ष की अवधि में ₹5,000 मासिक प्रीपेमेंट से लगभग ₹10 लाख ब्याज बच सकता है और ऋण 5 वर्ष जल्दी समाप्त हो सकता है।",
+   935→    metaTitle: "₹35 लाख होम लोन प्रीपेमेंट कैलक्युलेटर | Small Loans",
+   936→    metaDescription:
+   937→      "₹35 लाख होम लोन पर prepayment se kitna byaaj bachega. Tier-2 cities ke liye real examples.",
+   938→    canonical: "/hi/35-lakh-home-loan-prepayment",
+   939→    faqs: [
+   940→      {
+   941→        question: "₹35 लाख के लोन की EMI कितनी होगी?",
+   942→        answer:
+   943→          "8.4% दर पर 20 वर्ष की अवधि में ₹35 लाख के लोन की मासिक EMI लगभग ₹30,133 होगी। 25 वर्ष के लिए लगभग ₹27,882 और 30 वर्ष के लिए लगभग ₹26,639 होगी।",
+   944→      },
+   945→      {
+   946→        question: "₹35 लाख के लोन को जल्दी कैसे चुकाएं?",
+   947→        answer:
+   948→          "EMI को ₹32,000 तक बढ़ा दें (₹2,000 अतिरिक्त), और सालाना बोनस का एक हिस्सा (₹50,000-1 लाख) प्रीपेमेंट में लगाएं। इससे 20 वर्ष का लोन 13-14 वर्ष में चुक सकता है।",
+   949→      },
+   950→    ],
+   951→  },
+   952→  {
+   953→    id: "60-lakh-home-loan-prepayment",
+   954→    type: "scenario",
+   955→    title: "₹60 लाख होम लोन प्रीपेमेंट कैलक्युलेटर",
+   956→    h1: "₹60 लाख होम लोन प्रीपेमेंट — बचत गणना",
+   957→    intro:
+   958→      "₹60 लाख का होम लोन मेट्रो शहरों में 2BHK संपत्तियों के लिए आम है। 8.5% दर पर 20 वर्ष की अवधि में ₹12,000 मासिक प्रीपेमेंट से लगभग ₹26 लाख ब्याज बच सकता है।",
+   959→    metaTitle: "₹60 लाख होम लोन प्रीपेमेंट कैलक्युलेटर | Byaaj Bachat",
+   960→    metaDescription:
+   961→      "₹60 लाख होम लोन पर prepayment se kitna byaaj aur samay bachega. 2BHK property ke liye real examples.",
+   962→    canonical: "/hi/60-lakh-home-loan-prepayment",
+   963→    faqs: [
+   964→      {
+   965→        question: "₹60 लाख के लोन की EMI कितनी होगी?",
+   966→        answer:
+   967→          "8.5% दर पर 20 वर्ष की अवधि में ₹60 लाख के लोन की मासिक EMI लगभग ₹52,069 होगी। 25 वर्ष के लिए लगभग ₹48,313 और 30 वर्ष के लिए लगभग ₹46,135 होगी।",
+   968→      },
+   969→    ],
+   970→  },
+   971→  {
+   972→    id: "40-lakh-home-loan-prepayment",
+   973→    type: "scenario",
+   974→    title: "₹40 लाख होम लोन प्रीपेमेंट कैलक्युलेटर",
+   975→    h1: "₹40 लाख होम लोन प्रीपेमेंट — गणना",
+   976→    intro:
+   977→      "₹40 लाख का होम लोन टियर-2 शहरों में 2BHK संपत्तियों के लिए आम है। 8.5% दर पर 20 वर्ष की अवधि में ₹8,000 मासिक प्रीपेमेंट से लगभग ₹17 लाख ब्याज बच सकता है।",
+   978→    metaTitle: "₹40 लाख होम लोन प्रीपेमेंट कैलक्युलेटर | Byaaj Bachat",
+   979→    metaDescription:
+   980→      "₹40 लाख होम लोन पर prepayment se kitna byaaj aur samay bachega. Real examples with monthly extra EMI.",
+   981→    canonical: "/hi/40-lakh-home-loan-prepayment",
+   982→    faqs: [
+   983→      {
+   984→        question: "₹40 लाख के लोन की EMI कितनी होगी?",
+   985→        answer:
+   986→          "8.5% दर पर 20 वर्ष की अवधि में ₹40 लाख के लोन की मासिक EMI लगभग ₹34,713 होगी। 25 वर्ष के लिए लगभग ₹32,209 और 30 वर्ष के लिए लगभग ₹30,757 होगी।",
+   987→      },
+   988→    ],
+   989→  },
+   990→  {
+   991→    id: "80-lakh-home-loan-prepayment",
+   992→    type: "scenario",
+   993→    title: "₹80 लाख होम लोन प्रीपेमेंट कैलक्युलेटर",
+   994→    h1: "₹80 लाख होम लोन प्रीपेमेंट — बचत गणना",
+   995→    intro:
+   996→      "₹80 लाख का होम लोन मेट्रो शहरों की टियर-2 संपत्तियों के लिए आम है। 8.6% दर पर 20 वर्ष की अवधि में ₹15,000 मासिक प्रीपेमेंट से लगभग ₹35 लाख ब्याज बच सकता है।",
+   997→    metaTitle: "₹80 लाख होम लोन प्रीपेमेंट कैलक्युलेटर | Byaaj Bachat",
+   998→    metaDescription:
+   999→      "₹80 लाख होम लोन पर prepayment se kitna byaaj aur samay bachega. Metro tier-2 properties ke liye.",
+  1000→    canonical: "/hi/80-lakh-home-loan-prepayment",
+  1001→    faqs: [
+  1002→      {
+  1003→        question: "₹80 लाख के लोन की EMI कितनी होगी?",
+  1004→        answer:
+  1005→          "8.6% दर पर 20 वर्ष की अवधि में ₹80 लाख के लोन की मासिक EMI लगभग ₹69,991 होगी। 25 वर्ष के लिए लगभग ₹64,775 और 30 वर्ष के लिए लगभग ₹61,945 होगी।",
+  1006→      },
+  1007→    ],
+  1008→  },
+  1009→  {
+  1010→    id: "30-lakh-home-loan-prepayment",
+  1011→    type: "scenario",
+  1012→    title: "₹30 लाख होम लोन प्रीपेमेंट कैलक्युलेटर",
+  1013→    h1: "₹30 लाख होम लोन प्रीपेमेंट — छोटे लोन",
+  1014→    intro:
+  1015→      "₹30 लाख का होम लोन छोटे शहरों और कस्बों में आम है। 8.4% दर पर 20 वर्ष की अवधि में ₹5,000 मासिक प्रीपेमेंट से लगभग ₹9 लाख ब्याज बच सकता है।",
+  1016→    metaTitle: "₹30 लाख होम लोन प्रीपेमेंट कैलक्युलेटर | Small Loan",
+  1017→    metaDescription:
+  1018→      "₹30 लाख होम लोन पर prepayment se kitna byaaj aur samay bachega. Small cities ke liye real examples.",
+  1019→    canonical: "/hi/30-lakh-home-loan-prepayment",
+  1020→    faqs: [
+  1021→      {
+  1022→        question: "₹30 लाख के लोन की EMI कितनी होगी?",
+  1023→        answer:
+  1024→          "8.4% दर पर 20 वर्ष की अवधि में ₹30 लाख के लोन की मासिक EMI लगभग ₹25,829 होगी। 25 वर्ष के लिए लगभग ₹23,899 और 30 वर्ष के लिए लगभग ₹22,833 होगी।",
+  1025→      },
+  1026→    ],
+  1027→  },
+  1028→  {
+  1029→    id: "90-lakh-home-loan-prepayment",
+  1030→    type: "scenario",
+  1031→    title: "₹90 लाख होम लोन प्रीपेमेंट कैलक्युलेटर",
+  1032→    h1: "₹90 लाख होम लोन प्रीपेमेंट — बचत गणना",
+  1033→    intro:
+  1034→      "₹90 लाख का होम लोन मेट्रो शहरों की बड़ी संपत्तियों के लिए आम है। 8.6% दर पर 20 वर्ष की अवधि में ₹18,000 मासिक प्रीपेमेंट से लगभग ₹40 लाख ब्याज बच सकता है।",
+  1035→    metaTitle: "₹90 लाख होम लोन प्रीपेमेंट कैलक्युलेटर | Byaaj Bachat",
+  1036→    metaDescription:
+  1037→      "₹90 लाख होम लोन पर prepayment se kitna byaaj aur samay bachega. Large metro properties ke liye.",
+  1038→    canonical: "/hi/90-lakh-home-loan-prepayment",
+  1039→    faqs: [
+  1040→      {
+  1041→        question: "₹90 लाख के लोन की EMI कितनी होगी?",
+  1042→        answer:
+  1043→          "8.6% दर पर 20 वर्ष की अवधि में ₹90 लाख के लोन की मासिक EMI लगभग ₹78,740 होगी। 25 वर्ष के लिए लगभग ₹72,871 और 30 वर्ष के लिए लगभग ₹69,688 होगी।",
+  1044→      },
+  1045→    ],
+  1046→  },
+  1047→  {
+  1048→    id: "2-crore-home-loan-prepayment",
+  1049→    type: "scenario",
+  1050→    title: "₹2 करोड़ होम लोन प्रीपेमेंट कैलक्युलेटर",
+  1051→    h1: "₹2 करोड़ होम लोन प्रीपेमेंट — बड़ी बचत",
+  1052→    intro:
+  1053→      "₹2 करोड़ का होम लोन प्रीमियम मेट्रो संपत्तियों के लिए आम है। 8.5% दर पर 25 वर्ष की अवधि में ₹50,000 मासिक प्रीपेमेंट से लगभग ₹1.3 करोड़ तक ब्याज बच सकता है।",
+  1054→    metaTitle: "₹2 करोड़ होम लोन प्रीपेमेंट कैलक्युलेटर | Large Loan",
+  1055→    metaDescription:
+  1056→      "₹2 करोड़ होम लोन पर prepayment se kitna byaaj aur samay bachega. Premium metro properties ke liye.",
+  1057→    canonical: "/hi/2-crore-home-loan-prepayment",
+  1058→    faqs: [
+  1059→      {
+  1060→        question: "₹2 करोड़ के लोन की EMI कितनी होगी?",
+  1061→        answer:
+  1062→          "8.5% दर पर 25 वर्ष की अवधि में ₹2 करोड़ के लोन की मासिक EMI लगभग ₹1,61,046 होगी। 20 वर्ष के लिए लगभग ₹1,73,564 और 30 वर्ष के लिए लगभग ₹1,53,783 होगी।",
+  1063→      },
+  1064→      {
+  1065→        question: "₹2 करोड़ के लोन पर प्रीपेमेंट का कर असर क्या है?",
+  1066→        answer:
+  1067→          "Section 24(b) के तहत केवल ₹2 लाख तक ब्याज पर कर कटौती मिलती है। ₹2 करोड़ के लोन पर पहले वर्ष का ब्याज ही ₹16-17 लाख होता है, इसलिए अधिकांश ब्याज पर कोई कर लाभ नहीं मिलता। इसलिए प्रीपेमेंट और भी ज्यादा फायदेमंद है।",
+  1068→      },
+  1069→    ],
+  1070→  },
+  1071→
+  1072→  // ---- 10 guide pages ----
+  1073→  {
+  1074→    id: "home-loan-jaldi-chukaye",
+  1075→    type: "guide",
+  1076→    title: "होम लोन जल्दी कैसे चुकाएं — 7 तरीके",
+  1077→    h1: "होम लोन जल्दी कैसे चुकाएं? 7 आसान तरीके",
+  1078→    intro:
+  1079→      "होम लोन जल्दी चुकाने के 7 आसान तरीके जानें — मासिक अतिरिक्त EMI, एकमुश्त प्रीपेमेंट, सालाना बोनस से भुगतान, EMI बढ़ाना, अवधि घटाना, बैलेंस ट्रांसफर और फोरक्लोज़र।",
+  1080→    metaTitle: "होम लोन जल्दी कैसे चुकाएं? 7 Asaan Tarike - Hindi",
+  1081→    metaDescription:
+  1082→      "होम लोन जल्दी चुकाने के 7 तरीके। प्रीपेमेंट, EMI बढ़ाना, बैलेंस ट्रांसफर और फोरक्लोज़र की पूरी गाइड।",
+  1083→    canonical: "/hi/home-loan-jaldi-chukaye",
+  1084→    faqs: [
+  1085→      {
+  1086→        question: "होम लोन जल्दी चुकाने का सबसे असरदार तरीका क्या है?",
+  1087→        answer:
+  1088→          "पहले वर्ष से ही छोटा मासिक प्रीपेमेंट शुरू करना सबसे असरदार तरीका है। ₹50 लाख के लोन पर मात्र ₹5,000/माह से 20 वर्ष का लोन 15-16 वर्ष में चुक सकता है।",
+  1089→      },
+  1090→    ],
+  1091→  },
+  1092→  {
+  1093→    id: "byaj-kaise-bachaye",
+  1094→    type: "guide",
+  1095→    title: "होम लोन ब्याज कैसे बचाएं — गाइड",
+  1096→    h1: "होम लोन ब्याज कैसे बचाएं? पूरी गाइड",
+  1097→    intro:
+  1098→      "होम लोन ब्याज बचाने के सभी तरीके जानें — प्रीपेमेंट, बैलेंस ट्रांसफर, अवधि घटाना, और अधिक अवधि कम राशि की रणनीति। लाखों बचाने का तरीका।",
+  1099→    metaTitle: "होम लोन ब्याज कैसे बचाएं? Lakho Bachaye - Hindi",
+  1100→    metaDescription:
+  1101→      "होम लोन ब्याज बचाने के तरीके — प्रीपेमेंट, बैलेंस ट्रांसफर, अवधि घटाना। लाखों बचाने की गाइड।",
+  1102→    canonical: "/hi/byaj-kaise-bachaye",
+  1103→    faqs: [
+  1104→      {
+  1105→        question: "ब्याज बचाने का सबसे बड़ा फायदा कौन सा तरीका देता है?",
+  1106→        answer:
+  1107→          "अवधि घटाने वाला प्रीपेमेंट सबसे ज्यादा ब्याज बचाता है। ₹50 लाख के लोन पर ₹5 लाख के प्रीपेमेंट से अवधि घटाने पर ₹14-16 लाख ब्याज बचता है, जबकि EMI घटाने पर केवल ₹4-5 लाख।",
+  1108→      },
+  1109→    ],
+  1110→  },
+  1111→  {
+  1112→    id: "prepayment-vs-investment-guide",
+  1113→    type: "guide",
+  1114→    title: "प्रीपेमेंट vs निवेश — क्या बेहतर है",
+  1115→    h1: "प्रीपेमेंट vs निवेश — क्या बेहतर है?",
+  1116→    intro:
+  1117→      "अतिरिक्त राशि को होम लोन प्रीपेमेंट में लगाएं या निवेश में? दोनों के रिटर्न तुलना करें — 8.5% गारंटीड टैक्स-फ्री बनाम 11-13% एक्सपेक्टेड इक्विटी रिटर्न।",
+  1118→    metaTitle: "प्रीपेमेंट vs निवेश | Kya Behtar Hai - Hindi Guide",
+  1119→    metaDescription:
+  1120→      "प्रीपेमेंट या निवेश — क्या बेहतर है? Returns comparison, tax impact, risk analysis. Decision framework.",
+  1121→    canonical: "/hi/prepayment-vs-investment-guide",
+  1122→    faqs: [
+  1123→      {
+  1124→        question: "क्या प्रीपेमेंट निवेश से बेहतर है?",
+  1125→        answer:
+  1126→          "निर्भर करता है। कम जोखिम सहनशीलता वालों के लिए प्रीपेमेंट बेहतर है (FD से बेहतर गारंटीड टैक्स-फ्री रिटर्न)। ज्यादा जोखिम सहनशीलता और लंबी अवधि के लिए इक्विटी बेहतर हो सकता है। सबसे अच्छा हाइब्रिड दृष्टिकोण है — 60:40 इक्विटी और प्रीपेमेंट में बांटना।",
+  1127→      },
+  1128→    ],
+  1129→  },
+  1130→  {
+  1131→    id: "emi-ganan-sutra",
+  1132→    type: "guide",
+  1133→    title: "EMI गणना सूत्र — गाइड",
+  1134→    h1: "EMI गणना सूत्र — कैसे निकालें",
+  1135→    intro:
+  1136→      "EMI गणना का सूत्र समझें — P × r × (1+r)^n / ((1+r)^n - 1)। भारतीय बैंक EMI कैसे निकालते हैं, ब्याज और मूलधन का अनुपात कैसे बदलता है, और प्रीपेमेंट से गणित कैसे बदलता है।",
+  1137→    metaTitle: "EMI गणना सूत्र | EMI Calculation Formula - Hindi",
+  1138→    metaDescription:
+  1139→      "EMI गणना सूत्र समझें। भारतीय बैंक EMI कैसे निकालते हैं, byaaj और mool dhan का अनुपात, prepayment ka asar.",
+  1140→    canonical: "/hi/emi-ganan-sutra",
+  1141→    faqs: [
+  1142→      {
+  1143→        question: "EMI का सूत्र क्या है?",
+  1144→        answer:
+  1145→          "EMI = P × r × (1+r)^n / ((1+r)^n - 1), जहाँ P ऋण राशि, r मासिक ब्याज दर (वार्षिक दर / 12 / 100), और n महीनों में अवधि है। उदाहरण: ₹50 लाख का लोन 8.5% पर 20 वर्ष के लिए लगभग ₹43,391 की मासिक EMI देता है।",
+  1146→      },
+  1147→    ],
+  1148→  },
+  1149→  {
+  1150→    id: "cibil-score-impact",
+  1151→    type: "guide",
+  1152→    title: "CIBIL स्कोर का होम लोन पर प्रभाव",
+  1153→    h1: "CIBIL स्कोर का होम लोन दर पर प्रभाव",
+  1154→    intro:
+  1155→      "CIBIL स्कोर आपकी होम लोन दर को कैसे प्रभावित करता है — जानें। 750+ स्कोर पर सर्वोत्तम दर, 700-749 पर थोड़ी ज्यादा, 700 से कम पर अस्वीकृति। अपना CIBIL कैसे सुधारें।",
+  1156→    metaTitle: "CIBIL Score Ka Home Loan Par Asar - Hindi Guide",
+  1157→    metaDescription:
+  1158→      "CIBIL स्कोर का होम लोन दर पर प्रभाव जानें। 750+ score par best rate, sudhar ke tarike.",
+  1159→    canonical: "/hi/cibil-score-impact",
+  1160→    faqs: [
+  1161→      {
+  1162→        question: "CIBIL स्कोर कितना होना चाहिए?",
+  1163→        answer:
+  1164→          "सर्वोत्तम होम लोन दर के लिए 750+ CIBIL स्कोर चाहिए। 700-749 पर थोड़ी ज्यादा दर मिलती है, 700 से कम पर अनुमोदन मुश्किल हो सकता है। अधिकतर बैंक 750-900 स्कोर को सर्वोत्तम मानते हैं।",
+  1165→      },
+  1166→    ],
+  1167→  },
+  1168→  {
+  1169→    id: "emi-ya-avadhi-ghatao",
+  1170→    type: "guide",
+  1171→    title: "EMI कम या अवधि कम — क्या करें",
+  1172→    h1: "EMI कम करें या अवधि कम — क्या बेहतर है?",
+  1173→    intro:
+  1174→      "प्रीपेमेंट के बाद EMI कम करें या अवधि कम करें — दोनों के फायदे और नुकसान समझें। अधिकतर मामलों में अवधि घटाना बेहतर है क्योंकि इससे 3-5 गुना ज्यादा ब्याज बचता है।",
+  1175→    metaTitle: "EMI Kam Ya Avadhi Kam - Kya Behtar Hai - Hindi",
+  1176→    metaDescription:
+  1177→      "प्रीपेमेंट के बाद EMI कम करें या अवधि कम करें? दोनों ke fayde aur nuksaan. Kaunsa behtar hai.",
+  1178→    canonical: "/hi/emi-ya-avadhi-ghatao",
+  1179→    faqs: [
+  1180→      {
+  1181→        question: "अवधि घटाने से कितना ब्याज बचता है?",
+  1182→        answer:
+  1183→          "₹50 लाख के लोन पर ₹5 लाख के प्रीपेमेंट से अवधि घटाने पर ₹14-16 लाख ब्याज बचता है, जबकि EMI घटाने पर केवल ₹4-5 लाख। अवधि घटाना 3-5 गुना बेहतर है।",
+  1184→      },
+  1185→    ],
+  1186→  },
+  1187→  {
+  1188→    id: "foreclosure-process",
+  1189→    type: "guide",
+  1190→    title: "होम लोन फोरक्लोज़र प्रक्रिया — गाइड",
+  1191→    h1: "होम लोन फोरक्लोज़र प्रक्रिया — पूरी गाइड",
+  1192→    intro:
+  1193→      "होम लोन फोरक्लोज़र की पूरी प्रक्रिया जानें — आवेदन, ब्यौरा, भुगतान, NOC, और दस्तावेज़ वापसी। RBI के नियम और शुल्क की जानकारी।",
+  1194→    metaTitle: "होम लोन फोरक्लोज़र प्रक्रिया | Foreclosure Process - Hindi",
+  1195→    metaDescription:
+  1196→      "होम लोन फोरक्लोज़र की पूरी प्रक्रिया - आवेदन, भुगतान, NOC. RBI ke niyam aur charges ki jankari.",
+  1197→    canonical: "/hi/foreclosure-process",
+  1198→    faqs: [
+  1199→      {
+  1200→        question: "फोरक्लोज़र में कितना समय लगता है?",
+  1201→        answer:
+  1202→          "बैंक में फोरक्लोज़र रिक्वेस्ट देने के बाद 7-15 कार्यदिवसों में प्रक्रिया पूरी हो जाती है। NOC और मूल दस्तावेज़ 15-30 दिनों में वापस मिल जाते हैं। यदि बैंक देरी करे तो RBI लोकपाल से शिकायत कर सकते हैं।",
+  1203→      },
+  1204→    ],
+  1205→  },
+  1206→  {
+  1207→    id: "balance-transfer-guide",
+  1208→    type: "guide",
+  1209→    title: "होम लोन बैलेंस ट्रांसफर गाइड",
+  1210→    h1: "होम लोन बैलेंस ट्रांसफर — पूरी गाइड",
+  1211→    intro:
+  1212→      "होम लोन बैलेंस ट्रांसफर की पूरी गाइड जानें — कब करें, कैसे करें, क्या दस्तावेज़ चाहिए, खर्च क्या होंगे, और कितनी बचत होगी। SBI, HDFC, ICICI, Axis की तुलना।",
+  1213→    metaTitle: "होम लोन बैलेंस ट्रांसफर गाइड | Balance Transfer - Hindi",
+  1214→    metaDescription:
+  1215→      "होम लोन बैलेंस ट्रांसफर की पूरी गाइड - kab karein, kaise karein, kharch aur bachat. SBI, HDFC, ICICI, Axis ki tulna.",
+  1216→    canonical: "/hi/balance-transfer-guide",
+  1217→    faqs: [
+  1218→      {
+  1219→        question: "बैलेंस ट्रांसफर कब फायदेमंद है?",
+  1220→        answer:
+  1221→          "जब आपको वर्तमान दर से कम से कम 0.5% कम दर मिले और बकाया अवधि 10 वर्ष से ज्यादा हो। ₹50 लाख के लोन पर 0.5% कम दर से 20 वर्ष में लगभग ₹4-6 लाख ब्याज बचता है।",
+  1222→      },
+  1223→    ],
+  1224→  },
+  1225→  {
+  1226→    id: "tax-benefits-home-loan",
+  1227→    type: "guide",
+  1228→    title: "होम लोन टैक्स लाभ — गाइड",
+  1229→    h1: "होम लोन टैक्स लाभ — Section 80C, 24(b), 80EE",
+  1230→    intro:
+  1231→      "होम लोन पर मिलने वाले सभी टैक्स लाभ जानें — Section 80C पर मूलधन चुकौती पर ₹1.5 लाख, Section 24(b) पर ब्याज पर ₹2 लाख, और Section 80EE पर अतिरिक्त ₹50,000।",
+  1232→    metaTitle: "होम लोन टैक्स लाभ | Tax Benefits - Hindi Guide",
+  1233→    metaDescription:
+  1234→      "होम लोन पर मिलने वाले टैक्स लाभ - Section 80C, 24(b), 80EE. Kitna deduction milega aur kaise.",
+  1235→    canonical: "/hi/tax-benefits-home-loan",
+  1236→    faqs: [
+  1237→      {
+  1238→        question: "होम लोन पर कितना टैक्स लाभ मिलता है?",
+  1239→        answer:
+  1240→          "Section 80C के तहत मूलधन चुकौती पर ₹1.5 लाख, Section 24(b) के तहत ब्याज पर ₹2 लाख (स्व-कब्ज़ित संपत्ति के लिए), और पहली बार खरीदने वालों के लिए Section 80EE में अतिरिक्त ₹50,000 (₹35 लाख तक के लोन पर)। 30% स्लैब में कुल वार्षिक बचत ₹1.2 लाख तक हो सकती है।",
+  1241→      },
+  1242→    ],
+  1243→  },
+  1244→  {
+  1245→    id: "refinance-guide",
+  1246→    type: "guide",
+  1247→    title: "होम लोन रिफाइनेंस गाइड",
+  1248→    h1: "होम लोन रिफाइनेंस — पूरी गाइड",
+  1249→    intro:
+  1250→      "होम लोन रिफाइनेंस की पूरी गाइड — कब करें, कैसे करें, खर्च और बचत की गणना। कम दर पर नया लोन लेकर पुराना लोन चुकाकर लाखों बचाएं।",
+  1251→    metaTitle: "होम लोन रिफाइनेंस गाइड | Refinance - Hindi",
+  1252→    metaDescription:
+  1253→      "होम लोन रिफाइनेंस की पूरी गाइड - kab karein, kaise karein, kharch aur bachat. Lakho bachayein.",
+  1254→    canonical: "/hi/refinance-guide",
+  1255→    faqs: [
+  1256→      {
+  1257→        question: "रिफाइनेंस से कितनी बचत होती है?",
+  1258→        answer:
+  1259→          "₹50 लाख के लोन पर 0.5% कम दर मिलने से 20 वर्ष में लगभग ₹4-6 लाख ब्याज बचता है। यदि 1% कम दर मिले तो बचत ₹8-10 लाख तक हो सकती है। प्रोसेसिंग शुल्क और अन्य खर्च भी जोड़कर देखें।",
+  1260→      },
+  1261→    ],
+  1262→  },
+  1263→
+  1264→  // ---- 6+ general info pages ----
+  1265→  {
+  1266→    id: "prepayment-kya-hai",
+  1267→    type: "guide",
+  1268→    title: "प्रीपेमेंट क्या है — पूरी जानकारी",
+  1269→    h1: "होम लोन प्रीपेमेंट क्या है?",
+  1270→    intro:
+  1271→      "प्रीपेमेंट का अर्थ, प्रकार (आंशिक प्रीपेमेंट, एकमुश्त प्रीपेमेंट, फोरक्लोज़र), शुल्क नियम, और फायदे जानें। भारत में प्रीपेमेंट से जुड़े सभी नियम और प्रक्रिया।",
+  1272→    metaTitle: "प्रीपेमेंट क्या है? | What is Prepayment - Hindi",
+  1273→    metaDescription:
+  1274→      "होम लोन प्रीपेमेंट क्या है, types, charges, fayde. RBI ke niyam aur process ki jankari.",
+  1275→    canonical: "/hi/prepayment-kya-hai",
+  1276→    faqs: [
+  1277→      {
+  1278→        question: "प्रीपेमेंट का अर्थ क्या है?",
+  1279→        answer:
+  1280→          "प्रीपेमेंट यानी अपनी निर्धारित EMI के अतिरिक्त कुछ राशि जमा करके बकाया मूलधन कम करना। इससे आपकी अवधि या EMI कम हो सकती है। फ्लोटिंग दर वाले व्यक्तिगत होम लोन पर यह शुल्क मुक्त है।",
+  1281→      },
+  1282→      {
+  1283→        question: "प्रीपेमेंट के कितने प्रकार हैं?",
+  1284→        answer:
+  1285→          "तीन मुख्य प्रकार हैं: (1) आंशिक प्रीपेमेंट - EMI के अतिरिक्त कुछ राशि जमा करना, (2) एकमुश्त प्रीपेमेंट - बड़ी राशि एक बार में जमा करना, (3) फोरक्लोज़र - पूरा बकाया चुकाकर लोन बंद करना।",
+  1286→      },
+  1287→    ],
+  1288→  },
+  1289→  {
+  1290→    id: "foreclosure-charges",
+  1291→    type: "guide",
+  1292→    title: "होम लोन फोरक्लोज़र शुल्क — RBI नियम",
+  1293→    h1: "होम लोन फोरक्लोज़र शुल्क — RBI नियम 2024",
+  1294→    intro:
+  1295→      "होम लोन फोरक्लोज़र पर लगने वाले शुल्क और RBI के नियम जानें। फ्लोटिंग दर पर व्यक्तिगत लोन में शून्य शुल्क, फिक्स्ड दर पर 2% तक। सभी बैंकों के नियम।",
+  1296→    metaTitle: "होम लोन फोरक्लोज़र शुल्क | Foreclosure Charges - Hindi",
+  1297→    metaDescription:
+  1298→      "होम लोन फोरक्लोज़र शुल्क और RBI नियम जानें। Floating rate par zero, fixed par 2% tak. Sabhi banks ke niyam.",
+  1299→    canonical: "/hi/foreclosure-charges",
+  1300→    faqs: [
+  1301→      {
+  1302→        question: "फोरक्लोज़र पर RBI का नियम क्या है?",
+  1303→        answer:
+  1304→          "RBI के जून 2024 के अद्यतन नियम के अनुसार, फ्लोटिंग दर वाले व्यक्तिगत होम लोन पर कोई प्रीपेमेंट या फोरक्लोज़र शुल्क नहीं लगता, चाहे ऋण राशि कुछ भी हो। यह सभी बैंकों और NBFCs पर लागू है। फिक्स्ड दर या गैर-व्यक्तिगत लोन पर 2% तक शुल्क लग सकता है।",
+  1305→      },
+  1306→    ],
+  1307→  },
+  1308→  {
+  1309→    id: "cibil-score-info",
+  1310→    type: "guide",
+  1311→    title: "CIBIL स्कोर क्या है — पूरी जानकारी",
+  1312→    h1: "CIBIL स्कोर क्या है और कैसे काम करता है?",
+  1313→    intro:
+  1314→      "CIBIL स्कोर का अर्थ, गणना विधि, और होम लोन पर इसका प्रभाव जानें। 300-900 की सीमा में 750+ स्कोर सर्वोत्तम माना जाता है। अपना स्कोर कैसे जांचें और सुधारें।",
+  1315→    metaTitle: "CIBIL स्कोर क्या है? | What is CIBIL Score - Hindi",
+  1316→    metaDescription:
+  1317→      "CIBIL स्कोर क्या है, calculation, home loan par asar. Score kaise check karein aur sudharein.",
+  1318→    canonical: "/hi/cibil-score-info",
+  1319→    faqs: [
+  1320→      {
+  1321→        question: "CIBIL स्कोर कैसे चेक करें?",
+  1322→        answer:
+  1323→          "CIBIL की वेबसाइट (cibil.com) पर जाकर मुफ्त वार्षिक रिपोर्ट डाउनलोड कर सकते हैं। चार ब्यूरो (CIBIL, Equifax, Experian, CRIF) से साल में एक मुफ्त रिपोर्ट मिलती है। क्रेडिट कार्ड या लोन आवेदन के समय भी स्कोर प्रभावित होता है।",
+  1324→      },
+  1325→    ],
+  1326→  },
+  1327→  {
+  1328→    id: "tax-benefits-info",
+  1329→    type: "guide",
+  1330→    title: "होम लोन टैक्स लाभ — पूरी जानकारी",
+  1331→    h1: "होम लोन टैक्स लाभ — Section 80C, 24(b), 80EE",
+  1332→    intro:
+  1333→      "होम लोन पर मिलने वाले सभी टैक्स लाभ जानें — Section 80C पर मूलधन चुकौती पर ₹1.5 लाख, Section 24(b) पर ब्याज पर ₹2 लाख, Section 80EE पर अतिरिक्त ₹50,000।",
+  1334→    metaTitle: "होम लोन टैक्स लाभ | Tax Benefits 80C 24(b) 80EE - Hindi",
+  1335→    metaDescription:
+  1336→      "होम लोन पर मिलने वाले टैक्स लाभ - Section 80C, 24(b), 80EE. Kitna deduction, kaise claim karein.",
+  1337→    canonical: "/hi/tax-benefits-info",
+  1338→    faqs: [
+  1339→      {
+  1340→        question: "होम लोन ब्याज पर कितना टैक्स लाभ मिलता है?",
+  1341→        answer:
+  1342→          "Section 24(b) के तहत स्व-कब्ज़ित संपत्ति के लिए ₹2 लाख तक ब्याज पर कर कटौती मिलती है। किराये पर दी गई संपत्ति के लिए पूरे ब्याज की कटौती मिलती है (कोई सीमा नहीं)।",
+  1343→      },
+  1344→      {
+  1345→        question: "Section 80EE का लाभ कौन ले सकता है?",
+  1346→        answer:
+  1347→          "Section 80EE का लाभ केवल पहली बार घर खरीदने वालों को मिलता है, जिनका लोन ₹35 लाख से कम हो और संपत्ति का मूल्य ₹50 लाख से कम हो। अतिरिक्त ₹50,000 ब्याज कटौती मिलती है।",
+  1348→      },
+  1349→    ],
+  1350→  },
+  1351→  {
+  1352→    id: "floating-vs-fixed-rate",
+  1353→    type: "guide",
+  1354→    title: "फ्लोटिंग vs फिक्स्ड दर — क्या चुनें",
+  1355→    h1: "फ्लोटिंग vs फिक्स्ड होम लोन दर — क्या चुनें?",
+  1356→    intro:
+  1357→      "फ्लोटिंग और फिक्स्ड होम लोन दर में अंतर और कौन सा बेहतर है जानें। फ्लोटिंग में RBI रेपो रेट का असर, फिक्स्ड में स्थिरता। फ्लोटिंग पर प्रीपेमेंट शुल्क मुक्त।",
+  1358→    metaTitle: "फ्लोटिंग vs फिक्स्ड होम लोन दर | Kya Chunein - Hindi",
+  1359→    metaDescription:
+  1360→      "फ्लोटिंग और फिक्स्ड होम लोन दर में antar. Kaunsa behtar hai, prepayment shulak par asar.",
+  1361→    canonical: "/hi/floating-vs-fixed-rate",
+  1362→    faqs: [
+  1363→      {
+  1364→        question: "फ्लोटिंग और फिक्स्ड दर में क्या अंतर है?",
+  1365→        answer:
+  1366→          "फ्लोटिंग दर RBI रेपो रेट के साथ बदलती है — रेपो बढ़ने पर बढ़ती है, घटने पर घटती है। फिक्स्ड दर पूरी अवधि में समान रहती है, लेकिन आमतौर पर फ्लोटिंग से 0.5-1% ज्यादा होती है। फ्लोटिंग पर प्रीपेमेंट शुल्क मुक्त, फिक्स्ड पर 2% तक।",
+  1367→      },
+  1368→      {
+  1369→        question: "कौन सी दर बेहतर है?",
+  1370→        answer:
+  1371→          "अधिकतर उधारकर्ताओं के लिए फ्लोटिंग दर बेहतर होती है क्योंकि लंबी अवधि में यह फिक्स्ड से सस्ती होती है और प्रीपेमेंट शुल्क मुक्त है। फिक्स्ड तब चुनें जब आपको EMI में स्थिरता चाहिए और दरें बहुत नीची हों।",
+  1372→      },
+  1373→    ],
+  1374→  },
+  1375→  {
+  1376→    id: "home-loan-emi-formula",
+  1377→    type: "guide",
+  1378→    title: "होम लोन EMI सूत्र — गणना विधि",
+  1379→    h1: "होम लोन EMI सूत्र — गणना विधि",
+  1380→    intro:
+  1381→      "होम लोन EMI गणना का सूत्र और विधि जानें। उदाहरण से समझें कि ऋण राशि, ब्याज दर और अवधि से EMI कैसे निकाली जाती है। ऑनलाइन कैलक्युलेटर से तुरंत परिणाम।",
+  1382→    metaTitle: "होम लोन EMI सूत्र | EMI Formula - Hindi Guide",
+  1383→    metaDescription:
+  1384→      "होम लोन EMI गणना का सूत्र और विधि. Example se samjhein - loan amount, byaaj dar aur avadhi se EMI kaise nikalein.",
+  1385→    canonical: "/hi/home-loan-emi-formula",
+  1386→    faqs: [
+  1387→      {
+  1388→        question: "EMI कैसे निकाली जाती है?",
+  1389→        answer:
+  1390→          "EMI = P × r × (1+r)^n / ((1+r)^n - 1) सूत्र से। P ऋण राशि, r मासिक दर (वार्षिक दर / 12 / 100), n महीनों में अवधि। उदाहरण: ₹50 लाख, 8.5%, 20 वर्ष → EMI ₹43,391।",
+  1391→      },
+  1392→    ],
+  1393→  },
+  1394→  {
+  1395→    id: "prepayment-charges-rules",
+  1396→    type: "guide",
+  1397→    title: "प्रीपेमेंट शुल्क नियम — RBI 2024",
+  1398→    h1: "प्रीपेमेंट शुल्क नियम — RBI के नवीनतम नियम",
+  1399→    intro:
+  1400→      "होम लोन प्रीपेमेंट शुल्क पर RBI के नवीनतम 2024 नियम जानें। फ्लोटिंग दर पर शून्य शुल्क, फिक्स्ड दर पर 2% तक, गैर-व्यक्तिगत लोन पर अलग नियम।",
+  1401→    metaTitle: "प्रीपेमेंट शुल्क नियम | RBI Rules 2024 - Hindi",
+  1402→    metaDescription:
+  1403→      "होम लोन प्रीपेमेंट शुल्क पर RBI के 2024 नियम. Floating rate par zero, fixed par 2% tak, non-individual par alag.",
+  1404→    canonical: "/hi/prepayment-charges-rules",
+  1405→    faqs: [
+  1406→      {
+  1407→        question: "RBI के अनुसार प्रीपेमेंट शुल्क कब नहीं लगता?",
+  1408→        answer:
+  1409→          "RBI के जून 2024 के नियम के अनुसार, फ्लोटिंग दर वाले व्यक्तिगत होम लोन पर कोई प्रीपेमेंट या फोरक्लोज़र शुल्क नहीं लगता, चाहे राशि कुछ भी हो या उद्देश्य कुछ भी हो। यह सभी बैंकों और NBFCs पर लागू है।",
+  1410→      },
+  1411→      {
+  1412→        question: "फिक्स्ड दर वाले लोन पर प्रीपेमेंट शुल्क कितना है?",
+  1413→        answer:
+  1414→          "फिक्स्ड दर वाले होम लोन पर प्रीपेमेंट शुल्क 2% तक लग सकता है, साथ ही GST। गैर-व्यक्तिगत उधारकर्ताओं (कंपनी, LLP, ट्रस्ट) पर भी प्रीपेमेंट शुल्क लग सकता है, चाहे दर फ्लोटिंग हो या फिक्स्ड।",
+  1415→      },
+  1416→    ],
+  1417→  },
+  1418→];
+  1419→
+  1420→// ---------------------------------------------------------------------------
+  1421→// 3. Hindi FAQ library (reusable)
+  1422→// ---------------------------------------------------------------------------
+  1423→
+  1424→export interface HindiFaq {
+  1425→  question: string;
+  1426→  answer: string;
+  1427→}
+  1428→
+  1429→export const HINDI_FAQ_LIBRARY: HindiFaq[] = [
+  1430→  {
+  1431→    question: "होम लोन प्रीपेमेंट क्या है?",
+  1432→    answer:
+  1433→      "प्रीपेमेंट यानी अपनी निर्धारित मासिक EMI के अतिरिक्त कुछ राशि जमा करके बकाया मूलधन कम करना। इससे आपकी अवधि या EMI कम हो सकती है और कुल ब्याज बचता है। फ्लोटिंग दर वाले व्यक्तिगत होम लोन पर यह पूरी तरह शुल्क मुक्त है।",
+  1434→  },
+  1435→  {
+  1436→    question: "प्रीपेमेंट से कितना ब्याज बचेगा?",
+  1437→    answer:
+  1438→      "यह आपकी ऋण राशि, ब्याज दर, अवधि और प्रीपेमेंट राशि पर निर्भर करता है। ₹50 लाख के होम लोन पर 8.5% दर और 20 वर्ष की अवधि में मात्र ₹10,000 मासिक प्रीपेमेंट से लगभग ₹21 लाख तक ब्याज बच सकता है और ऋण 7 वर्ष जल्दी समाप्त हो सकता है।",
+  1439→  },
+  1440→  {
+  1441→    question: "क्या होम लोन जल्दी चुकाना सही है?",
+  1442→    answer:
+  1443→      "हाँ, जल्दी चुकाना लगभग हमेशा फायदेमंद है, खासकर ऋण के पहले 5-7 वर्षों में। शुरुआती वर्षों में EMI का बड़ा हिस्सा ब्याज में जाता है, इसलिए तब किया गया प्रीपेमेंट सबसे ज्यादा ब्याज बचाता है। हालाँकि, यदि आपके पास एमरजेंसी फंड नहीं है, तो पहले वह बनाएं।",
+  1444→  },
+  1445→  {
+  1446→    question: "प्रीपेमेंट के बाद EMI कम करें या अवधि?",
+  1447→    answer:
+  1448→      "अवधि घटाना लगभग हमेशा बेहतर है। ₹50 लाख के लोन पर ₹5 लाख के प्रीपेमेंट से अवधि घटाने पर ₹14-16 लाख ब्याज बचता है, जबकि EMI घटाने पर केवल ₹4-5 लाख। EMI घटाएं केवल तब जब मासिक नकदी बोझ कम करना हो।",
+  1449→  },
+  1450→  {
+  1451→    question: "SBI होम लोन पर प्रीपेमेंट शुल्क क्या है?",
+  1452→    answer:
+  1453→      "SBI फ्लोटिंग दर (RLLR आधारित) वाले व्यक्तिगत होम लोन पर शून्य प्रीपेमेंट और फोरक्लोज़र शुल्क लेता है, चाहे राशि कुछ भी हो। फिक्स्ड दर पर 2% शुल्क लागू हो सकता है। यह RBI के जून 2024 नियम के अनुसार है।",
+  1454→  },
+  1455→  {
+  1456→    question: "HDFC होम लोन पर प्रीपेमेंट शुल्क क्या है?",
+  1457→    answer:
+  1458→      "HDFC (अब HDFC Bank) फ्लोटिंग दर वाले व्यक्तिगत होम लोन पर शून्य प्रीपेमेंट और फोरक्लोज़र शुल्क लेता है। HDFC और HDFC Bank के विलय के बाद भी यह नीति जारी है। फिक्स्ड दर पर 2% शुल्क लागू हो सकता है।",
+  1459→  },
+  1460→  {
+  1461→    question: "ICICI होम लोन पर प्रीपेमेंट शुल्क क्या है?",
+  1462→    answer:
+  1463→      "ICICI Bank फ्लोटिंग दर (I-BCLR आधारित) वाले व्यक्तिगत होम लोन पर शून्य प्रीपेमेंट और फोरक्लोज़र शुल्क लेता है, चाहे राशि कुछ भी हो। फिक्स्ड दर पर 2% शुल्क लागू हो सकता है।",
+  1464→  },
+  1465→  {
+  1466→    question: "Axis होम लोन पर प्रीपेमेंट शुल्क क्या है?",
+  1467→    answer:
+  1468→      "Axis Bank फ्लोटिंग दर (BRLLR आधारित) वाले व्यक्तिगत होम लोन पर शून्य प्रीपेमेंट और फोरक्लोज़र शुल्क लेता है, चाहे राशि कुछ भी हो। फिक्स्ड दर पर 2% शुल्क लागू हो सकता है।",
+  1469→  },
+  1470→  {
+  1471→    question: "फ्लोटिंग और फिक्स्ड दर में क्या अंतर है?",
+  1472→    answer:
+  1473→      "फ्लोटिंग दर RBI रेपो रेट के साथ बदलती है — रेपो बढ़ने पर बढ़ती है, घटने पर घटती है। फिक्स्ड दर पूरी अवधि में समान रहती है, लेकिन आमतौर पर फ्लोटिंग से 0.5-1% ज्यादा होती है। फ्लोटिंग पर प्रीपेमेंट शुल्क मुक्त, फिक्स्ड पर 2% तक।",
+  1474→  },
+  1475→  {
+  1476→    question: "होम लोन पर कौन सा टैक्स लाभ मिलता है?",
+  1477→    answer:
+  1478→      "Section 80C के तहत मूलधन चुकौती पर ₹1.5 लाख तक, Section 24(b) के तहत स्व-कब्ज़ित संपत्ति के ब्याज पर ₹2 लाख तक, और Section 80EE के तहत पहली बार खरीदारों को अतिरिक्त ₹50,000 (₹35 लाख तक के लोन पर) कटौती मिलती है। 30% स्लैब में कुल वार्षिक बचत ₹1.2 लाख तक हो सकती है।",
+  1479→  },
+  1480→  {
+  1481→    question: "CIBIL स्कोर कितना होना चाहिए?",
+  1482→    answer:
+  1483→      "सर्वोत्तम होम लोन दर के लिए 750+ CIBIL स्कोर चाहिए। 700-749 पर थोड़ी ज्यादा दर मिलती है, 700 से कम पर अनुमोदन मुश्किल हो सकता है। CIBIL स्कोर 300-900 की सीमा में होता है और पिछले 24-36 महीनों के पुनर्भुगतान व्यवहार पर आधारित होता है।",
+  1484→  },
+  1485→  {
+  1486→    question: "क्या बैलेंस ट्रांसफर से ब्याज बचत होती है?",
+  1487→    answer:
+  1488→      "हाँ, यदि आपको 0.5% या ज्यादा कम दर मिले और बकाया अवधि 10 वर्ष से ज्यादा हो। ₹50 लाख के लोन पर 0.5% कम दर से 20 वर्ष में लगभग ₹4-6 लाख ब्याज बच सकता है। नए बैंक का प्रोसेसिंग शुल्क (0.25-0.50%) और अन्य खर्च भी जोड़कर देखें।",
+  1489→  },
+  1490→  {
+  1491→    question: "प्रीपेमेंट का रिटर्न कितना होता है?",
+  1492→    answer:
+  1493→      "प्रीपेमेंट का रिटर्न गारंटीड होता है और आपके होम लोन ROI के बराबर होता है, जो पोस्ट-टैक्स है। 8.5% के लोन पर प्रीपेमेंट करने से 8.5% पोस्ट-टैक्स गारंटीड रिटर्न मिलता है, जो FD से बेहतर है (FD पर टैक्स लगता है)। 30% स्लैब में 8.5% FD का पोस्ट-टैक्स रिटर्न सिर्फ 5.95% होता है।",
+  1494→  },
+  1495→  {
+  1496→    question: "क्या प्रीपेमेंट से CIBIL स्कोर प्रभावित होता है?",
+  1497→    answer:
+  1498→      "नहीं, प्रीपेमेंट से CIBIL स्कोर खराब नहीं होता — वास्तव में सुधरता है, क्योंकि आपका बकाया मूलधन घटता है और आप ऋण मुक्त होने की ओर बढ़ते हैं। फोरक्लोज़र भी CIBIL स्कोर को सुधारता है। क्रेडिट स्कोर में भुगतान इतिहास का सबसे बड़ा वजन (35%) होता है।",
+  1499→  },
+  1500→  {
+  1501→    question: "होम लोन EMI का सूत्र क्या है?",
+  1502→    answer:
+  1503→      "EMI = P × r × (1+r)^n / ((1+r)^n - 1), जहाँ P ऋण राशि, r मासिक ब्याज दर (वार्षिक दर / 12 / 100), और n महीनों में अवधि है। उदाहरण: ₹50 लाख का लोन 8.5% पर 20 वर्ष के लिए लगभग ₹43,391 की मासिक EMI देता है।",
+  1504→  },
+  1505→  {
+  1506→    question: "फोरक्लोज़र और प्रीपेमेंट में क्या अंतर है?",
+  1507→    answer:
+  1508→      "प्रीपेमेंट (पार्ट पेमेंट) यानी EMI के अतिरिक्त कुछ राशि जमा करके मूलधन घटाना — लोन जारी रहता है। फोरक्लोज़र यानी पूरा बकाया एक ही बार में चुकाकर लोन पूरी तरह बंद करना। दोनों ही फ्लोटिंग दर वाले व्यक्तिगत होम लोन पर शुल्क मुक्त हैं।",
+  1509→  },
+  1510→  {
+  1511→    question: "होम लोन प्रीपेमेंट कैसे करें?",
+  1512→    answer:
+  1513→      "अपने बैंक की नेटबैंकिंग या मोबाइल ऐप में लॉगिन करें, लोन खाता चुनें, 'Prepayment' विकल्प पर जाएं और राशि दर्ज करके भुगतान करें। वैकल्पिक रूप से किसी भी शाखा में चेक या DD जमा कर प्रीपेमेंट रिक्वेस्ट दे सकते हैं। ऑनलाइन प्रीपेमेंट तुरंत अपडेट हो जाता है।",
+  1514→  },
+  1515→  {
+  1516→    question: "क्या प्रीपेमेंट से टैक्स लाभ कम होता है?",
+  1517→    answer:
+  1518→      "हाँ, आंशिक रूप से। Section 24(b) के तहत ₹2 लाख तक ब्याज पर कर कटौती मिलती है। यदि आपका वार्षिक ब्याज पहले से ₹2 लाख से कम है (लोन के अंतिम वर्षों में), तो प्रीपेमेंट से अप्रयुक्त कटौती खो जाती है। इसलिए प्रारंभिक वर्षों में प्रीपेमेंट पूरी तरह फायदेमंद है।",
+  1519→  },
+  1520→  {
+  1521→    question: "होम लोन जल्दी चुकाने का सबसे असरदार तरीका क्या है?",
+  1522→    answer:
+  1523→      "ऋण के पहले वर्ष से ही छोटा मासिक प्रीपेमेंट शुरू करना सबसे असरदार तरीका है। ₹50 लाख के लोन पर मात्र ₹5,000/माह से 20 वर्ष का लोन 15-16 वर्ष में चुक सकता है। साथ ही सालाना बोनस का पूरा हिस्सा एकमुश्त प्रीपेमेंट में लगाएं।",
+  1524→  },
+  1525→];
+  1526→
+  1527→// ---------------------------------------------------------------------------
+  1528→// 4. Hindi guides
+  1529→// ---------------------------------------------------------------------------
+  1530→
+  1531→export interface HindiGuide {
+  1532→  id: string;
+  1533→  title: string;
+  1534→  excerpt: string;
+  1535→  readTime: string;
+  1536→  sections: { heading: string; body: string }[];
+  1537→}
+  1538→
+  1539→export const HINDI_GUIDES: HindiGuide[] = [
+  1540→  {
+  1541→    id: "save-lakhs-on-interest",
+  1542→    title: "होम लोन ब्याज में लाखों कैसे बचाएं",
+  1543→    excerpt:
+  1544→      "भारतीय होम लोन उधारकर्ताओं के लिए व्यावहारिक गाइड — क्यों प्रीपेमेंट का समय राशि से ज्यादा मायने रखता है, और इस वर्ष आप तीन सबसे असरदार कदम उठा सकते हैं।",
+  1545→    readTime: "6 मिनट पठन",
+  1546→    sections: [
+  1547→      {
+  1548→        heading: "क्यों शुरुआती प्रीपेमेंट सबसे असरदार होते हैं",
+  1549→        body: "भारतीय होम लोन घटते शेष (reducing-balance) आधार पर चलते हैं — हर महीने ब्याज बकाया मूलधन पर लगता है। 20 वर्ष के ₹50 लाख के लोन पर 8.50% दर में पहले वर्ष में EMI का लगभग 80% ब्याज में और केवल 20% मूलधन घटाने में जाता है। पहले वर्ष का प्रीपेमेंट शेष 19 वर्षों के लिए मूलधन घटाता है, हर महीने ब्याज बचाता है। 18वें वर्ष का प्रीपेमेंट केवल 2 वर्ष के लिए ब्याज बचाता है। इसीलिए महीने 1 में शुरू की गई मात्र ₹2,000 मासिक प्रीपेमेंट वर्ष 15 में लगाई गई ₹5 लाख की एकमुश्त राशि से ज्यादा कुल ब्याज बचा सकती है।",
+  1550→      },
+  1551→      {
+  1552→        heading: "तीन सबसे असरदार कदम",
+  1553→        body: "पहला, लोन के पहले वर्ष में छोटा मासिक प्रीपेमेंट शुरू करें — मात्र ₹2,000-3,000 महीना भी नाटकीय रूप से असर डालता है। दूसरा, अपनी सालाना परफॉरमेंस बोनस (आमतौर पर 1-2 महीने का वेतन) को खर्च करने के बजाय हर साल लोन में प्रीपेमेंट के रूप में जमा करें। तीसरा, जब ब्याज दरें ऊंची हों (आमतौर पर RBI के टाइटनिंग साइकिल के दौरान), बचत से बड़ा एकमुश्त प्रीपेमेंट करने पर विचार करें — इससे दरें गिरने से पहले सबसे ऊंची ROI पर बचत हो जाती है। फ्लोटिंग दर वाले व्यक्तिगत होम लोन पर इनमें से किसी भी कदम पर कोई शुल्क नहीं लगता, क्योंकि RBI प्रीपेमेंट शुल्क प्रतिबंधित करता है।",
+  1554→      },
+  1555→      {
+  1556→        heading: "अवधि घटाएं, EMI नहीं",
+  1557→        body: "जब आप प्रीपेमेंट करते हैं, तो बैंक दो विकल्प देता है: EMI समान रखें और अवधि घटाएं, या अवधि समान रखें और EMI घटाएं। मासिक नकदी बोझ न हो तो हमेशा अवधि घटाना चुनें। ₹50 लाख के लोन पर 8.50% दर में तीसरे वर्ष में ₹5 लाख के प्रीपेमेंट से अवधि घटाने पर आमतौर पर ₹14-16 लाख ब्याज बचता है, जबकि EMI घटाने पर केवल ₹4-5 लाख। अवधि घटाने से ब्याज बचत EMI घटाने से 3-5 गुना ज्यादा होती है।",
+  1558→      },
+  1559→      {
+  1560→        heading: "टैक्स का पहलू देखें",
+  1561→        body: "Section 24(b) स्व-कब्ज़ित संपत्ति के होम लोन ब्याज पर सालाना ₹2 लाख तक कटौती देती है। यदि आपका वार्षिक ब्याज पहले से ₹2 लाख से कम है (आमतौर पर लोन के अंतिम वर्षों में), तो प्रीपेमेंट से अप्रयुक्त कटौती खो जाती है — इसलिए प्रीपेमेंट का वास्तविक फायदा आपकी मार्जिनल टैक्स रेट से घट जाता है। 30% स्लैब वाले उधारकर्ता के लिए, अंतिम कुछ वर्षों में प्रीपेमेंट हेडलाइन ROI से कुछ कम आकर्षक होता है। शुरुआती वर्षों में जब ब्याज ₹2 लाख से कहीं ज्यादा होता है, प्रीपेमेंट पूरी तरह उतना ही आकर्षक होता है जितना दिखता है।",
+  1562→      },
+  1563→    ],
+  1564→  },
+  1565→  {
+  1566→    id: "prepayment-vs-investment",
+  1567→    title: "प्रीपेमेंट vs निवेश: भारत में क्या बेहतर है?",
+  1568→    excerpt:
+  1569→      "यह तय करने के लिए ढांचा कि अपने होम लोन का प्रीपेमेंट करें या अधिशेष का निवेश करें — गारंटीड टैक्स-फ्री रिटर्न की तुलना बाजार-लिंक्ड वृद्धि से।",
+  1570→    readTime: "7 मिनट पठन",
+  1571→    sections: [
+  1572→      {
+  1573→        heading: "प्रीपेमेंट का गारंटीड रिटर्न",
+  1574→        body: "होम लोन पर जितना भी प्रीपेमेंट करते हैं, वह बकाया मूलधन घटाता है, जिससे शेष अवधि के लिए लगने वाला ब्याज कम होता है। यह रिटर्न गारंटीड है, आपके होम लोन ROI के बराबर है, और टैक्स-फ्री है — बचाए गए ब्याज पर कोई इनकम टैक्स नहीं लगता। इसलिए 8.50% होम लोन पर प्रीपेमेंट करना एक फिक्स्ड-इनकम निवेश के बराबर है जो 8.50% पोस्ट-टैक्स कमाता है। 30% स्लैब वाले उधारकर्ता के लिए, 8.50% प्री-टैक्स कमाने वाला बैंक FD केवल 5.95% पोस्ट-टैक्स देगा — जिससे प्रीपेमेंट स्पष्ट रूप से बेहतर है।",
+  1575→      },
+  1576→      {
+  1577→        heading: "इक्विटी का एक्सपेक्टेड रिटर्न",
+  1578→        body: "भारतीय इक्विटी म्यूचुअल फंड (विशेषकर निफ्टी 50 इंडेक्स फंड और लार्ज-कैप फंड) ने ऐतिहासिक रूप से 10-15 वर्ष की अवधि में 11-13% लंबी अवधि का रिटर्न दिया है, हालांकि पिछला प्रदर्शन भविष्य का वादा नहीं है। ₹1.25 लाख से ऊपर के लाभ पर 10% LTCG टैक्स लगता है (जुलाई 2024 के बाद)। 30% स्लैब निवेशक के लिए, 12% प्री-टैक्स इक्विटी रिटर्न लगभग 11.1% पोस्ट-टैक्स हो जाता है (12% माइनस ₹1.25 लाख से ऊपर के लाभ पर 0.9% टैक्स)। 8.50% पोस्ट-टैक्स प्रीपेमेंट रिटर्न से तुलना पर, इक्विटी 2-3 प्रतिशत बिंदु एक्सपेक्टेड प्रीमियम देती है — लेकिन महत्वपूर्ण अस्थिरता और किसी भी वर्ष नुकसान के जोखिम के साथ।",
+  1579→      },
+  1580→      {
+  1581→        heading: "एक व्यावहारिक हाइब्रिड दृष्टिकोण",
+  1582→        body: "अधिकतर वित्तीय रूप से साक्षर भारतीय उधारकर्ता दोनों करते हैं: जितना प्रीपेमेंट जरूरी लगे वह सुरक्षा और जोखिम घटाने के लिए, और बाकी का लंबी अवधि वृद्धि के लिए निवेश। एक सामान्य नियम है पहले 6 महीने का एमरजेंसी फंड बनाना, फिर Section 80C (₹1.5 लाख ELSS / PPF / EPF) मैक्सिमाइज़ करना, फिर अधिशेष को 60:40 में इक्विटी SIP और होम लोन प्रीपेमेंट के बीच बांटना। जैसे-जैसे रिटायरमेंट निकट आता है या ब्याज दरें चरम पर होती हैं, आप ऋण मुक्त होने के लिए प्रीपेमेंट की ओर अधिक झुकाव रख सकते हैं।",
+  1583→      },
+  1584→      {
+  1585→        heading: "जब प्रीपेमेंट स्पष्ट रूप से जीतता है",
+  1586→        body: "तीन परिदृश्यों में प्रीपेमेंट स्पष्ट रूप से बेहतर है: (1) आपकी जोखिम सहनशीलता कम है और अन्यथा आप पैसा FD या बचत खाते में रखेंगे; (2) आपकी होम लोन ROI 10% से ऊपर है (जैसे पुराने MCLR लोन या टियर-2/3 संपत्तियों के लोन) और रिफाइनेंस संभव नहीं; (3) आप रिटायरमेंट के 5-7 वर्ष के भीतर हैं और ऋण मुक्त होना चाहते हैं। इनमें से प्रत्येक मामले में, प्रीपेमेंट का गारंटीड टैक्स-फ्री रिटर्न इक्विटी से मिलने वाले अनिश्चित प्रीमियम से बड़ा होता है।",
+  1587→      },
+  1588→    ],
+  1589→  },
+  1590→  {
+  1591→    id: "emi-calculation-formula",
+  1592→    title: "EMI गणना सूत्र समझें",
+  1593→    excerpt:
+  1594→      "भारतीय बैंक आपकी होम लोन EMI कैसे निकालते हैं — एन्युइटी सूत्र, क्यों ब्याज फ्रंट-लोडेड होता है, और प्रीपेमेंट गणित को कैसे बदलता है।",
+  1595→    readTime: "5 मिनट पठन",
+  1596→    sections: [
+  1597→      {
+  1598→        heading: "एन्युइटी सूत्र",
+  1599→        body: "हर भारतीय बैंक एक ही मानक घटते शेष सूत्र का उपयोग करता है: EMI = P × r × (1+r)^n / ((1+r)^n - 1), जहाँ P ऋण मूलधन, r मासिक ब्याज दर (वार्षिक दर को 12 और 100 से विभाजित), और n महीनों में अवधि है। ₹50 लाख के लोन पर 8.50% वार्षिक दर से 20 वर्ष के लिए, r = 0.007083 और n = 240, जिससे EMI लगभग ₹43,391 मिलती है। यह सूत्र सुनिश्चित करता है कि EMI समान रहे भले ही ब्याज-से-मूलधन अनुपात हर महीने बदले — यह अमोर्टाइजिंग लोन की परिभाषिक विशेषता है।",
+  1600→      },
+  1601→      {
+  1602→        heading: "क्यों ब्याज फ्रंट-लोडेड होता है",
+  1603→        body: "महीना 1 में, ब्याज पूरे ₹50 लाख मूलधन पर लगता है — लगभग ₹35,417 — और EMI का केवल ₹7,974 मूलधन पर जाता है। महीना 120 (अवधि के आधे रास्ते) में, ब्याज लगभग ₹24,000 तक गिर जाता है और मूलधन लगभग ₹19,000 तक बढ़ जाता है। 20 वर्ष के 8.50% लोन पर 50/50 क्रॉसओवर बिंदु महीना 130 के आसपास है — यानी अवधि का आधे से ज्यादा हिस्सा ब्याज भुगतान हावी रहता है। इसीलिए पहले 5-7 वर्षों के प्रीपेमेंट अंतिम 5 वर्षों के समान प्रीपेमेंट से नाटकीय रूप से ज्यादा असरदार होते हैं।",
+  1604→      },
+  1605→      {
+  1606→        heading: "प्रीपेमेंट गणित को कैसे बदलता है",
+  1607→        body: "जब आप प्रीपेमेंट करते हैं, तो वह राशि सीधे मूलधन घटाने में जाती है — वह भविष्य का ब्याज नहीं चुकाती। इसलिए पहले वर्ष में ₹1 लाख का प्रीपेमेंट मूलधन को ₹49.2 लाख से घटाकर ₹49.1 लाख कर देता है, और हर अगले महीने का ब्याज इस कम राशि पर गणना होता है। शेष 19 वर्षों में, वह ₹1 लाख 8.50% पर लगभग ₹1.85 लाख ब्याज बचाता है — मूल प्रीपेमेंट के लगभग दोगुना। वही ₹1 लाख वर्ष 15 में लगाया जाए तो शेष 5 वर्षों में केवल ₹25,000 ब्याज बचाता है।",
+  1608→      },
+  1609→      {
+  1610→        heading: "ROI परिवर्तन EMI नहीं, अवधि बदलता है",
+  1611→        body: "जब RBI रेपो रेट बदलता है, तो आपकी फ्लोटिंग दर वाले होम लोन की ROI कुछ दिनों से एक तिमाही के भीतर बदल जाती है। बैंक आमतौर पर EMI समान रखते हैं और अवधि समायोजित करते हैं — इसलिए ₹50 लाख के 20 वर्ष के लोन पर 15 वर्ष शेष रहने पर 50 bps की कटौती अवधि को 12-18 महीने बढ़ा सकती है (या दिशा के अनुसार घटा सकती है) जबकि EMI ₹43,391 पर समान रहती है। आप पसंद करें तो बैंक से EMI संशोधन का अनुरोध कर सकते हैं — उपयोगी जब EMI मूल दर पर तंग थी, या दर कटौती के बाद कम EMI पर लॉक करना चाहते हैं।",
+  1612→      },
+  1613→    ],
+  1614→  },
+  1615→  {
+  1616→    id: "emi-reduction-vs-tenure-reduction",
+  1617→    title: "EMI कम या अवधि कम: क्या चुनें",
+  1618→    excerpt:
+  1619→      "प्रीपेमेंट के बाद क्या करें — EMI समान रखकर जल्दी समाप्त करें, या EMI घटाकर मासिक नकदी आज़ाद करें, इसका निर्णय ढांचा।",
+  1620→    readTime: "5 मिनट पठन",
+  1621→    sections: [
+  1622→      {
+  1623→        heading: "प्रीपेमेंट के बाद दो विकल्प",
+  1624→        body: "जब आप बकाया मूलधन का कुछ हिस्सा प्रीपेमेंट करते हैं, तो बैंक दो विकल्प देता है। विकल्प 1 (अवधि कम): EMI समान रखें और शेष अवधि घटाएं — लोन जल्दी खत्म हो जाता है। विकल्प 2 (EMI कम): मूल अवधि समान रखें और EMI घटाएं — मासिक बहिर्प्रवाह कम हो जाता है। दोनों RBI दिशानिर्देशों के तहत फ्लोटिंग दर वाले व्यक्तिगत होम लोन पर शुल्क मुक्त हैं। चयन प्रीपेमेंट के समय किया जाता है और उस प्रीपेमेंट पर लागू होता है; भविष्य के प्रीपेमेंट अलग चयन कर सकते हैं।",
+  1625→      },
+  1626→      {
+  1627→        heading: "क्यों अवधि घटाने से ज्यादा ब्याज बचता है",
+  1628→        body: "अवधि घटाने से मूलधन तेज़ी से चुकता होता है, इसलिए लोन जल्दी खत्म होता है और ब्याज जमा होना जल्दी बंद हो जाता है। ₹50 लाख के लोन पर 8.50% दर में तीसरे वर्ष में ₹5 लाख के प्रीपेमेंट से अवधि घटाने पर आमतौर पर ₹14-16 लाख ब्याज बचता है और लोन 4-5 वर्ष जल्दी चुक जाता है। उसी प्रीपेमेंट पर EMI घटाने से मूल अवधि में केवल ₹4-5 लाख बचता है, क्योंकि लोन पूरे 20 वर्ष ब्याज जमा करता रहता है। ब्याज बचत का अंतर आमतौर पर अवधि घटाने के पक्ष में 3-5 गुना होता है।",
+  1629→      },
+  1630→      {
+  1631→        heading: "जब EMI घटाना उचित हो",
+  1632→        body: "EMI घटाना चुनें जब आपका मासिक नकदी प्रवाह सीमित हो — उदाहरण के लिए नौकरी परिवर्तन, वेतन कटौती, चिकित्सा खर्च, या बच्चे के शिक्षा लोन के बाद। यह तब भी उपयोगी है जब आप खाली हुई EMI राशि को उच्च-रिटर्न वाले निवेशों (इक्विटी म्यूचुअल फंड) में निवेश करने का इरादा रखते हैं और आपको टैक्स के बाद अपने होम लोन ROI से ज्यादा कमाने का विश्वास है। तीसरा परिदृश्य यह है जब आपकी मौजूदा EMI स्वीकृति समय पर FOIR पर तंग थी, और इसे घटाने से आपको बिना 50-55% FOIR सीमा तोड़े दूसरा लोन (जैसे कार या शिक्षा लोन) लेने की गुंजाइश मिलती है।",
+  1633→      },
+  1634→      {
+  1635→        heading: "मध्य-मार्ग रणनीति",
+  1636→        body: "एक सामान्य अनुशासित रणनीति है: EMI घटाना चुनें ताकि औपचारिक रूप से आपकी अनुबंधित EMI कम हो जाए (नकदी-प्रवाह सुरक्षा मिलती है), फिर जब भी अधिशेष हो मूल उच्च EMI को मासिक प्रीपेमेंट के रूप में जारी रखें। इस तरह आपको कम निबद्ध EMI की सुरक्षा मिलती है साथ ही अवधि घटाने की अधिकांश ब्याज बचत भी मिल जाती है। यदि आपकी आय घटती है, तो आप केवल प्रीपेमेंट बंद कर दें और केवल घटी हुई EMI चुकाएं — कोई पुनर्वापसी आवश्यक नहीं।",
+  1637→      },
+  1638→    ],
+  1639→  },
+  1640→  {
+  1641→    id: "cibil-score-impact",
+  1642→    title: "CIBIL स्कोर का होम लोन ROI पर प्रभाव",
+  1643→    excerpt:
+  1644→      "50 अंक का CIBIL सुधार आपके लाखों बचा सकता है — भारतीय बैंकों में टियर्ड ROI संरचना, और होम लोन आवेदन से पहले क्या करें।",
+  1645→    readTime: "6 मिनट पठन",
+  1646→    sections: [
+  1647→      {
+  1648→        heading: "CIBIL स्कोर क्या है और बैंक क्यों ध्यान देते हैं",
+  1649→        body: "CIBIL स्कोर 300 और 900 के बीच की एक 3-अंकीय संख्या है जो आपके पिछले लोन और क्रेडिट कार्ड पुनर्भुगतान व्यवहार के आधार पर आपकी क्रेडिट इतिहास को संक्षिप्त करती है, जिसे बैंक क्रेडिट ब्यूरो (CIBIL, Equifax, Experian, CRIF) को रिपोर्ट करते हैं। बैंक इसे आपके पुनर्भुगतान जोखिम का सबसे बड़ा संकेत मानते हैं। अधिकतर भारतीय बैंक सर्वोत्तम होम लोन ROI के लिए 750+ पसंद करते हैं; 700-749 को उच्च दर पर अनुमोदित किया जा सकता है; 700 से कम अक्सर अस्वीकृत होते हैं या केवल सह-आवेदक और सुरक्षा के साथ स्वीकृत होते हैं। CIBIL स्कोर मासिक अपडेट होता है और पिछले 24-36 महीनों के पुनर्भुगतान व्यवहार को दर्शाता है।",
+  1650→      },
+  1651→      {
+  1652→        heading: "भारतीय बैंकों में टियर्ड ROI",
+  1653→        body: "अधिकतर भारतीय बैंक (SBI, HDFC, ICICI, Axis) CIBIL स्कोर के आधार पर टियर्ड ROI बैंड का उपयोग करते हैं। 2024 तक, CIBIL 800+ वाले सैलरीड उधारकर्ता को 8.40-8.50% पर होम लोन मिल सकता है, जबकि वही उधारकर्ता CIBIL 750-799 के साथ 8.65-8.75% पाएगा, और CIBIL 700-749 को 8.90-9.10% पाएगा। ₹50 लाख के 20 वर्ष के लोन पर 50 bps ROI अंतर लगभग ₹3,300 अतिरिक्त वार्षिक ब्याज डालता है — अवधि पर लगभग ₹65,000। 100 bps अंतर अवधि पर लगभग ₹1.3 लाख डालता है। आवेदन से पहले अपना CIBIL सुधारना उपलब्ध सबसे असरदार वित्तीय कदमों में से एक है।",
+  1654→      },
+  1655→      {
+  1656→        heading: "आवेदन से पहले CIBIL स्कोर कैसे सुधारें",
+  1657→        body: "पहला, कभी EMI या क्रेडिट कार्ड भुगतान मत भूलें — भुगतान इतिहास सबसे बड़ा कारक है (35% वजन)। दूसरा, क्रेडिट कार्ड उपयोग अपनी सीमा के 30% से नीचे रखें — उच्च उपयोग ओवर-लेवरेज दर्शाता है। तीसरा, होम लोन आवेदन से 6 महीने के भीतर कई लोन या क्रेडिट कार्ड के लिए आवेदन से बचें — हर हार्ड जांच कुछ महीनों के लिए आपका स्कोर 5-10 अंक घटाती है। चौथा, अपनी CIBIL रिपोर्ट जांचें (साल में एक मुफ्त रिपोर्ट cibil.com पर) और किसी भी त्रुटि को विवादित करें। पांचवा, पुराने क्रेडिट कार्ड खुले रखें भले ही अप्रयुक्त हों — लंबा क्रेडिट इतिहास मदद करता है। अधिकतर उधारकर्ता 6-9 महीनों में अनुशासित व्यवहार से 720 से 780 तक जा सकते हैं।",
+  1658→      },
+  1659→      {
+  1660→        heading: "यदि आपका CIBIL 700 से कम है",
+  1661→        body: "यदि आपका CIBIL 700 से कम है, तो स्कोर पुनर्निर्माण के लिए होम लोन आवेदन 6-12 महीने टालने पर विचार करें। यदि अभी उधार लेना ही पड़े, तो विकल्प हैं: (1) मजबूत CIBIL वाले सह-आवेदक (आमतौर पर जीवनसाथी या अभिभावक) जोड़ना; (2) ऐसे बैंक से आवेदन जहाँ आपका लंबा वेतन-खाता संबंध है, जो सीमांत स्कोर को ओवरराइड कर सकता है; (3) पहले 2-3 वर्षों के लिए उच्च ROI स्वीकार करना और फिर CIBIL सुधरने पर पुनर्मूल्यांकन का अनुरोध करना। ध्यान दें कि अब उच्च ROI लोन लेकर CIBIL सुधरने के बाद बैलेंस ट्रांसफर करना एक व्यवहार्य रणनीति है — अधिकतर बैलेंस ट्रांसफर डिस्बर्सल के 12-24 महीने बाद होते हैं।",
+  1662→      },
+  1663→    ],
+  1664→  },
+  1665→];
+  1666→
+  1667→// ---------------------------------------------------------------------------
+  1668→// 5. Hindi scenarios
+  1669→// ---------------------------------------------------------------------------
+  1670→
+  1671→export interface HindiScenario {
+  1672→  id: string;
+  1673→  title: string;
+  1674→  tag: string;
+  1675→  strategy: string;
+  1676→  input: {
+  1677→    loanAmount: number;
+  1678→    annualRate: number;
+  1679→    termMonths: number;
+  1680→    overpaymentMonthly: number;
+  1681→    overpaymentLumpSum: number;
+  1682→    overpaymentAnnual: number;
+  1683→    overpaymentStartMonth: number;
+  1684→    overpaymentTiming: "start" | "end";
+  1685→  };
+  1686→}
+  1687→
+  1688→export const HINDI_SCENARIOS: HindiScenario[] = [
+  1689→  {
+  1690→    id: "50l-monthly-extra",
+  1691→    title: "₹50 लाख लोन पर ₹10,000 मासिक प्रीपेमेंट",
+  1692→    tag: "मासिक",
+  1693→    strategy:
+  1694→      "₹50 लाख के लोन पर 8.5% दर और 20 वर्ष की अवधि में मात्र ₹10,000 मासिक अतिरिक्त EMI से लगभग ₹21 लाख ब्याज बचता है और ऋण 7 वर्ष जल्दी समाप्त होता है। दोहरी आय वाले परिवारों के लिए आदर्श।",
+  1695→    input: {
+  1696→      loanAmount: 50_00_000,
+  1697→      annualRate: 8.5,
+  1698→      termMonths: 240,
+  1699→      overpaymentMonthly: 10_000,
+  1700→      overpaymentLumpSum: 0,
+  1701→      overpaymentAnnual: 0,
+  1702→      overpaymentStartMonth: 1,
+  1703→      overpaymentTiming: "end",
+  1704→    },
+  1705→  },
+  1706→  {
+  1707→    id: "1cr-lump-at-24",
+  1708→    title: "₹1 करोड़ लोन पर 24वें महीने में ₹10 लाख एकमुश्त",
+  1709→    tag: "एकमुश्त",
+  1710→    strategy:
+  1711→      "₹1 करोड़ के मेट्रो लोन पर 8.5% दर और 25 वर्ष की अवधि में दूसरे वर्ष में ₹10 लाख का एकमुश्त प्रीपेमेंट — बोनस, निवेश वसूली या पुरानी संपत्ति बिक्री से मिली राशि एक बार में लगाना।",
+  1712→    input: {
+  1713→      loanAmount: 1_00_00_000,
+  1714→      annualRate: 8.5,
+  1715→      termMonths: 300,
+  1716→      overpaymentMonthly: 0,
+  1717→      overpaymentLumpSum: 10_00_000,
+  1718→      overpaymentAnnual: 0,
+  1719→      overpaymentStartMonth: 24,
+  1720→      overpaymentTiming: "end",
+  1721→    },
+  1722→  },
+  1723→  {
+  1724→    id: "75l-emi-vs-tenure",
+  1725→    title: "₹75 लाख लोन पर EMI vs अवधि तुलना",
+  1726→    tag: "EMI vs अवधि",
+  1727→    strategy:
+  1728→      "₹75 लाख के लोन पर 8.6% दर और 20 वर्ष की अवधि में ₹15,000 मासिक प्रीपेमेंट। अवधि घटाने पर लगभग ₹33 लाख ब्याज बचता है; EMI घटाने पर मासिक EMI में लगभग ₹4,000 की कमी आती है। दोनों की तुलना करें।",
+  1729→    input: {
+  1730→      loanAmount: 75_00_000,
+  1731→      annualRate: 8.6,
+  1732→      termMonths: 240,
+  1733→      overpaymentMonthly: 15_000,
+  1734→      overpaymentLumpSum: 0,
+  1735→      overpaymentAnnual: 0,
+  1736→      overpaymentStartMonth: 1,
+  1737→      overpaymentTiming: "end",
+  1738→    },
+  1739→  },
+  1740→  {
+  1741→    id: "35l-round-up-emi",
+  1742→    title: "₹35 लाख लोन — EMI को राउंड अप करें",
+  1743→    tag: "मासिक",
+  1744→    strategy:
+  1745→      "₹35 लाख के लोन पर 8.4% दर में ₹30,133 EMI को ₹32,000 तक राउंड अप करें — मात्र ₹1,867 अतिरिक्त मासिक। याद रखने में आसान और ऑटोमेट करने में आसान।",
+  1746→    input: {
+  1747→      loanAmount: 35_00_000,
+  1748→      annualRate: 8.4,
+  1749→      termMonths: 240,
+  1750→      overpaymentMonthly: 1_867,
+  1751→      overpaymentLumpSum: 0,
+  1752→      overpaymentAnnual: 0,
+  1753→      overpaymentStartMonth: 1,
+  1754→      overpaymentTiming: "end",
+  1755→    },
+  1756→  },
+  1757→  {
+  1758→    id: "50l-monthly-plus-annual",
+  1759→    title: "₹50 लाख लोन — मासिक + सालाना बोनस",
+  1760→    tag: "मिश्रित",
+  1761→    strategy:
+  1762→      "₹50 लाख के लोन पर ₹5,000 मासिक अतिरिक्त EMI और ₹2 लाख सालाना बोनस प्रीपेमेंट — अनुशासित दो-ट्रैक रणनीति जो तेज़ी से संचित होती है।",
+  1763→    input: {
+  1764→      loanAmount: 50_00_000,
+  1765→      annualRate: 8.5,
+  1766→      termMonths: 240,
+  1767→      overpaymentMonthly: 5_000,
+  1768→      overpaymentLumpSum: 0,
+  1769→      overpaymentAnnual: 2_00_000,
+  1770→      overpaymentStartMonth: 1,
+  1771→      overpaymentTiming: "end",
+  1772→    },
+  1773→  },
+  1774→  {
+  1775→    id: "1cr-aggressive-pre-retirement",
+  1776→    title: "₹1 करोड़ लोन — रिटायरमेंट से पहले ऋण मुक्त",
+  1777→    tag: "आक्रामक",
+  1778→    strategy:
+  1779→      "₹1 करोड़ का लोन 8.5% दर पर 25 वर्ष की अवधि में, ₹25,000 मासिक अतिरिक्त EMI से — रिटायरमेंट से पहले ऋण मुक्त होना चाहने वाले दोहरी आय वाले उधारकर्ताओं के लिए आदर्श।",
+  1780→    input: {
+  1781→      loanAmount: 1_00_00_000,
+  1782→      annualRate: 8.5,
+  1783→      termMonths: 300,
+  1784→      overpaymentMonthly: 25_000,
+  1785→      overpaymentLumpSum: 0,
+  1786→      overpaymentAnnual: 0,
+  1787→      overpaymentStartMonth: 1,
+  1788→      overpaymentTiming: "end",
+  1789→    },
+  1790→  },
+  1791→];
+  1792→
+  1793→// ---------------------------------------------------------------------------
+  1794→// 6. Hindi content blocks (educational)
+  1795→// ---------------------------------------------------------------------------
+  1796→
+  1797→export const HINDI_CONTENT_BLOCKS: { icon: string; title: string; body: string }[] = [
+  1798→  {
+  1799→    icon: "TrendingDown",
+  1800→    title: "प्रीपेमेंट से ब्याज कम",
+  1801→    body: "हर रुपये का प्रीपेमेंट सीधे आपके बकाया मूलधन को घटाता है, जिससे शेष अवधि पर लगने वाला ब्याज कम हो जाता है। ₹50 लाख के लोन पर 8.5% दर में मात्र ₹5,000/माह से 20 वर्ष के लोन में लगभग ₹12-14 लाख ब्याज बचता है। यह रिटर्न गारंटीड है और टैक्स-फ्री है — FD से बेहतर।",
+  1802→  },
+  1803→  {
+  1804→    icon: "CalendarClock",
+  1805→    title: "अवधि घटना",
+  1806→    body: "प्रीपेमेंट के बाद EMI समान रखते हुए अवधि घटाने से ऋण जल्दी खत्म होता है। ₹50 लाख के 20 वर्ष के लोन पर ₹10,000/माह से ऋण लगभग 7 वर्ष जल्दी चुक जाता है — यानी रिटायरमेंट से पहले ऋण मुक्त। अवधि घटाना EMI घटाने से 3-5 गुना ज्यादा ब्याज बचाता है।",
+  1807→  },
+  1808→  {
+  1809→    icon: "Scale",
+  1810→    title: "EMI vs अवधि — क्या चुनें",
+  1811→    body: "प्रीपेमेंट के बाद आपके पास दो विकल्प हैं: EMI समान रखें और अवधि घटाएं (अधिक ब्याज बचत), या अवधि समान रखें और EMI घटाएं (मासिक नकदी राहत)। अधिकतर मामलों में अवधि घटाना बेहतर है। EMI घटाएं केवल तब जब नौकरी परिवर्तन, वेतन कटौती, या बड़े खर्च के बाद मासिक बोझ कम करना हो।",
+  1812→  },
+  1813→  {
+  1814→    icon: "ShieldCheck",
+  1815→    title: "प्रीपेमेंट से पहले जांच",
+  1816→    body: "प्रीपेमेंट से पहले तीन बातें जांचें: (1) फ्लोटिंग दर वाले व्यक्तिगत लोन पर शून्य शुल्क, फिक्स्ड पर 2% तक; (2) Section 24(b) टैक्स लाभ — यदि ब्याज ₹2 लाख से कम है तो अंतिम वर्षों में प्रीपेमेंट का फायदा थोड़ा कम; (3) एमरजेंसी फंड — कम से कम 6 महीने का खर्च अलग रखें, फिर ही प्रीपेमेंट करें।",
+  1817→  },
+  1818→];
+  1819→
+  1820→// ---------------------------------------------------------------------------
+  1821→// Helper functions
+  1822→// ---------------------------------------------------------------------------
+  1823→
+  1824→/**
+  1825→ * Returns the FAQs registered against a logical content type (e.g. "prepayment",
+  1826→ * "emi", "sbi", "hdfc"). Falls back to the general prepayment FAQ set when the
+  1827→ * requested type is not recognised so callers always get something to render.
+  1828→ */
+  1829→export function getHindiFaqsForType(type: string): HindiFaq[] {
+  1830→  const t = type.toLowerCase();
+  1831→
+  1832→  const filterBy = (predicate: (q: string) => boolean): HindiFaq[] =>
+  1833→    HINDI_FAQ_LIBRARY.filter((f) => predicate(f.question.toLowerCase()));
+  1834→
+  1835→  if (t === "prepayment" || t === "general" || t === "") {
+  1836→    return filterBy(
+  1837→      (q) =>
+  1838→        q.includes("प्रीपेमेंट") ||
+  1839→        q.includes("पार्ट पेमेंट") ||
+  1840→        q.includes("जल्दी") ||
+  1841→        q.includes("फोरक्लोज़र"),
+  1842→    );
+  1843→  }
+  1844→
+  1845→  if (t === "emi" || t === "interest-saving" || t === "interest") {
+  1846→    return filterBy(
+  1847→      (q) =>
+  1848→        q.includes("emi") ||
+  1849→        q.includes("ब्याज") ||
+  1850→        q.includes("रिटर्न") ||
+  1851→        q.includes("अवधि"),
+  1852→    );
+  1853→  }
+  1854→
+  1855→  if (t === "reduce-emi-vs-tenure" || t === "emi-vs-tenure") {
+  1856→    return filterBy(
+  1857→      (q) =>
+  1858→        q.includes("emi") ||
+  1859→        q.includes("अवधि") ||
+  1860→        q.includes("रिटर्न"),
+  1861→    );
+  1862→  }
+  1863→
+  1864→  if (t === "sbi") {
+  1865→    return filterBy((q) => q.includes("sbi"));
+  1866→  }
+  1867→  if (t === "hdfc") {
+  1868→    return filterBy((q) => q.includes("hdfc"));
+  1869→  }
+  1870→  if (t === "icici") {
+  1871→    return filterBy((q) => q.includes("icici"));
+  1872→  }
+  1873→  if (t === "axis") {
+  1874→    return filterBy((q) => q.includes("axis"));
+  1875→  }
+  1876→  if (t === "bank") {
+  1877→    return filterBy((q) =>
+  1878→      ["sbi", "hdfc", "icici", "axis"].some((b) => q.includes(b)),
+  1879→    );
+  1880→  }
+  1881→
+  1882→  if (t === "balance-transfer" || t === "refinance") {
+  1883→    return filterBy(
+  1884→      (q) =>
+  1885→        q.includes("बैलेंस ट्रांसफर") ||
+  1886→        q.includes("रिफाइनेंस") ||
+  1887→        q.includes("फ्लोटिंग") ||
+  1888→        q.includes("फिक्स्ड"),
+  1889→    );
+  1890→  }
+  1891→
+  1892→  if (t === "cibil") {
+  1893→    return filterBy((q) => q.includes("cibil"));
+  1894→  }
+  1895→
+  1896→  if (t === "tax") {
+  1897→    return filterBy((q) => q.includes("टैक्स") || q.includes("कर"));
+  1898→  }
+  1899→
+  1900→  if (t === "foreclosure") {
+  1901→    return filterBy((q) => q.includes("फोरक्लोज़र") || q.includes("शुल्क"));
+  1902→  }
+  1903→
+  1904→  // Default: full library so callers always get usable FAQ content.
+  1905→  return HINDI_FAQ_LIBRARY;
+  1906→}
+  1907→
+  1908→/** Look up a single Hindi landing page by its id (e.g. "50-lakh-home-loan-prepayment"). */
+  1909→export function getHindiLandingPage(id: string): HindiLandingPage | undefined {
+  1910→  return HINDI_LANDING_PAGES.find((p) => p.id === id);
+  1911→}
+  1912→
+  1913→/** Return all Hindi landing pages matching a given type. */
+  1914→export function getHindiLandingPagesByType(
+  1915→  type: HindiLandingPage["type"],
+  1916→): HindiLandingPage[] {
+  1917→  return HINDI_LANDING_PAGES.filter((p) => p.type === type);
+  1918→}
+  1919→
