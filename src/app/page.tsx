@@ -631,6 +631,60 @@ export default function HomeLoanPlatform() {
               are indicative — always confirm the exact ROI, fees, and
               prepayment terms with your bank before deciding.
             </p>
+            {/* Legal links */}
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px]">
+              <a href="#privacy" className="hover:text-emerald-600 hover:underline">Privacy Policy</a>
+              <span>·</span>
+              <a href="#terms" className="hover:text-emerald-600 hover:underline">Terms &amp; Conditions</a>
+              <span>·</span>
+              <a href="#disclaimer" className="hover:text-emerald-600 hover:underline">Disclaimer</a>
+            </div>
+            {/* Inline legal content (server-rendered for SEO, collapsible) */}
+            <details className="mt-4 text-left">
+              <summary className="cursor-pointer text-[11px] font-medium hover:text-emerald-600">
+                Privacy Policy, Terms &amp; Disclaimer
+              </summary>
+              <div className="mt-3 space-y-4 text-[11px] leading-relaxed">
+                <div id="privacy">
+                  <p className="font-semibold text-foreground">Privacy Policy</p>
+                  <p className="mt-1">
+                    We collect your name, email or phone number, city, current lender,
+                    outstanding balance range, and interest rate solely to connect you
+                    with relevant home-loan savings opportunities (refinance, balance
+                    transfer, prepayment advice). Your data is never sold to third
+                    parties. We share your contact details only with vetted financial
+                    partners or brokers when you explicitly request a savings option.
+                    You may request data deletion or unsubscribe from communications
+                    at any time by contacting us.
+                  </p>
+                </div>
+                <div id="terms">
+                  <p className="font-semibold text-foreground">Terms &amp; Conditions</p>
+                  <p className="mt-1">
+                    By using this calculator and submitting the lead form, you agree to
+                    be contacted regarding home-loan savings options via email, phone,
+                    or SMS. The calculator results are estimates based on the inputs
+                    you provide and do not constitute a loan offer or financial advice.
+                    Actual loan terms, interest rates, and eligibility depend on your
+                    CIBIL score, income, and the lender's underwriting policy. We are
+                    not liable for any decisions made based on these estimates.
+                  </p>
+                </div>
+                <div id="disclaimer">
+                  <p className="font-semibold text-foreground">Disclaimer</p>
+                  <p className="mt-1">
+                    Calculations are estimates and do not constitute financial advice.
+                    Actual loan terms may vary by lender. Interest rates are indicative
+                    and subject to change. Prepayment and foreclosure charges may apply
+                    on fixed-rate loans (RBI bars charges on floating-rate individual
+                    home loans). Always consult a qualified financial advisor before
+                    making decisions about your home loan. Tax benefits under Section
+                    80C, 24(b), and 80EE are subject to income-tax rules and individual
+                    eligibility.
+                  </p>
+                </div>
+              </div>
+            </details>
             <p className="mt-2">
               &copy; {new Date().getFullYear()} HomeLoan Calc. All rights reserved.
             </p>

@@ -17,7 +17,9 @@ export type LeadEvent =
   | "lead_form_start"
   | "lead_form_complete"
   | "lead_form_error"
-  | "affiliate_click";
+  | "affiliate_click"
+  | "csv_download"
+  | "email_schedule_request";
 
 interface EventPayload {
   event: LeadEvent;

@@ -18,12 +18,15 @@ import {
   ChevronRight,
   ChevronLeft,
   Download,
+  FileText,
+  ExternalLink,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -119,6 +122,8 @@ export function EmailCapture({ result, lang = "en", calcContext, originalSchedul
   const [message, setMessage] = React.useState("");
   const [started, setStarted] = React.useState(false);
   const [leadCaptured, setLeadCaptured] = React.useState(false);
+  const [consent, setConsent] = React.useState(false);
+  const [emailSent, setEmailSent] = React.useState(false);
 
   // --- Analytics: track impression once on mount ---
   React.useEffect(() => {
@@ -140,6 +145,16 @@ export function EmailCapture({ result, lang = "en", calcContext, originalSchedul
    */
   async function handleStep1Submit(e: React.FormEvent) {
     e.preventDefault();
+    if (!consent) {
+      setStatus("error");
+      setMessage(
+        isHi
+          ? "कृपया सहमति देने के लिए बॉक्स चुनें।"
+          : "Please check the consent box to continue."
+      );
+      trackLeadEvent("lead_form_error", { lang });
+      return;
+    }
     const trimmed = contact.trim();
     if (!trimmed) {
       setStatus("error");
@@ -306,6 +321,7 @@ export function EmailCapture({ result, lang = "en", calcContext, originalSchedul
   /** Download the full amortization schedule as CSV — the "reward" for
    *  submitting the lead form. Uses the same buildCsv() as the export buttons. */
   function handleDownloadSchedule() {
+    trackLeadEvent("csv_download", { lang });
     try {
       const schedule = result.overpaymentSchedule;
       if (schedule.length === 0) return;
@@ -329,6 +345,14 @@ export function EmailCapture({ result, lang = "en", calcContext, originalSchedul
     } catch {
       // Silently fail — the lead is already captured.
     }
+  }
+
+  /** "Email My Schedule" — records the request so the schedule can be emailed
+   *  later (in production this would trigger an email API; for now it just
+   *  flags the lead and shows a confirmation). */
+  function handleEmailSchedule() {
+    trackLeadEvent("email_schedule_request", { lang });
+    setEmailSent(true);
   }
 
   // --- Success message with savings recap ---
@@ -381,18 +405,43 @@ export function EmailCapture({ result, lang = "en", calcContext, originalSchedul
                 : "We'll share personalized options that may help you save even more."}
             </p>
 
-            {/* Download reward — full schedule as CSV */}
+            {/* Reward: download CSV + email schedule */}
             {result.valid && result.overpaymentSchedule.length > 0 && (
-              <Button
-                type="button"
-                onClick={handleDownloadSchedule}
-                className="bg-emerald-600 hover:bg-emerald-700 h-11"
-              >
-                <Download className="size-4" />
-                {isHi
-                  ? "अपनी पूरी शेड्यूल डाउनलोड करें (CSV)"
-                  : "Download your full schedule (CSV)"}
-              </Button>
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Button
+                    type="button"
+                    onClick={handleDownloadSchedule}
+                    className="bg-emerald-600 hover:bg-emerald-700 h-11"
+                  >
+                    <Download className="size-4" />
+                    {isHi ? "शेड्यूल डाउनलोड करें (CSV)" : "Download CSV"}
+                  </Button>
+                  {emailSent ? (
+                    <div className="flex h-11 items-center gap-2 rounded-lg border border-emerald-600/30 bg-emerald-50 px-4 dark:bg-emerald-950/30">
+                      <CheckCircle2 className="size-4 text-emerald-600" />
+                      <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
+                        {isHi ? "भेज दिया जाएगा!" : "Will be emailed!"}
+                      </span>
+                    </div>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleEmailSchedule}
+                      className="border-emerald-600/30 hover:bg-emerald-50 h-11 dark:hover:bg-emerald-950/30"
+                    >
+                      <Mail className="size-4" />
+                      {isHi ? "शेड्यूल ईमेल करें" : "Email My Schedule"}
+                    </Button>
+                  )}
+                </div>
+                <p className="text-muted-foreground text-[11px]">
+                  {isHi
+                    ? "CSV एक्सेल में खुलता है। ईमेल विकल्प मोबाइल उपयोगकर्ताओं के लिए आसान है।"
+                    : "CSV opens in Excel. The email option is easier for mobile users."}
+                </p>
+              </div>
             )}
           </div>
         </CardContent>
@@ -561,6 +610,31 @@ export function EmailCapture({ result, lang = "en", calcContext, originalSchedul
               <p className="text-xs text-destructive">{message}</p>
             )}
 
+            {/* Consent checkbox */}
+            <div className="flex items-start gap-2">
+              <Checkbox
+                id="consent"
+                checked={consent}
+                onCheckedChange={(v) => setConsent(v === true)}
+                className="mt-0.5"
+              />
+              <label htmlFor="consent" className="text-[11px] leading-relaxed text-muted-foreground cursor-pointer">
+                {isHi ? (
+                  <>
+                    इस फ़ॉर्म को सबमिट करके, आप होम-लोन बचत विकल्पों के बारे में संपर्क किए जाने के लिए सहमत हैं और{" "}
+                    <a href="#privacy" className="text-emerald-600 hover:underline">गोपनीयता नीति</a>
+                    {" "}को स्वीकार करते हैं।
+                  </>
+                ) : (
+                  <>
+                    By submitting this form, you agree to be contacted regarding
+                    home-loan savings options and acknowledge our{" "}
+                    <a href="#privacy" className="text-emerald-600 hover:underline">Privacy Policy</a>.
+                  </>
+                )}
+              </label>
+            </div>
+
             <Button
               type="submit"
               disabled={status === "loading"}
@@ -714,20 +788,39 @@ export function EmailCapture({ result, lang = "en", calcContext, originalSchedul
           </form>
         )}
 
-        {/* Trust section */}
-        <div className="mt-4 flex items-start gap-2 rounded-lg border border-emerald-600/15 bg-emerald-50/40 p-3 dark:bg-emerald-950/10">
-          <ShieldCheck className="mt-0.5 size-4 shrink-0 text-emerald-600" />
-          <div className="text-[11px] leading-relaxed text-muted-foreground">
-            {isHi ? (
-              <>
-                आपके विवरण कभी बेचे नहीं जाते। हम केवल प्रासंगिक होम-लोन बचत अवसर साझा करने के लिए आपकी जानकारी का उपयोग करते हैं। कोई स्पैम नहीं। कभी भी सदस्यता छोड़ें।
-              </>
-            ) : (
-              <>
-                Your details are never sold. We only use your information to share
-                relevant home-loan savings opportunities. No spam. Unsubscribe anytime.
-              </>
-            )}
+        {/* Trust section + legal links */}
+        <div className="mt-4 space-y-2">
+          <div className="flex items-start gap-2 rounded-lg border border-emerald-600/15 bg-emerald-50/40 p-3 dark:bg-emerald-950/10">
+            <ShieldCheck className="mt-0.5 size-4 shrink-0 text-emerald-600" />
+            <div className="text-[11px] leading-relaxed text-muted-foreground">
+              {isHi ? (
+                <>
+                  आपके विवरण कभी बेचे नहीं जाते। हम केवल प्रासंगिक होम-लोन बचत अवसर साझा करने के लिए आपकी जानकारी का उपयोग करते हैं। कोई स्पैम नहीं। कभी भी सदस्यता छोड़ें।
+                </>
+              ) : (
+                <>
+                  Your details are never sold. We only use your information to share
+                  relevant home-loan savings opportunities. No spam. Unsubscribe anytime.
+                </>
+              )}
+            </div>
+          </div>
+          {/* Legal links */}
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
+            <a href="#privacy" className="hover:text-emerald-600 hover:underline inline-flex items-center gap-0.5">
+              <FileText className="size-2.5" />
+              {isHi ? "गोपनीयता नीति" : "Privacy Policy"}
+            </a>
+            <span>·</span>
+            <a href="#terms" className="hover:text-emerald-600 hover:underline inline-flex items-center gap-0.5">
+              <FileText className="size-2.5" />
+              {isHi ? "नियम और शर्तें" : "Terms"}
+            </a>
+            <span>·</span>
+            <a href="#disclaimer" className="hover:text-emerald-600 hover:underline inline-flex items-center gap-0.5">
+              <FileText className="size-2.5" />
+              {isHi ? "अस्वीकरण" : "Disclaimer"}
+            </a>
           </div>
         </div>
       </CardContent>
