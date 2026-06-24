@@ -63,7 +63,7 @@ export function PaidExportTeaser({ totalRows }: PaidExportTeaserProps) {
         <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
           <div>
             <p className="text-sm font-semibold">
-              One-time unlock — <span className="text-emerald-700 dark:text-emerald-400">$4.99</span>
+              One-time unlock — <span className="text-emerald-700 dark:text-emerald-400">₹4.99</span>
             </p>
             <p className="text-muted-foreground text-xs">
               Or get it free when you enter your email below.
@@ -73,7 +73,14 @@ export function PaidExportTeaser({ totalRows }: PaidExportTeaserProps) {
             className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto"
             onClick={() => {
               const el = document.getElementById("email-capture");
-              el?.scrollIntoView({ behavior: "smooth", block: "center" });
+              if (el) {
+                el.scrollIntoView({ behavior: "smooth", block: "center" });
+                // Focus the first input after scroll for better UX.
+                setTimeout(() => {
+                  const input = el.querySelector("input");
+                  input?.focus();
+                }, 600);
+              }
             }}
           >
             <Lock className="size-4" />
