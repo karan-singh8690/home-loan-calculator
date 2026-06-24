@@ -38,7 +38,7 @@ const AFFILIATE_LINKS = [
     description:
       "Move your outstanding principal to a lender offering a lower ROI. Most banks charge no foreclosure fee on floating-rate home loans.",
     cta: "Explore offers",
-    href: "#affiliate-balance-transfer",
+    href: "#email-capture",
     isPrimary: true,
   },
   {
@@ -48,7 +48,7 @@ const AFFILIATE_LINKS = [
     description:
       "Check today's home loan interest rates from SBI, HDFC, ICICI, Axis and more. A 0.5% lower ROI can save more than prepaying.",
     cta: "Compare rates",
-    href: "#affiliate-compare-rates",
+    href: "#email-capture",
     isPrimary: false,
   },
   {
@@ -58,7 +58,7 @@ const AFFILIATE_LINKS = [
     description:
       "Get a free, no-obligation consultation with a home loan advisor who can structure your prepayments and check for foreclosure charges.",
     cta: "Talk to an expert",
-    href: "#affiliate-loan-expert",
+    href: "#email-capture",
     isPrimary: false,
   },
   {
@@ -68,7 +68,7 @@ const AFFILIATE_LINKS = [
     description:
       "Refinancing to a lower rate or shorter tenure might beat prepaying. Run the numbers side by side with current market offers.",
     cta: "Check savings",
-    href: "#affiliate-refinance-savings",
+    href: "#email-capture",
     isPrimary: false,
   },
 ];
@@ -101,6 +101,13 @@ export function AffiliateSection({ lang = "en", result }: AffiliateSectionProps)
 
   function handleClick(id: AffiliateId) {
     trackLeadEvent("affiliate_click", { affiliateId: id, lang });
+    // Smooth-scroll to the lead form so every affiliate click becomes a
+    // lead-capture opportunity. Until direct partnerships are in place, all
+    // CTAs route to the in-house lead form.
+    const el = document.getElementById("email-capture");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
   }
 
   return (
@@ -202,8 +209,8 @@ export function AffiliateSection({ lang = "en", result }: AffiliateSectionProps)
       <div className="space-y-1 border-t pt-3">
         <p className="text-muted-foreground text-[11px]">
           {isHi
-            ? "एफिलिएट लिंक — यदि आप कोई ऑफर लेते हैं तो हमें कमीशन मिल सकता है, आपको कोई अतिरिक्त लागत नहीं।"
-            : "Affiliate links — we may earn a commission if you take up an offer, at no extra cost to you."}
+            ? "हम आपको प्रासंगिक होम लोन बचत अवसरों से जोड़ते हैं। आपकी जानकारी केवल इस उद्देश्य के लिए उपयोग होती है।"
+            : "We connect you with relevant home-loan savings opportunities. Your information is used only for this purpose."}
         </p>
         <p className="text-muted-foreground text-[11px] italic">
           {isHi

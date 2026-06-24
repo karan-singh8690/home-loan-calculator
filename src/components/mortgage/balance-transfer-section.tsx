@@ -29,7 +29,7 @@ const BT_OFFERS = [
     description:
       "Move your outstanding principal to a new lender offering a lower ROI. Most banks charge no foreclosure fee on floating-rate home loans, and transfer processing fees are typically 0.25% - 0.50% of the outstanding amount.",
     cta: "Check eligibility",
-    href: "#bt-offer-1",
+    href: "#email-capture",
   },
   {
     icon: Percent,
@@ -37,7 +37,7 @@ const BT_OFFERS = [
     description:
       "Even a 0.25% drop in ROI on a ₹50 lakh, 20-year loan saves roughly ₹2.3 lakh in interest. Compare offers from SBI, HDFC, ICICI and Axis side by side and switch to the cheapest lender for your CIBIL band.",
     cta: "Apply now",
-    href: "#bt-offer-2",
+    href: "#email-capture",
   },
   {
     icon: Building2,
@@ -45,11 +45,16 @@ const BT_OFFERS = [
     description:
       "Bundle a top-up loan with your balance transfer to fund renovation, education or other goals. Top-up rates are usually 0.5% - 1% above your home-loan ROI and the interest still qualifies for Section 24(b) deduction up to ₹2 lakh.",
     cta: "Check eligibility",
-    href: "#bt-offer-3",
+    href: "#email-capture",
   },
 ] as const;
 
 export function BalanceTransferSection() {
+  function handleClick() {
+    trackLeadEvent("affiliate_click", { affiliateId: "balance_transfer" });
+    const el = document.getElementById("email-capture");
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
   return (
     <section className="space-y-4">
       <div>
@@ -66,7 +71,7 @@ export function BalanceTransferSection() {
           <a
             key={item.title}
             href={item.href}
-            onClick={() => trackLeadEvent("affiliate_click", { affiliateId: "balance_transfer" })}
+            onClick={handleClick}
             className="group focus-visible:ring-ring rounded-xl outline-none focus-visible:ring-2"
           >
             <Card className="hover:border-emerald-600/40 hover:shadow-md h-full transition-all duration-200 group-hover:-translate-y-0.5">

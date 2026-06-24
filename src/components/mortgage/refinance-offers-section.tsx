@@ -25,7 +25,7 @@ const REFINANCE_OFFERS = [
     description:
       "Replace your existing home loan with a new one at a cheaper ROI. A 0.5% drop on a ₹50 lakh, 20-year loan lowers your EMI by roughly ₹1,600 and saves about ₹3.9 lakh in interest over the tenure.",
     cta: "Apply now",
-    href: "#refi-offer-1",
+    href: "#email-capture",
   },
   {
     icon: Layers,
@@ -33,7 +33,7 @@ const REFINANCE_OFFERS = [
     description:
       "Refinance your outstanding balance and bundle a top-up loan for renovation, business or education needs. Top-up interest qualifies for Section 24(b) deduction up to ₹2 lakh when the funds go into the property.",
     cta: "Check eligibility",
-    href: "#refi-offer-2",
+    href: "#email-capture",
   },
   {
     icon: CalendarClock,
@@ -41,11 +41,16 @@ const REFINANCE_OFFERS = [
     description:
       "Keep your EMI roughly the same but refinance into a 15-year loan instead of 20. You'll pay the loan off 5 years sooner and save lakhs in interest — perfect when your income has grown since you first borrowed.",
     cta: "Apply now",
-    href: "#refi-offer-3",
+    href: "#email-capture",
   },
 ] as const;
 
 export function RefinanceOffersSection() {
+  function handleClick() {
+    trackLeadEvent("affiliate_click", { affiliateId: "refinance" });
+    const el = document.getElementById("email-capture");
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
   return (
     <section className="space-y-4">
       <div>
@@ -64,7 +69,7 @@ export function RefinanceOffersSection() {
           <a
             key={item.title}
             href={item.href}
-            onClick={() => trackLeadEvent("affiliate_click", { affiliateId: "refinance" })}
+            onClick={handleClick}
             className="group focus-visible:ring-ring rounded-xl outline-none focus-visible:ring-2"
           >
             <Card className="hover:border-emerald-600/40 hover:shadow-md h-full transition-all duration-200 group-hover:-translate-y-0.5">
