@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "HomeLoan Calc" }],
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "/logo.svg",
   },
   openGraph: {
     title: "Home Loan Calculator India | EMI & Prepayment Calculator",
