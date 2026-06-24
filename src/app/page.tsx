@@ -545,7 +545,7 @@ export default function HomeLoanPlatform() {
             {/* Lead form comes BEFORE affiliate offers — the user's primary
                 next step after seeing results is to get their report, not to
                 click away to a partner. */}
-            <EmailCapture result={result} lang={lang} calcContext={calcContext} />
+            <EmailCapture result={result} lang={lang} calcContext={calcContext} originalSchedule={result.originalSchedule} />
             <BalanceTransferSection />
             <RefinanceOffersSection />
             <AffiliateSection lang={lang} result={result} />

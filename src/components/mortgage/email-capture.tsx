@@ -17,6 +17,7 @@ import {
   Clock,
   ChevronRight,
   ChevronLeft,
+  Download,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -40,7 +41,8 @@ import {
 import { formatCurrency, formatDuration } from "@/lib/format";
 import { t, type Lang } from "@/lib/i18n";
 import { trackLeadEvent } from "@/lib/lead-analytics";
-import type { MortgageResult } from "@/lib/mortgage";
+import type { MortgageResult, AmortizationRow } from "@/lib/mortgage";
+import { buildCsv } from "@/components/mortgage/export-buttons";
 
 /** Calculator context attached automatically to every lead. */
 export interface CalcContext {
@@ -58,6 +60,8 @@ interface EmailCaptureProps {
   result: MortgageResult;
   lang?: Lang;
   calcContext?: CalcContext;
+  /** Original (no-prepayment) schedule for CSV export in the success state. */
+  originalSchedule?: AmortizationRow[];
 }
 
 const LENDERS = [
@@ -98,7 +102,7 @@ type Status = "idle" | "loading" | "success" | "error";
 type ContactMethod = "email" | "phone";
 type Step = 1 | 2;
 
-export function EmailCapture({ result, lang = "en", calcContext }: EmailCaptureProps) {
+export function EmailCapture({ result, lang = "en", calcContext, originalSchedule }: EmailCaptureProps) {
   const tr = (key: string) => t(lang, key);
   const isHi = lang === "hi";
 
@@ -299,6 +303,34 @@ export function EmailCapture({ result, lang = "en", calcContext }: EmailCaptureP
     trackLeadEvent("lead_form_complete", { lang, leadTier: "incomplete" });
   }
 
+  /** Download the full amortization schedule as CSV — the "reward" for
+   *  submitting the lead form. Uses the same buildCsv() as the export buttons. */
+  function handleDownloadSchedule() {
+    try {
+      const schedule = result.overpaymentSchedule;
+      if (schedule.length === 0) return;
+      const csv = buildCsv(schedule, originalSchedule ?? [], {
+        monthsSaved: result.monthsSaved,
+        totalInterestSaved: result.totalInterestSaved,
+        totalInterestOriginal: result.totalInterestOriginal,
+        newPayoffDate: result.newPayoffDate,
+        originalPayoffDate: result.originalPayoffDate,
+      });
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "home-loan-prepayment-schedule.csv";
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch {
+      // Silently fail — the lead is already captured.
+    }
+  }
+
   // --- Success message with savings recap ---
   if (status === "success") {
     return (
@@ -348,6 +380,20 @@ export function EmailCapture({ result, lang = "en", calcContext }: EmailCaptureP
                 ? "हम आपको व्यक्तिगत विकल्प भेजेंगे जिससे आप और अधिक बचत कर सकें।"
                 : "We'll share personalized options that may help you save even more."}
             </p>
+
+            {/* Download reward — full schedule as CSV */}
+            {result.valid && result.overpaymentSchedule.length > 0 && (
+              <Button
+                type="button"
+                onClick={handleDownloadSchedule}
+                className="bg-emerald-600 hover:bg-emerald-700 h-11"
+              >
+                <Download className="size-4" />
+                {isHi
+                  ? "अपनी पूरी शेड्यूल डाउनलोड करें (CSV)"
+                  : "Download your full schedule (CSV)"}
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>

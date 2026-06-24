@@ -54,8 +54,11 @@ function csvRow(cells: Array<string | number>): string {
  * Build the full CSV export: a summary header block, the original schedule,
  * and the with-prepayment schedule. All amounts are raw decimals (no ₹ symbol)
  * so the file opens cleanly in Excel / Google Sheets.
+ *
+ * Exported so the lead-form success state can offer the download as a reward
+ * for submitting contact details.
  */
-function buildCsv(
+export function buildCsv(
   schedule: AmortizationRow[],
   originalSchedule: AmortizationRow[],
   summary: ExportButtonsProps["summary"]
@@ -174,10 +177,16 @@ export function ExportButtons({
 
   const handleDownloadPdf = React.useCallback(() => {
     const el = document.getElementById("email-capture");
-    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(() => {
+        const input = el.querySelector("input");
+        input?.focus();
+      }, 600);
+    }
     toast({
-      title: "PDF export is a premium feature",
-      description: "Enter your email below to unlock the full PDF report.",
+      title: "Get your full schedule free",
+      description: "Enter your email or phone below to download the complete amortization schedule.",
     });
   }, [toast]);
 
@@ -188,26 +197,17 @@ export function ExportButtons({
       <Button
         type="button"
         variant="outline"
-        onClick={handleDownloadCsv}
-        disabled={!hasSchedule}
-      >
-        <Download className="size-4" />
-        Download CSV
-      </Button>
-      <Button
-        type="button"
-        variant="outline"
         onClick={handleDownloadPdf}
         className="border-emerald-600/30 hover:border-emerald-600/50 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
       >
-        <Lock className="size-4" />
-        Download PDF report
+        <Download className="size-4" />
+        Get full schedule (CSV)
         <Badge
           variant="secondary"
           className="ml-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
         >
-          <FileText className="size-3" />
-          Premium
+          <Lock className="size-3" />
+          Free
         </Badge>
       </Button>
     </div>
