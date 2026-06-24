@@ -60,3 +60,4 @@ examples/
 worklog.md
 tool-results/
 .env
+.zscripts/
