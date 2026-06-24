@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { trackLeadEvent } from "@/lib/lead-analytics";
 
 /**
  * Balance-transfer offer cards. Visually consistent with the existing
@@ -65,6 +66,7 @@ export function BalanceTransferSection() {
           <a
             key={item.title}
             href={item.href}
+            onClick={() => trackLeadEvent("affiliate_click", { affiliateId: "balance_transfer" })}
             className="group focus-visible:ring-ring rounded-xl outline-none focus-visible:ring-2"
           >
             <Card className="hover:border-emerald-600/40 hover:shadow-md h-full transition-all duration-200 group-hover:-translate-y-0.5">

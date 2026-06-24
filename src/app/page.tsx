@@ -536,16 +536,19 @@ export default function HomeLoanPlatform() {
           </section>
         )}
 
-        {/* ---- Monetization ---- */}
+        {/* ---- Monetization: lead form first, then affiliate offers ---- */}
         <section className="border-t bg-muted/30">
           <div className="mx-auto max-w-7xl space-y-6 px-4 py-10">
             {result.valid && (
               <PaidExportTeaser totalRows={result.overpaymentSchedule.length} />
             )}
+            {/* Lead form comes BEFORE affiliate offers — the user's primary
+                next step after seeing results is to get their report, not to
+                click away to a partner. */}
+            <EmailCapture result={result} lang={lang} calcContext={calcContext} />
             <BalanceTransferSection />
             <RefinanceOffersSection />
-            <AffiliateSection lang={lang} />
-            <EmailCapture result={result} lang={lang} calcContext={calcContext} />
+            <AffiliateSection lang={lang} result={result} />
           </div>
         </section>
 

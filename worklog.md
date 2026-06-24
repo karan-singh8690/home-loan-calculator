@@ -348,3 +348,30 @@ Stage Summary:
 - Search Console verification supported via NEXT_PUBLIC_GSC_VERIFICATION env var.
 - SEO dashboard at ?seo=1 shows sitemap counts, indexability checks, internal linking audit, and Search Console submission checklist.
 - Lint clean, TypeScript clean, all sitemaps verified via curl (valid XML), hreflang verified in DOM.
+
+---
+Task ID: affiliate-ux-improvements
+Agent: main (Z.ai Code)
+Task: 5 UX improvements to the affiliate/monetization section based on user feedback — (1) move results above affiliate cards, (2) personalized context message, (3) primary CTA highlight, (4) click tracking, (5) financial disclaimer.
+
+Work Log:
+- Rewrote `src/components/mortgage/affiliate-section.tsx`:
+  - Accepts `result?: MortgageResult` prop to personalize the context message.
+  - Added personalized context banner above offers: "You could save ₹21,78,722 in interest and 7 years, 2 months in tenure by prepaying. Want to see whether refinancing or a balance transfer could save you even more?"
+  - Split offers into primary ("Best Next Step" badge, larger card, emerald gradient, solid CTA button) + secondary (3 smaller cards in "More options" grid).
+  - Added `AffiliateId` type + `handleClick()` that fires `trackLeadEvent("affiliate_click", { affiliateId, lang })` for each of the 4 offers (balance_transfer, compare_rates, talk_to_expert, refinance).
+  - Added financial disclaimer: "Calculations are estimates and do not constitute financial advice. Actual loan terms may vary by lender." (bilingual).
+  - Kept existing affiliate disclosure line.
+- Updated `src/components/mortgage/balance-transfer-section.tsx` — added `onClick` tracking firing `affiliateId: "balance_transfer"` on all 3 BT offer cards.
+- Updated `src/components/mortgage/refinance-offers-section.tsx` — added `onClick` tracking firing `affiliateId: "refinance"` on all 3 refinance offer cards.
+- Updated `src/app/page.tsx` monetization section order: moved EmailCapture (lead form) BEFORE BalanceTransferSection, RefinanceOffersSection, and AffiliateSection. Flow is now: results → lead form → affiliate offers (instead of results → affiliate offers → lead form).
+- Passed `result={result}` to AffiliateSection for personalized context.
+
+Stage Summary:
+- All 5 improvements verified in browser:
+  1. Lead form appears before affiliate cards (section order confirmed).
+  2. Personalized context message shows actual savings: "₹21,78,722 in interest and 7 years, 2 months".
+  3. Primary CTA highlighted with "BEST NEXT STEP" badge on Balance Transfer card + secondary cards under "More options".
+  4. All 4 affiliate click events tracked: balance_transfer, compare_rates, talk_to_expert, refinance (verified in localStorage analytics log).
+  5. Financial disclaimer present: "Calculations are estimates and do not constitute financial advice."
+- Lint clean, TypeScript clean.
