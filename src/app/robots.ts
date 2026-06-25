@@ -15,27 +15,13 @@ export default function robots(): MetadataRoute.Robots {
         allow: ["/"],
         disallow: [
           "/api/",
-          "/api/*",
           "/admin/",
           "/dashboard/",
           "/leads/",
           "/private/",
         ],
       },
-      // Explicitly allow key crawlers (redundant with the * rule above, but
-      // makes intent clear for Search Console).
-      {
-        userAgent: "Googlebot",
-        allow: ["/"],
-        disallow: ["/api/", "/admin/", "/dashboard/", "/leads/", "/private/"],
-      },
-      {
-        userAgent: "Bingbot",
-        allow: ["/"],
-        disallow: ["/api/", "/admin/", "/dashboard/", "/leads/", "/private/"],
-      },
     ],
     sitemap: `${SITE_BASE_URL}/sitemap-index.xml`,
-    host: SITE_BASE_URL,
   };
 }
