@@ -3,7 +3,10 @@ import { SITE_BASE_URL, todayW3C, urlEntry, sitemapXml } from "@/lib/sitemap";
 
 /**
  * Main sitemap — homepage, all calculator views, and core landing pages.
- * Includes hreflang alternates between English and Hindi versions.
+ *
+ * IMPORTANT: The app is a single-page application that uses query parameters
+ * (?tool=prepayment) for view switching. The sitemap must list the ACTUAL
+ * working URLs (with query params), not the canonical paths (which return 404).
  *
  * Route: /sitemap.xml
  */
@@ -24,24 +27,25 @@ export function GET() {
     })
   );
 
-  // All calculator views (prepayment, emi, reduce-emi-vs-tenure, interest-saving, sbi, hdfc, icici, axis)
+  // All calculator views — use ?tool= query param (the actual working URL)
   for (const viewId of VIEW_ORDER) {
     const view = VIEWS[viewId];
     if (!view) continue;
+    const path = `/?tool=${viewId}`;
     urls.push(
-      urlEntry(view.canonical, {
+      urlEntry(path, {
         lastmod,
         changefreq: "weekly",
         priority: viewId === "prepayment" ? "0.9" : "0.8",
         alternates: [
-          { hreflang: "en", href: `${SITE_BASE_URL}${view.canonical}` },
-          { hreflang: "hi-IN", href: `${SITE_BASE_URL}/hi${view.canonical}` },
+          { hreflang: "en", href: `${SITE_BASE_URL}${path}` },
+          { hreflang: "hi-IN", href: `${SITE_BASE_URL}${path}&lang=hi` },
         ],
       })
     );
   }
 
-  // Core sections (scenarios, guides, FAQ, hindi pages hub)
+  // Core sections (anchor links on the homepage — these resolve to 200)
   urls.push(
     urlEntry("/#scenarios", { lastmod, changefreq: "weekly", priority: "0.7" }),
     urlEntry("/#guides", { lastmod, changefreq: "weekly", priority: "0.7" }),

@@ -1,11 +1,11 @@
-import { GUIDES } from "@/lib/india-guides";
-import { HINDI_GUIDES } from "@/lib/hindi-content";
 import { SITE_BASE_URL, todayW3C, urlEntry, sitemapXml } from "@/lib/sitemap";
 
 /**
- * Guides sitemap — English guides (from india-guides.ts) and Hindi guides
- * (from hindi-content.ts HINDI_GUIDES). Each guide gets its own URL entry
- * with hreflang alternates where an equivalent exists in the other language.
+ * Guides sitemap — English and Hindi guides.
+ *
+ * IMPORTANT: Guides are displayed as accordion sections on the main page
+ * (anchored at /#guides and /?lang=hi#guides). They don't have standalone
+ * routes yet. We list the actual working URLs to avoid 404s.
  *
  * Route: /sitemap-guides.xml
  */
@@ -13,44 +13,57 @@ export function GET() {
   const lastmod = todayW3C();
   const urls: string[] = [];
 
-  // English guides — anchored to /#guides with a slug fragment.
-  for (let i = 0; i < GUIDES.length; i++) {
-    const g = GUIDES[i];
-    const slug = g.id || `guide-${i}`;
-    const path = `/guides/${slug}`;
-    // Find a Hindi equivalent by title similarity (best-effort).
-    const hiEquivalent = HINDI_GUIDES[i];
-    const alternates = hiEquivalent
-      ? [
-          { hreflang: "en", href: `${SITE_BASE_URL}${path}` },
-          { hreflang: "hi-IN", href: `${SITE_BASE_URL}/hi/guides/${hiEquivalent.id}` },
-        ]
-      : [{ hreflang: "en", href: `${SITE_BASE_URL}${path}` }];
-    urls.push(
-      urlEntry(path, {
-        lastmod,
-        changefreq: "monthly",
-        priority: "0.7",
-        alternates,
-      })
-    );
-  }
+  // English guides section
+  urls.push(
+    urlEntry("/#guides", {
+      lastmod,
+      changefreq: "weekly",
+      priority: "0.7",
+      alternates: [
+        { hreflang: "en", href: `${SITE_BASE_URL}/#guides` },
+        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/?lang=hi#guides` },
+      ],
+    })
+  );
 
-  // Hindi guides
-  for (const g of HINDI_GUIDES) {
-    const path = `/hi/guides/${g.id}`;
-    urls.push(
-      urlEntry(path, {
-        lastmod,
-        changefreq: "monthly",
-        priority: "0.7",
-        alternates: [
-          { hreflang: "hi-IN", href: `${SITE_BASE_URL}${path}` },
-          { hreflang: "en", href: `${SITE_BASE_URL}/#guides` },
-        ],
-      })
-    );
-  }
+  // Hindi guides section
+  urls.push(
+    urlEntry("/?lang=hi#guides", {
+      lastmod,
+      changefreq: "weekly",
+      priority: "0.7",
+      alternates: [
+        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/?lang=hi#guides` },
+        { hreflang: "en", href: `${SITE_BASE_URL}/#guides` },
+      ],
+    })
+  );
+
+  // English how-it-works section
+  urls.push(
+    urlEntry("/#how-it-works", {
+      lastmod,
+      changefreq: "monthly",
+      priority: "0.6",
+      alternates: [
+        { hreflang: "en", href: `${SITE_BASE_URL}/#how-it-works` },
+        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/?lang=hi#how-it-works` },
+      ],
+    })
+  );
+
+  // Hindi how-it-works section
+  urls.push(
+    urlEntry("/?lang=hi#how-it-works", {
+      lastmod,
+      changefreq: "monthly",
+      priority: "0.6",
+      alternates: [
+        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/?lang=hi#how-it-works` },
+        { hreflang: "en", href: `${SITE_BASE_URL}/#how-it-works` },
+      ],
+    })
+  );
 
   const xml = sitemapXml(urls);
   return new Response(xml, {

@@ -1,10 +1,11 @@
-import { INDIA_SCENARIOS } from "@/lib/india-scenarios";
-import { HINDI_SCENARIOS } from "@/lib/hindi-content";
 import { SITE_BASE_URL, todayW3C, urlEntry, sitemapXml } from "@/lib/sitemap";
 
 /**
- * Scenarios sitemap — example calculations and loan-amount scenarios from
- * INDIA_SCENARIOS (English) and HINDI_SCENARIOS (Hindi).
+ * Scenarios sitemap — example calculations and loan scenarios.
+ *
+ * IMPORTANT: Scenarios are displayed as cards on the main page (anchored at
+ * /#scenarios and /?lang=hi#scenarios). They don't have standalone routes yet.
+ * We list the actual working URLs to avoid 404s.
  *
  * Route: /sitemap-scenarios.xml
  */
@@ -12,37 +13,31 @@ export function GET() {
   const lastmod = todayW3C();
   const urls: string[] = [];
 
-  // English scenarios
-  for (const scn of INDIA_SCENARIOS) {
-    const path = `/scenarios/${scn.id}`;
-    urls.push(
-      urlEntry(path, {
-        lastmod,
-        changefreq: "monthly",
-        priority: "0.6",
-        alternates: [
-          { hreflang: "en", href: `${SITE_BASE_URL}${path}` },
-          { hreflang: "hi-IN", href: `${SITE_BASE_URL}/hi/scenarios/${scn.id}` },
-        ],
-      })
-    );
-  }
+  // English scenarios section
+  urls.push(
+    urlEntry("/#scenarios", {
+      lastmod,
+      changefreq: "weekly",
+      priority: "0.7",
+      alternates: [
+        { hreflang: "en", href: `${SITE_BASE_URL}/#scenarios` },
+        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/?lang=hi#scenarios` },
+      ],
+    })
+  );
 
-  // Hindi scenarios
-  for (const scn of HINDI_SCENARIOS) {
-    const path = `/hi/scenarios/${scn.id}`;
-    urls.push(
-      urlEntry(path, {
-        lastmod,
-        changefreq: "monthly",
-        priority: "0.6",
-        alternates: [
-          { hreflang: "hi-IN", href: `${SITE_BASE_URL}${path}` },
-          { hreflang: "en", href: `${SITE_BASE_URL}/#scenarios` },
-        ],
-      })
-    );
-  }
+  // Hindi scenarios section
+  urls.push(
+    urlEntry("/?lang=hi#scenarios", {
+      lastmod,
+      changefreq: "weekly",
+      priority: "0.7",
+      alternates: [
+        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/?lang=hi#scenarios` },
+        { hreflang: "en", href: `${SITE_BASE_URL}/#scenarios` },
+      ],
+    })
+  );
 
   const xml = sitemapXml(urls);
   return new Response(xml, {
