@@ -15,52 +15,52 @@ export function GET() {
 
   // English guides section
   urls.push(
-    urlEntry("/#guides", {
+    urlEntry("/guides", {
       lastmod,
       changefreq: "weekly",
-      priority: "0.7",
+      priority: "0.8",
       alternates: [
-        { hreflang: "en", href: `${SITE_BASE_URL}/#guides` },
-        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/?lang=hi#guides` },
+        { hreflang: "en", href: `${SITE_BASE_URL}/guides` },
+        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/hi/guides` },
       ],
     })
   );
 
   // Hindi guides section
   urls.push(
-    urlEntry("/?lang=hi#guides", {
+    urlEntry("/hi/guides", {
       lastmod,
       changefreq: "weekly",
-      priority: "0.7",
+      priority: "0.8",
       alternates: [
-        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/?lang=hi#guides` },
-        { hreflang: "en", href: `${SITE_BASE_URL}/#guides` },
+        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/hi/guides` },
+        { hreflang: "en", href: `${SITE_BASE_URL}/guides` },
       ],
     })
   );
 
   // English how-it-works section
   urls.push(
-    urlEntry("/#how-it-works", {
+    urlEntry("/how-it-works", {
       lastmod,
       changefreq: "monthly",
-      priority: "0.6",
+      priority: "0.7",
       alternates: [
-        { hreflang: "en", href: `${SITE_BASE_URL}/#how-it-works` },
-        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/?lang=hi#how-it-works` },
+        { hreflang: "en", href: `${SITE_BASE_URL}/how-it-works` },
+        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/hi/how-it-works` },
       ],
     })
   );
 
   // Hindi how-it-works section
   urls.push(
-    urlEntry("/?lang=hi#how-it-works", {
+    urlEntry("/hi/how-it-works", {
       lastmod,
       changefreq: "monthly",
-      priority: "0.6",
+      priority: "0.7",
       alternates: [
-        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/?lang=hi#how-it-works` },
-        { hreflang: "en", href: `${SITE_BASE_URL}/#how-it-works` },
+        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/hi/how-it-works` },
+        { hreflang: "en", href: `${SITE_BASE_URL}/how-it-works` },
       ],
     })
   );
