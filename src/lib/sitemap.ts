@@ -6,7 +6,7 @@
  */
 export const SITE_BASE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-  "https://homeloan-calculator.example";
+  "https://emisavings.vercel.app";
 
 /** Current date in W3C datetime format for <lastmod> tags. */
 export function todayW3C(): string {
