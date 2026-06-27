@@ -1,75 +1,52 @@
 import { SITE_BASE_URL, todayW3C, urlEntry, sitemapXml } from "@/lib/sitemap";
 
 /**
- * Guides sitemap — English and Hindi guides.
+ * Guides sitemap
  *
- * IMPORTANT: Guides are displayed as accordion sections on the main page
- * (anchored at /#guides and /?lang=hi#guides). They don't have standalone
- * routes yet. We list the actual working URLs to avoid 404s.
- *
- * Route: /sitemap-guides.xml
+ * Guides live on the homepage.
  */
+
 export function GET() {
   const lastmod = todayW3C();
-  const urls: string[] = [];
 
-  // English guides section
-  urls.push(
-    urlEntry("/guides", {
+  const urls = [
+    urlEntry("/", {
       lastmod,
       changefreq: "weekly",
-      priority: "0.8",
+      priority: "0.7",
       alternates: [
-        { hreflang: "en", href: `${SITE_BASE_URL}/guides` },
-        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/hi/guides` },
+        {
+          hreflang: "en",
+          href: `${SITE_BASE_URL}/`,
+        },
+        {
+          hreflang: "hi-IN",
+          href: `${SITE_BASE_URL}/?lang=hi`,
+        },
       ],
-    })
-  );
+    }),
 
-  // Hindi guides section
-  urls.push(
-    urlEntry("/hi/guides", {
+    urlEntry("/?lang=hi", {
       lastmod,
       changefreq: "weekly",
-      priority: "0.8",
-      alternates: [
-        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/hi/guides` },
-        { hreflang: "en", href: `${SITE_BASE_URL}/guides` },
-      ],
-    })
-  );
-
-  // English how-it-works section
-  urls.push(
-    urlEntry("/how-it-works", {
-      lastmod,
-      changefreq: "monthly",
       priority: "0.7",
       alternates: [
-        { hreflang: "en", href: `${SITE_BASE_URL}/how-it-works` },
-        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/hi/how-it-works` },
+        {
+          hreflang: "hi-IN",
+          href: `${SITE_BASE_URL}/?lang=hi`,
+        },
+        {
+          hreflang: "en",
+          href: `${SITE_BASE_URL}/`,
+        },
       ],
-    })
-  );
+    }),
+  ];
 
-  // Hindi how-it-works section
-  urls.push(
-    urlEntry("/hi/how-it-works", {
-      lastmod,
-      changefreq: "monthly",
-      priority: "0.7",
-      alternates: [
-        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/hi/how-it-works` },
-        { hreflang: "en", href: `${SITE_BASE_URL}/how-it-works` },
-      ],
-    })
-  );
-
-  const xml = sitemapXml(urls);
-  return new Response(xml, {
+  return new Response(sitemapXml(urls), {
     headers: {
       "Content-Type": "application/xml; charset=utf-8",
-      "Cache-Control": "public, max-age=3600, s-maxage=3600",
+      "Cache-Control": "public,max-age=3600,s-maxage=3600",
     },
   });
 }
