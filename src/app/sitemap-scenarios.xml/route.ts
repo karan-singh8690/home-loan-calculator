@@ -1,49 +1,52 @@
 import { SITE_BASE_URL, todayW3C, urlEntry, sitemapXml } from "@/lib/sitemap";
 
 /**
- * Scenarios sitemap — example calculations and loan scenarios.
+ * Scenarios sitemap
  *
- * IMPORTANT: Scenarios are displayed as cards on the main page (anchored at
- * /#scenarios and /?lang=hi#scenarios). They don't have standalone routes yet.
- * We list the actual working URLs to avoid 404s.
- *
- * Route: /sitemap-scenarios.xml
+ * Scenarios live on the homepage.
  */
+
 export function GET() {
   const lastmod = todayW3C();
-  const urls: string[] = [];
 
-  // English scenarios section
-  urls.push(
-    urlEntry("/scenarios", {
+  const urls = [
+    urlEntry("/", {
       lastmod,
       changefreq: "weekly",
-      priority: "0.8",
+      priority: "0.7",
       alternates: [
-        { hreflang: "en", href: `${SITE_BASE_URL}/scenarios` },
-        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/hi/scenarios` },
+        {
+          hreflang: "en",
+          href: `${SITE_BASE_URL}/`,
+        },
+        {
+          hreflang: "hi-IN",
+          href: `${SITE_BASE_URL}/?lang=hi`,
+        },
       ],
-    })
-  );
+    }),
 
-  // Hindi scenarios section
-  urls.push(
-    urlEntry("/hi/scenarios", {
+    urlEntry("/?lang=hi", {
       lastmod,
       changefreq: "weekly",
-      priority: "0.8",
+      priority: "0.7",
       alternates: [
-        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/hi/scenarios` },
-        { hreflang: "en", href: `${SITE_BASE_URL}/scenarios` },
+        {
+          hreflang: "hi-IN",
+          href: `${SITE_BASE_URL}/?lang=hi`,
+        },
+        {
+          hreflang: "en",
+          href: `${SITE_BASE_URL}/`,
+        },
       ],
-    })
-  );
+    }),
+  ];
 
-  const xml = sitemapXml(urls);
-  return new Response(xml, {
+  return new Response(sitemapXml(urls), {
     headers: {
       "Content-Type": "application/xml; charset=utf-8",
-      "Cache-Control": "public, max-age=3600, s-maxage=3600",
+      "Cache-Control": "public,max-age=3600,s-maxage=3600",
     },
   });
 }
