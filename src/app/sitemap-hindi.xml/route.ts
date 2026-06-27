@@ -59,10 +59,10 @@ export function GET() {
 
   // Hindi anchor sections on the page
   urls.push(
-    urlEntry("/?lang=hi#scenarios", { lastmod, changefreq: "weekly", priority: "0.7" }),
-    urlEntry("/?lang=hi#guides", { lastmod, changefreq: "weekly", priority: "0.7" }),
-    urlEntry("/?lang=hi#faq", { lastmod, changefreq: "monthly", priority: "0.6" }),
-    urlEntry("/?lang=hi#hindi-pages", { lastmod, changefreq: "weekly", priority: "0.7" })
+    urlEntry("/hi/scenarios", { lastmod, changefreq: "weekly", priority: "0.7" }),
+    urlEntry("/hi/guides", { lastmod, changefreq: "weekly", priority: "0.7" }),
+    urlEntry("/hi/faq", { lastmod, changefreq: "monthly", priority: "0.6" }),
+    urlEntry("/hi/hindi-pages", { lastmod, changefreq: "weekly", priority: "0.7" })
   );
 
   const xml = sitemapXml(urls);
