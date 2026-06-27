@@ -47,10 +47,10 @@ export function GET() {
 
   // Core sections (anchor links on the homepage — these resolve to 200)
   urls.push(
-    urlEntry("/#scenarios", { lastmod, changefreq: "weekly", priority: "0.7" }),
-    urlEntry("/#guides", { lastmod, changefreq: "weekly", priority: "0.7" }),
-    urlEntry("/#faq", { lastmod, changefreq: "monthly", priority: "0.6" }),
-    urlEntry("/#how-it-works", { lastmod, changefreq: "monthly", priority: "0.6" })
+    urlEntry("/scenarios", { lastmod, changefreq: "weekly", priority: "0.8" }),
+    urlEntry("/guides", { lastmod, changefreq: "weekly", priority: "0.8" }),
+    urlEntry("/faq", { lastmod, changefreq: "monthly", priority: "0.7" }),
+    urlEntry("/how-it-works", { lastmod, changefreq: "monthly", priority: "0.7" })
   );
 
   const xml = sitemapXml(urls);
