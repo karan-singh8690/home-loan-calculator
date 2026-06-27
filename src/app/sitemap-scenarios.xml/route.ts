@@ -15,26 +15,26 @@ export function GET() {
 
   // English scenarios section
   urls.push(
-    urlEntry("/#scenarios", {
+    urlEntry("/scenarios", {
       lastmod,
       changefreq: "weekly",
-      priority: "0.7",
+      priority: "0.8",
       alternates: [
-        { hreflang: "en", href: `${SITE_BASE_URL}/#scenarios` },
-        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/?lang=hi#scenarios` },
+        { hreflang: "en", href: `${SITE_BASE_URL}/scenarios` },
+        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/hi/scenarios` },
       ],
     })
   );
 
   // Hindi scenarios section
   urls.push(
-    urlEntry("/?lang=hi#scenarios", {
+    urlEntry("/hi/scenarios", {
       lastmod,
       changefreq: "weekly",
-      priority: "0.7",
+      priority: "0.8",
       alternates: [
-        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/?lang=hi#scenarios` },
-        { hreflang: "en", href: `${SITE_BASE_URL}/#scenarios` },
+        { hreflang: "hi-IN", href: `${SITE_BASE_URL}/hi/scenarios` },
+        { hreflang: "en", href: `${SITE_BASE_URL}/scenarios` },
       ],
     })
   );
