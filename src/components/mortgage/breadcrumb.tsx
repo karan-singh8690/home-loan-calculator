@@ -6,6 +6,8 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import type { ViewMeta } from "@/lib/views";
+import { viewUrl } from "@/lib/views";
+import { SITE_BASE_URL } from "@/lib/sitemap";
 
 interface BreadcrumbProps {
   view: ViewMeta;
@@ -34,7 +36,9 @@ export function Breadcrumb({ view, lang = "en" }: BreadcrumbProps) {
       "@type": "ListItem",
       position: i + 1,
       name: it.label,
-      item: `https://homeloan-calculator.example${view.canonical}`,
+      // Use the real crawlable URL - matches the sitemap, no 404s.
+      item: `${SITE_BASE_URL}${viewUrl(view.id, lang)}`,
+      // item: `https://homeloan-calculator.example${view.canonical}`,
     }));
     const jsonLd = {
       "@context": "https://schema.org",
@@ -49,7 +53,7 @@ export function Breadcrumb({ view, lang = "en" }: BreadcrumbProps) {
       document.head.appendChild(script);
     }
     script.textContent = JSON.stringify(jsonLd);
-  }, [view]);
+  }, [view, lang]);
 
   return (
     <nav aria-label="Breadcrumb" className="text-muted-foreground text-xs">

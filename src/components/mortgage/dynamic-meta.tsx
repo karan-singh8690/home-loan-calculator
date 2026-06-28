@@ -1,9 +1,11 @@
 "use client";
 
 import * as React from "react";
+import { viewUrl } from "@/lib/views";
 import type { ViewMeta } from "@/lib/views";
 import type { FAQ } from "@/lib/faq";
 import type { Lang } from "@/lib/i18n";
+import { SITE_BASE_URL } from "@/lib/sitemap";
 
 export interface HindiViewMeta {
   metaTitle: string;
@@ -35,8 +37,9 @@ export function DynamicMeta({ view, faqs, lang = "en", hindiMeta }: DynamicMetaP
   const isHindi = lang === "hi" && hindiMeta;
   const metaTitle = isHindi ? hindiMeta!.metaTitle : view.metaTitle;
   const metaDescription = isHindi ? hindiMeta!.metaDescription : view.metaDescription;
-  const canonical = isHindi ? hindiMeta!.canonical : view.canonical;
-
+  // const canonical = isHindi ? hindiMeta!.canonical : view.canonical;
+  // Always emit the REAL crawlable URL as the canonical so it matches the sitemap.
+  const canonical = viewUrl(view.id, lang === "hi" ? "hi" : "en");
   React.useEffect(() => {
     // Title
     document.title = metaTitle;
@@ -50,7 +53,8 @@ export function DynamicMeta({ view, faqs, lang = "en", hindiMeta }: DynamicMetaP
     // OpenGraph / Twitter updates for share previews
     setMetaProperty("og:title", metaTitle);
     setMetaProperty("og:description", metaDescription);
-    setMetaProperty("og:url", `https://homeloan-calculator.example${canonical}`);
+    // setMetaProperty("og:url", `https://homeloan-calculator.example${canonical}`);
+    setMetaProperty("og:url", `${SITE_BASE_URL}${canonical}`);
     setMetaProperty("og:locale", lang === "hi" ? "hi_IN" : "en_IN");
     setMeta("twitter:title", metaTitle);
     setMeta("twitter:description", metaDescription);
@@ -109,5 +113,5 @@ function setCanonical(href: string) {
     el.setAttribute("rel", "canonical");
     document.head.appendChild(el);
   }
-  el.setAttribute("href", `https://homeloan-calculator.example${href}`);
+  el.setAttribute("href", `${SITE_BASE_URL}${href}`);
 }

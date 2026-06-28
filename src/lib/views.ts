@@ -191,3 +191,16 @@ export function getView(id: string | null | undefined): ViewMeta {
   if (isViewId(id)) return VIEWS[id];
   return VIEWS.prepayment;
 }
+
+/**
+ * The actual crawlable URL for a view.
+ *
+ * Because the app is a single-page application on `/` that switches views via
+ * the `?tool=` query param, the real URL is `/?tool=<id>` (plus `&lang=hi` for
+ * Hindi). This MUST match the URLs published in the sitemap so that Google
+ * does not see a canonical/sitemap mismatch.
+ */
+export function viewUrl(viewId: ViewId, lang: "en" | "hi" = "en"): string {
+  const base = `/?tool=${viewId}`;
+  return lang === "hi" ? `${base}&lang=hi` : base;
+}
