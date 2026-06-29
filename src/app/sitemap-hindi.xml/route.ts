@@ -1,9 +1,11 @@
+import { HINDI_LANDING_PAGES } from "@/lib/hindi-content";
 import { SITE_BASE_URL, todayW3C, urlEntry, sitemapXml } from "@/lib/sitemap";
 
 /**
  * Hindi Sitemap
  *
- * Lists only real Hindi SPA URLs.
+ * Lists all 51 Hindi landing pages at their canonical /hi/{slug} paths.
+ * Each page is rendered by src/app/hi/[slug]/page.tsx.
  */
 
 export function GET() {
@@ -11,49 +13,29 @@ export function GET() {
 
   const urls: string[] = [];
 
-  urls.push(
-    urlEntry("/?lang=hi", {
-      lastmod,
-      changefreq: "daily",
-      priority: "1.0",
-      alternates: [
-        {
-          hreflang: "hi-IN",
-          href: `${SITE_BASE_URL}/?lang=hi`,
-        },
-        {
-          hreflang: "en",
-          href: `${SITE_BASE_URL}/`,
-        },
-      ],
-    })
-  );
+  for (const page of HINDI_LANDING_PAGES) {
+    const path = page.canonical; // e.g. "/hi/home-loan-prepayment-calculator"
 
-  const tools = [
-    "prepayment",
-    "emi",
-    "reduce-emi-vs-tenure",
-    "interest-saving",
-    "sbi",
-    "hdfc",
-    "icici",
-    "axis",
-  ];
+    const priority =
+      page.type === "calculator" || page.type === "bank"
+        ? "0.8"
+        : page.type === "scenario"
+        ? "0.7"
+        : "0.6";
 
-  for (const tool of tools) {
     urls.push(
-      urlEntry(`/?tool=${tool}&lang=hi`, {
+      urlEntry(path, {
         lastmod,
         changefreq: "weekly",
-        priority: tool === "prepayment" ? "0.9" : "0.8",
+        priority,
         alternates: [
           {
             hreflang: "hi-IN",
-            href: `${SITE_BASE_URL}/?tool=${tool}&lang=hi`,
+            href: `${SITE_BASE_URL}${path}`,
           },
           {
             hreflang: "en",
-            href: `${SITE_BASE_URL}/?tool=${tool}`,
+            href: `${SITE_BASE_URL}/`,
           },
         ],
       })
